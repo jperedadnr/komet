@@ -15,8 +15,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
 
-<?import dev.ikm.komet.kview.controls.ConceptControl?>
-<?import dev.ikm.komet.kview.controls.ComponentSetControl?>
+<?import dev.ikm.komet.kview.controls.KLComponentControl?>
+<?import dev.ikm.komet.kview.controls.KLComponentListControl?>
+<?import dev.ikm.komet.kview.controls.KLComponentSetControl?>
 <BorderPane stylesheets="@../kview.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.ikm.komet.kview.mvvm.view.pattern.PatternDefinitionController">
    <center>
       <ScrollPane fitToWidth="true" hbarPolicy="NEVER" BorderPane.alignment="CENTER">
@@ -26,21 +27,26 @@
          <content>
             <VBox fx:id="semanticOuterVBox">
                <children>
-                  <ConceptControl fx:id="purposeConceptControl" title="Purpose">
+                  <KLComponentControl fx:id="purposeComponentControl" title="Purpose">
                      <VBox.margin>
                         <Insets bottom="16"/>
                      </VBox.margin>
-                  </ConceptControl>
-                  <ConceptControl fx:id="meaningConceptControl" title="Meaning">
+                  </KLComponentControl>
+                  <KLComponentControl fx:id="meaningComponentControl" title="Meaning">
                      <VBox.margin>
                         <Insets bottom="16"/>
                      </VBox.margin>
-                  </ConceptControl>
-                  <ComponentSetControl fx:id="meaningComponentSetControl" title="MeaningSet">
+                  </KLComponentControl>
+                  <KLComponentSetControl fx:id="meaningComponentSetControl" title="MeaningSet">
                      <VBox.margin>
                         <Insets bottom="16"/>
                      </VBox.margin>
-                  </ComponentSetControl>
+                  </KLComponentSetControl>
+                  <KLComponentListControl fx:id="meaningComponentListControl" title="MeaningList">
+                     <VBox.margin>
+                        <Insets bottom="16"/>
+                     </VBox.margin>
+                  </KLComponentListControl>
                   <VBox>
                      <VBox.margin>
                         <Insets top="14.0" />

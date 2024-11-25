@@ -25,8 +25,9 @@ import static dev.ikm.komet.kview.mvvm.viewmodel.PatternViewModel.PATTERN_TOPIC;
 import static dev.ikm.komet.kview.mvvm.viewmodel.PatternViewModel.STATE_MACHINE;
 
 import dev.ikm.komet.framework.events.EvtBusFactory;
-import dev.ikm.komet.kview.controls.ComponentSetControl;
-import dev.ikm.komet.kview.controls.ConceptControl;
+import dev.ikm.komet.kview.controls.KLComponentListControl;
+import dev.ikm.komet.kview.controls.KLComponentSetControl;
+import dev.ikm.komet.kview.controls.KLComponentControl;
 import dev.ikm.komet.kview.events.pattern.PatternDefinitionEvent;
 import dev.ikm.komet.kview.events.pattern.PropertyPanelEvent;
 import dev.ikm.komet.kview.mvvm.model.PatternDefinition;
@@ -60,13 +61,16 @@ public class PatternDefinitionController {
     private Button doneButton;
 
     @FXML
-    private ConceptControl purposeConceptControl;
+    private KLComponentControl purposeComponentControl;
 
     @FXML
-    private ConceptControl meaningConceptControl;
+    private KLComponentControl meaningComponentControl;
 
     @FXML
-    private ComponentSetControl meaningComponentSetControl;
+    private KLComponentSetControl meaningComponentSetControl;
+
+    @FXML
+    private KLComponentListControl meaningComponentListControl;
 
     @FXML
     private VBox semanticOuterVBox;
@@ -81,22 +85,22 @@ public class PatternDefinitionController {
         BooleanProperty property = patternDefinitionViewModel.getProperty(IS_INVALID);
         doneButton.disableProperty().bind(property);
 
-        purposeConceptControl.setOnSearchAction(e -> System.out.println("search: " + purposeConceptControl.getSearchText()));
-        purposeConceptControl.setOnAddConceptAction(e -> {
-            ConceptControl control = new ConceptControl();
+        purposeComponentControl.setOnSearchAction(e -> System.out.println("search: " + purposeComponentControl.getSearchText()));
+        purposeComponentControl.setOnAddConceptAction(e -> {
+            KLComponentControl control = new KLComponentControl();
             control.setTitle("Purpose");
-            semanticOuterVBox.getChildren().add(semanticOuterVBox.getChildren().indexOf(purposeConceptControl), control);
+            semanticOuterVBox.getChildren().add(semanticOuterVBox.getChildren().indexOf(purposeComponentControl), control);
         });
-        purposeConceptControl.entityProperty().subscribe(entity ->
+        purposeComponentControl.entityProperty().subscribe(entity ->
             patternDefinitionViewModel.setPropertyValue(PURPOSE_ENTITY, entity));
 
-        meaningConceptControl.setOnSearchAction(e -> System.out.println("search: " + meaningConceptControl.getSearchText()));
-        meaningConceptControl.setOnAddConceptAction(e -> {
-            ConceptControl control = new ConceptControl();
+        meaningComponentControl.setOnSearchAction(e -> System.out.println("search: " + meaningComponentControl.getSearchText()));
+        meaningComponentControl.setOnAddConceptAction(e -> {
+            KLComponentControl control = new KLComponentControl();
             control.setTitle("Meaning");
-            semanticOuterVBox.getChildren().add(semanticOuterVBox.getChildren().indexOf(meaningConceptControl), control);
+            semanticOuterVBox.getChildren().add(semanticOuterVBox.getChildren().indexOf(meaningComponentControl), control);
         });
-        meaningConceptControl.entityProperty().subscribe(entity ->
+        meaningComponentControl.entityProperty().subscribe(entity ->
             patternDefinitionViewModel.setPropertyValue(MEANING_ENTITY, entity));
 
         ObjectProperty<ConceptEntity<?>> purposeProp = patternDefinitionViewModel.getProperty(PatternFieldsViewModel.PURPOSE_ENTITY);
@@ -147,8 +151,8 @@ public class PatternDefinitionController {
     }
 
     private void clearView() {
-        purposeConceptControl.setEntity(null);
-        meaningConceptControl.setEntity(null);
+        purposeComponentControl.setEntity(null);
+        meaningComponentControl.setEntity(null);
         patternDefinitionViewModel.save(true);
     }
 }
