@@ -5,6 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import org.controlsfx.control.PropertySheet?>
+<?import javafx.geometry.Insets?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="rootBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
             minWidth="-Infinity" prefHeight="400.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/16"
             fx:controller="dev.ikm.komet.app.SelectDataSourceController">
@@ -19,15 +20,18 @@
                 <Label text="    data source:"/>
                 <ChoiceBox fx:id="dataSourceChoiceBox" minWidth="-Infinity" prefHeight="27.0" prefWidth="236.0"/>
             </items>
+            <padding>
+                <Insets top="50"/>
+            </padding>
         </ToolBar>
     </top>
     <bottom>
-        <ToolBar nodeOrientation="RIGHT_TO_LEFT" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <items>
-                <Button defaultButton="true" mnemonicParsing="false" onAction="#okButtonPressed" prefHeight="26.0"
-                        prefWidth="62.0" text="OK"/>
                 <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false"
                         prefHeight="26.0" prefWidth="62.0" text="Cancel"/>
+                <Button defaultButton="true" mnemonicParsing="false" onAction="#okButtonPressed" prefHeight="26.0"
+                        prefWidth="62.0" text="OK"/>
             </items>
         </ToolBar>
     </bottom>

@@ -106,7 +106,7 @@ public class SelectDataSourceController {
 
         // Set default data service
         controllerOptions.stream()
-                .filter(dataServiceController -> "Open SpinedArrayStore".equals(dataServiceController.controllerName()))
+//                .filter(dataServiceController -> "Open SpinedArrayStore".equals(dataServiceController.controllerName()))
                 .findFirst()
                 .ifPresentOrElse(dataSourceChoiceBox.getSelectionModel()::select,
                         // If default data service is not found, select the first one on the choice box.

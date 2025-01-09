@@ -22,6 +22,7 @@ module dev.ikm.komet.preferences {
     requires java.prefs;
     requires dev.ikm.tinkar.entity;
     requires java.xml;
+    requires com.gluonhq.attach.storage;
 
     provides PreferencesService with PreferencesServiceFactory;
     uses PreferencesService;
