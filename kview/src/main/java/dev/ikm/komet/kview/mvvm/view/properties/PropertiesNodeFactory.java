@@ -42,7 +42,7 @@ public class PropertiesNodeFactory implements KometNodeFactory {
 		return new PropertiesNodeFactory();
 	}
 
-	private PropertiesNodeFactory() {
+	public PropertiesNodeFactory() {
 		super();
 	}
 

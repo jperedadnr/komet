@@ -32,7 +32,7 @@ public class KometExecutorController implements ExecutorController {
 		return new KometExecutorController();
 	}
 
-	private KometExecutorController() {
+	public KometExecutorController() {
 		super();
 	}
 
@@ -67,7 +67,7 @@ public class KometExecutorController implements ExecutorController {
 			return new CacheProvider();
 		}
 
-		private CacheProvider() {
+		public CacheProvider() {
 			super();
 		}
 

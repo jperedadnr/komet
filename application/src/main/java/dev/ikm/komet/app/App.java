@@ -304,8 +304,6 @@ public class App extends Application {
             // Exporting data
             MenuItem exportDatasetMenuItem = new MenuItem("Export Dataset");
             exportDatasetMenuItem.setOnAction(actionEvent -> openExport());
-            fileMenu.getItems().add(exportDatasetMenuItem);
-
             fileMenu.getItems().addAll(importDatasetMenuItem, exportDatasetMenuItem, new SeparatorMenuItem(), tk.createCloseWindowMenuItem());
 
             // Edit

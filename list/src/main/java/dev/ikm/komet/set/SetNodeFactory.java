@@ -38,7 +38,7 @@ public class SetNodeFactory implements KometNodeFactory {
 		return new SetNodeFactory();
 	}
 
-	private SetNodeFactory() {
+	public SetNodeFactory() {
 		super();
 	}
 

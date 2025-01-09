@@ -36,7 +36,7 @@ public class ConceptBuilderNodeFactory implements KometNodeFactory {
 		return new ConceptBuilderNodeFactory();
 	}
 
-	private ConceptBuilderNodeFactory() {
+	public ConceptBuilderNodeFactory() {
 		super();
 	}
 

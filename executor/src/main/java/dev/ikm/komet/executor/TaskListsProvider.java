@@ -30,7 +30,7 @@ public class TaskListsProvider implements TaskListsService {
 		return new TaskListsProvider();
 	}
 
-	private TaskListsProvider() {
+	public TaskListsProvider() {
 		super();
 	}
 

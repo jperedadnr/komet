@@ -37,7 +37,7 @@ public class PatternBuilderNodeFactory implements KometNodeFactory {
 
     public static PatternBuilderNodeFactory provider() { return new PatternBuilderNodeFactory(); }
 
-    private PatternBuilderNodeFactory() { super(); }
+    public PatternBuilderNodeFactory() { super(); }
 
 
     @Override

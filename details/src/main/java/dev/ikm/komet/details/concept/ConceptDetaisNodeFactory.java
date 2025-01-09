@@ -39,7 +39,7 @@ public class ConceptDetaisNodeFactory implements KometNodeFactory {
 		return new ConceptDetaisNodeFactory();
 	}
 
-	private ConceptDetaisNodeFactory() {
+	public ConceptDetaisNodeFactory() {
 		super();
 	}
 

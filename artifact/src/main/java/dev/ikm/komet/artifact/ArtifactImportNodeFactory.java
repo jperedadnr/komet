@@ -35,7 +35,7 @@ public class ArtifactImportNodeFactory implements KometNodeFactory {
 		return new ArtifactImportNodeFactory();
 	}
 
-	private ArtifactImportNodeFactory() {
+	public ArtifactImportNodeFactory() {
 		super();
 	}
 

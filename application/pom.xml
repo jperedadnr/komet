@@ -139,112 +139,23 @@
         </dependency>
     </dependencies>
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>javafx-maven-plugin</artifactId>
-                    <configuration>
-                        <mainClass>dev.ikm.komet.application/dev.ikm.komet.app.App</mainClass>
-                        <stripDebug>false</stripDebug>
-                        <compress>2</compress>
-                        <bindServices>true</bindServices>
-                        <noHeaderFiles>true</noHeaderFiles>
-                        <noManPages>true</noManPages>
-                        <ignoreSigningInformation>true</ignoreSigningInformation>
-                        <options>
-                            <option>-Xmx10g</option>
-                        </options>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <!-- Default configuration for running -->
-                        <id>default-cli</id>
-                        <phase>package</phase>
-                        <!-- <phase>none</phase> -->
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                        <configuration>
-                            <launcher>launchKomet</launcher>
-                            <jlinkImageName>kometRuntimeImage</jlinkImageName>
-                            <jlinkVerbose>true</jlinkVerbose>
-                            <jlinkZipName>kometJlink</jlinkZipName>
-                            <options>
-                                <option>-Xmx8g</option>
-                                <option>--add-opens</option>
-                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                                <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=dev.ikm.komet.navigator</option>
-                                <option>--add-exports</option>
-                                <option>javafx.base/com.sun.javafx.event=one.jpro.platform.file</option>
-                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=dev.ikm.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
-                            </options>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Configuration for debugging -->
-                        <id>debug</id>
-                        <phase>package</phase>
-                        <!--                        <phase>none</phase>-->
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                        <configuration>
-                            <launcher>debugKomet</launcher>
-                            <jlinkImageName>kometDebugRuntimeImage</jlinkImageName>
-                            <jlinkVerbose>true</jlinkVerbose>
-                            <jlinkZipName>kometDebugJlink</jlinkZipName>
-                            <options>
-                                <option>--add-opens</option>
-                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                                <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=dev.ikm.komet.navigator
-                                </option>
-                                <option>
-                                    -Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=dev.ikm.tinkar.common.alert.UncaughtExceptionAlertStreamer
-                                </option>
-                                <option>
-                                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:8000
-                                </option>
-                            </options>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <!-- Configuration for profiling -->
-                        <id>profile</id>
-                        <phase>package</phase>
-                        <!--                        <phase>none</phase>-->
-                        <goals>
-                            <goal>jlink</goal>
-                        </goals>
-                        <configuration>
-                            <launcher>profileKomet</launcher>
-                            <jlinkImageName>kometProfileRuntimeImage</jlinkImageName>
-                            <jlinkVerbose>true</jlinkVerbose>
-                            <jlinkZipName>kometProfileJlink</jlinkZipName>
-                            <options>
-                                <option>--add-opens</option>
-                                <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
-                                <option>--add-exports</option>
-                                <option>javafx.controls/com.sun.javafx.scene.control.behavior=dev.ikm.komet.navigator</option>
-                                <option>--add-exports</option>
-                                <option>javafx.base/com.sun.javafx.event=one.jpro.platform.file</option>
-                                <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=dev.ikm.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
-                                <option>
-                                    -agentpath:/Applications/JProfiler.app/Contents/Resources/app/bin/macos/libjprofilerti.jnilib=port=8849
-                                </option>
-                            </options>
-                        </configuration>
-                    </execution>
-                </executions>
+                <configuration>
+                    <mainClass>dev.ikm.komet.application/dev.ikm.komet.app.App</mainClass>
+                    <options>
+                        <option>-Xmx8g</option>
+                        <option>--add-opens</option>
+                        <option>javafx.graphics/javafx.scene=org.controlsfx.controls</option>
+                        <option>--add-exports</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control.behavior=dev.ikm.komet.navigator</option>
+                        <option>--add-exports</option>
+                        <option>javafx.base/com.sun.javafx.event=one.jpro.platform.file</option>
+                        <option>-Djava.util.concurrent.ForkJoinPool.common.exceptionHandler=dev.ikm.tinkar.common.alert.UncaughtExceptionAlertStreamer</option>
+                    </options>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -281,6 +192,15 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.gluonhq</groupId>
+                <artifactId>gluonfx-maven-plugin</artifactId>
+                <version>${gluonfx.maven.plugin.version}</version>
+                <configuration>
+                    <mainClass>dev.ikm.komet.application/dev.ikm.komet.app.App</mainClass>
+                    <target>${gluonfx.target}</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -545,6 +465,12 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>ios</id>
+            <properties>
+                <gluonfx.target>ios</gluonfx.target>
+            </properties>
         </profile>
     </profiles>
 </project>

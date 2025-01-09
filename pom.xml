@@ -69,7 +69,7 @@
         <!-- Tinkar Core Variables -->
         <tinkar-core.groupId>dev.ikm.tinkar</tinkar-core.groupId>
         <tinkar-composer.version>1.4.0</tinkar-composer.version>
-        <tinkar-core.version>1.77.0</tinkar-core.version>
+        <tinkar-core.version>1.81.0-SNAPSHOT</tinkar-core.version>
 
         <!-- IKM Evrete Variables -->
         <ikm-evrete.groupId>org.evrete</ikm-evrete.groupId>
@@ -110,6 +110,9 @@
         <nsmenufx.version>3.1.0</nsmenufx.version>
         <openjfx.version>21.0.4</openjfx.version>
         <scenic-view.version>11.0.2</scenic-view.version>
+        <gluonfx.maven.plugin.version>1.0.25-SNAPSHOT</gluonfx.maven.plugin.version>
+        <attach.version>4.0.22-SNAPSHOT</attach.version>
+        <gluonfx.target>host</gluonfx.target>
     </properties>
 
     <dependencyManagement>
