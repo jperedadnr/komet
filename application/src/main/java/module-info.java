@@ -67,7 +67,9 @@ module dev.ikm.komet.application {
     requires org.kordamp.ikonli.javafx;
     requires jdk.jdwp.agent;
     requires transitive dev.ikm.komet.rules;
+    requires com.gluonhq.attach.display;
     requires com.gluonhq.attach.storage;
+    requires com.gluonhq.attach.util;
 
 
     uses DataServiceController;

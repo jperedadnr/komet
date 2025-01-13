@@ -15,7 +15,6 @@
  */
 package dev.ikm.komet.preferences;
 
-import com.gluonhq.attach.storage.StorageService;
 import dev.ikm.tinkar.common.service.ServiceKeys;
 import dev.ikm.tinkar.common.service.ServiceProperties;
 import org.slf4j.Logger;
@@ -57,10 +56,6 @@ public class KometPreferencesImpl
 
     private KometPreferencesImpl() {
         super(null, "");
-        StorageService.create().flatMap(StorageService::getPrivateStorage).ifPresent(p -> {
-            LOG.info("Got private path: " + p);
-            ServiceProperties.set(ServiceKeys.DATA_STORE_ROOT, p.toPath().resolve("myapp").toFile());
-        });
         File configuredRoot = ServiceProperties.get(ServiceKeys.DATA_STORE_ROOT, new File("."));
         this.directory = new File(configuredRoot, DB_PREFERENCES_FOLDER);
         LOG.info("Opening configuration preferences from location: " + this.directory.getAbsolutePath());

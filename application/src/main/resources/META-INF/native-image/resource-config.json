@@ -113,6 +113,8 @@
   },{
     "pattern":"com.sun.jna:\\Qcom\/sun\/jna\/darwin\/libjnidispatch.jnilib\\E"
   },{
+    "pattern":"dev.ikm.komet.application:\\Qassets\/tinkar-starter-data-1.0.6-pb.zip\\E"
+  },{
     "pattern":"dev.ikm.komet.application:\\Qdev\/ikm\/komet\/app\/SelectDataSource.fxml\\E"
   },{
     "pattern":"dev.ikm.komet.classification:\\Qdev\/ikm\/komet\/reasoner\/ReasonerResultsInterface.fxml\\E"

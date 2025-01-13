@@ -139,8 +139,18 @@
         </dependency>
         <dependency>
             <groupId>com.gluonhq.attach</groupId>
+            <artifactId>display</artifactId>
+            <version>4.0.22</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
             <artifactId>storage</artifactId>
-            <version>4.0.22-SNAPSHOT</version>
+            <version>4.0.22</version>
+        </dependency>
+        <dependency>
+            <groupId>com.gluonhq.attach</groupId>
+            <artifactId>util</artifactId>
+            <version>4.0.22</version>
         </dependency>
     </dependencies>
     <build>
@@ -149,7 +159,7 @@
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>dev.ikm.komet.application/dev.ikm.komet.app.App</mainClass>
+                    <mainClass>dev.ikm.komet.application/dev.ikm.komet.app.MobileApp</mainClass>
                     <options>
                         <option>-Xmx8g</option>
                         <option>--add-opens</option>
@@ -203,9 +213,10 @@
                 <artifactId>gluonfx-maven-plugin</artifactId>
                 <version>${gluonfx.maven.plugin.version}</version>
                 <configuration>
-                    <mainClass>dev.ikm.komet.application/dev.ikm.komet.app.App</mainClass>
+                    <mainClass>dev.ikm.komet.application/dev.ikm.komet.app.MobileApp</mainClass>
                     <target>${gluonfx.target}</target>
                     <attachList>
+                        <list>display</list>
                         <list>storage</list>
                     </attachList>
                 </configuration>

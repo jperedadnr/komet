@@ -12,10 +12,5 @@
             <groupId>${tinkar-core.groupId}</groupId>
             <artifactId>entity</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.gluonhq.attach</groupId>
-            <artifactId>storage</artifactId>
-            <version>4.0.22-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 </project>
