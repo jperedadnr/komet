@@ -69,8 +69,6 @@ module dev.ikm.komet.application {
     requires transitive dev.ikm.komet.rules;
     requires com.gluonhq.attach.display;
     requires com.gluonhq.attach.storage;
-    requires com.gluonhq.attach.util;
-
 
     uses DataServiceController;
     uses DefaultDescriptionForNidService;

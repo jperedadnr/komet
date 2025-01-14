@@ -142,7 +142,6 @@ public class App extends Application {
     private EvtBus kViewEventBus;
 
     public static void main(String[] args) {
-        System.setProperty("com.gluonhq.attach.debug", "true");
         System.setProperty("apple.laf.useScreenMenuBar", "false");
         System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Komet");
         // https://stackoverflow.com/questions/42598097/using-javafx-application-stop-method-over-shutdownhook
