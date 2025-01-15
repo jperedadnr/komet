@@ -395,7 +395,7 @@
   "type":"dev.ikm.komet.kview.mvvm.view.landingpage.LandingPageController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"createNewJournalViewFromCard","parameterTypes":["javafx.event.Event"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.navigation.ConceptPatternNavController",
