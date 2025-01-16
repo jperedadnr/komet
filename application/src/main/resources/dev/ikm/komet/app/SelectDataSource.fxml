@@ -7,7 +7,7 @@
 <?import org.controlsfx.control.PropertySheet?>
 <?import javafx.geometry.Insets?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:id="rootBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-            minWidth="-Infinity" prefHeight="400.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/16"
+            minWidth="-Infinity" prefHeight="400.0" prefWidth="650.0" xmlns="http://javafx.com/javafx/23"
             fx:controller="dev.ikm.komet.app.SelectDataSourceController">
     <top>
         <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
@@ -28,10 +28,10 @@
     <bottom>
         <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
             <items>
+                <Button fx:id="okButton" defaultButton="true" mnemonicParsing="false" onAction="#okButtonPressed" prefHeight="26.0"
+                        prefWidth="62.0" text="OK"/>
                 <Button fx:id="cancelButton" cancelButton="true" mnemonicParsing="false"
                         prefHeight="26.0" prefWidth="62.0" text="Cancel"/>
-                <Button defaultButton="true" mnemonicParsing="false" onAction="#okButtonPressed" prefHeight="26.0"
-                        prefWidth="62.0" text="OK"/>
             </items>
         </ToolBar>
     </bottom>

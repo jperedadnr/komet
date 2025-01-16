@@ -6,7 +6,8 @@ public class KometIcon extends StackPane {
 
     public enum IconValue {
         PENCIL("pencil"),
-        TRASH("trash");
+        TRASH("trash"),
+        PLUS("plus");
 
         private String styleClass;
 
@@ -22,6 +23,12 @@ public class KometIcon extends StackPane {
     public static KometIcon create(IconValue iconValue) {
         KometIcon kometIcon = new KometIcon();
         kometIcon.getStyleClass().add(iconValue.getStyleClass());
+        return kometIcon;
+    }
+
+    public static KometIcon create(IconValue iconValue, String... additionalStyleClasses) {
+        KometIcon kometIcon = create(iconValue);
+        kometIcon.getStyleClass().addAll(additionalStyleClasses);
         return kometIcon;
     }
 
