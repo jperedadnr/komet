@@ -110,7 +110,7 @@
         <nsmenufx.version>3.1.0</nsmenufx.version>
         <openjfx.version>23.0.1</openjfx.version>
         <scenic-view.version>11.0.2</scenic-view.version>
-        <gluonfx.maven.plugin.version>1.0.25-SNAPSHOT</gluonfx.maven.plugin.version>
+        <gluonfx.maven.plugin.version>1.0.25</gluonfx.maven.plugin.version>
         <attach.version>4.0.22</attach.version>
         <gluonfx.target>host</gluonfx.target>
 
