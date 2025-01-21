@@ -395,7 +395,7 @@
   "type":"dev.ikm.komet.kview.mvvm.view.landingpage.LandingPageController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"createNewJournalViewFromCard","parameterTypes":["javafx.event.Event"] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"createNewJournalViewFromCard","parameterTypes":["javafx.event.Event"] },{"name":"initialize","parameterTypes":[] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.navigation.ConceptPatternNavController",
@@ -623,6 +623,11 @@
   "methods":[{"name":"decode","parameterTypes":["dev.ikm.tinkar.common.binary.DecoderInput"] }]
 },
 {
+  "type":"dev.ikm.tinkar.coordinate.view.ViewCoordinateRecord",
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"decode","parameterTypes":["dev.ikm.tinkar.common.binary.DecoderInput"] }]
+},
+{
   "type":"dev.ikm.tinkar.provider.ephemeral.ProviderEphemeralNewController"
 },
 {
@@ -757,6 +762,9 @@
 {
   "type":"java.util.concurrent.atomic.Striped64",
   "fields":[{"name":"base"},{"name":"cellsBusy"}]
+},
+{
+  "type":"javafx.animation.Interpolator"
 },
 {
   "type":"javafx.animation.KeyValue"
@@ -1484,7 +1492,7 @@
 {
   "type":"sun.misc.Unsafe",
   "allDeclaredFields":true,
-  "methods":[{"name":"arrayBaseOffset","parameterTypes":["java.lang.Class"] },{"name":"arrayIndexScale","parameterTypes":["java.lang.Class"] },{"name":"copyMemory","parameterTypes":["long","long","long"] },{"name":"copyMemory","parameterTypes":["java.lang.Object","long","java.lang.Object","long","long"] },{"name":"getBoolean","parameterTypes":["java.lang.Object","long"] },{"name":"getByte","parameterTypes":["long"] },{"name":"getByte","parameterTypes":["java.lang.Object","long"] },{"name":"getDouble","parameterTypes":["java.lang.Object","long"] },{"name":"getFloat","parameterTypes":["java.lang.Object","long"] },{"name":"getInt","parameterTypes":["long"] },{"name":"getInt","parameterTypes":["java.lang.Object","long"] },{"name":"getLong","parameterTypes":["long"] },{"name":"getLong","parameterTypes":["java.lang.Object","long"] },{"name":"getObject","parameterTypes":["java.lang.Object","long"] },{"name":"objectFieldOffset","parameterTypes":["java.lang.reflect.Field"] },{"name":"putBoolean","parameterTypes":["java.lang.Object","long","boolean"] },{"name":"putByte","parameterTypes":["long","byte"] },{"name":"putByte","parameterTypes":["java.lang.Object","long","byte"] },{"name":"putDouble","parameterTypes":["java.lang.Object","long","double"] },{"name":"putFloat","parameterTypes":["java.lang.Object","long","float"] },{"name":"putInt","parameterTypes":["long","int"] },{"name":"putInt","parameterTypes":["java.lang.Object","long","int"] },{"name":"putLong","parameterTypes":["long","long"] },{"name":"putLong","parameterTypes":["java.lang.Object","long","long"] },{"name":"putObject","parameterTypes":["java.lang.Object","long","java.lang.Object"] }]
+  "methods":[{"name":"arrayBaseOffset","parameterTypes":["java.lang.Class"] },{"name":"arrayIndexScale","parameterTypes":["java.lang.Class"] },{"name":"copyMemory","parameterTypes":["long","long","long"] },{"name":"copyMemory","parameterTypes":["java.lang.Object","long","java.lang.Object","long","long"] },{"name":"getBoolean","parameterTypes":["java.lang.Object","long"] },{"name":"getByte","parameterTypes":["long"] },{"name":"getByte","parameterTypes":["java.lang.Object","long"] },{"name":"getDouble","parameterTypes":["java.lang.Object","long"] },{"name":"getFloat","parameterTypes":["java.lang.Object","long"] },{"name":"getInt","parameterTypes":["long"] },{"name":"getInt","parameterTypes":["java.lang.Object","long"] },{"name":"getLong","parameterTypes":["long"] },{"name":"getLong","parameterTypes":["java.lang.Object","long"] },{"name":"getObject","parameterTypes":["java.lang.Object","long"] },{"name":"invokeCleaner","parameterTypes":["java.nio.ByteBuffer"] },{"name":"objectFieldOffset","parameterTypes":["java.lang.reflect.Field"] },{"name":"putBoolean","parameterTypes":["java.lang.Object","long","boolean"] },{"name":"putByte","parameterTypes":["long","byte"] },{"name":"putByte","parameterTypes":["java.lang.Object","long","byte"] },{"name":"putDouble","parameterTypes":["java.lang.Object","long","double"] },{"name":"putFloat","parameterTypes":["java.lang.Object","long","float"] },{"name":"putInt","parameterTypes":["long","int"] },{"name":"putInt","parameterTypes":["java.lang.Object","long","int"] },{"name":"putLong","parameterTypes":["long","long"] },{"name":"putLong","parameterTypes":["java.lang.Object","long","long"] },{"name":"putObject","parameterTypes":["java.lang.Object","long","java.lang.Object"] }]
 },
 {
   "type":"sun.security.provider.MD5",

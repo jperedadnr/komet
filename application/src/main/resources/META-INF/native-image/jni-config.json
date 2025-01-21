@@ -132,6 +132,7 @@
 },
 {
   "type":"java.lang.Boolean",
+  "fields":[{"name":"FALSE"},{"name":"TRUE"}],
   "methods":[{"name":"<init>","parameterTypes":["boolean"] },{"name":"booleanValue","parameterTypes":[] }]
 },
 {
@@ -169,7 +170,7 @@
 },
 {
   "type":"java.lang.Object",
-  "methods":[{"name":"toString","parameterTypes":[] }]
+  "methods":[{"name":"equals","parameterTypes":["java.lang.Object"] },{"name":"toString","parameterTypes":[] }]
 },
 {
   "type":"java.lang.Runnable",
@@ -233,12 +234,24 @@
   "methods":[{"name":"array","parameterTypes":[] },{"name":"arrayOffset","parameterTypes":[] }]
 },
 {
+  "type":"java.util.Collections",
+  "methods":[{"name":"unmodifiableMap","parameterTypes":["java.util.Map"] }]
+},
+{
+  "type":"java.util.HashMap",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "type":"java.util.List",
   "methods":[{"name":"add","parameterTypes":["java.lang.Object"] }]
 },
 {
   "type":"java.util.Map",
-  "methods":[{"name":"get","parameterTypes":["java.lang.Object"] }]
+  "methods":[{"name":"get","parameterTypes":["java.lang.Object"] },{"name":"put","parameterTypes":["java.lang.Object","java.lang.Object"] }]
+},
+{
+  "type":"javafx.scene.paint.Color",
+  "methods":[{"name":"rgb","parameterTypes":["int","int","int","double"] }]
 },
 {
   "type":"sun.launcher.LauncherHelper$FXHelper",
