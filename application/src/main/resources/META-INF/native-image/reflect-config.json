@@ -223,6 +223,10 @@
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
 {
+  "type":"com.sun.prism.shader.FillPgram_ImagePattern_Loader",
+  "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
+},
+{
   "type":"com.sun.prism.shader.FillPgram_LinearGradient_PAD_Loader",
   "methods":[{"name":"loadShader","parameterTypes":["com.sun.prism.ps.ShaderFactory","java.io.InputStream"] }]
 },
@@ -308,13 +312,13 @@
   "methods":[{"name":"<init>","parameterTypes":[] },{"name":"doSearch","parameterTypes":["javafx.event.ActionEvent"] },{"name":"initialize","parameterTypes":[] }]
 },
 {
-  "type":"dev.ikm.komet.kview.controls.SortedComboBox",
+  "type":"dev.ikm.komet.kview.controls.KLWorkspace",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
-  "type":"dev.ikm.komet.kview.controls.KLWorkspace",
+  "type":"dev.ikm.komet.kview.controls.SortedComboBox",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
@@ -360,6 +364,12 @@
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.common.ConceptDragOverAnimationController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "type":"dev.ikm.komet.kview.mvvm.view.common.SelectedConceptController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]

@@ -9,7 +9,7 @@
   "type":"[Ljava.lang.String;"
 },
 {
-  "type":"[[Ljava.lang.String;"
+  "type":"[Ljavafx.scene.paint.Color;"
 },
 {
   "type":"com.sun.glass.ui.Application",
