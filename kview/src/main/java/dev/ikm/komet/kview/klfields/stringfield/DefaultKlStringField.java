@@ -2,7 +2,7 @@ package dev.ikm.komet.kview.klfields.stringfield;
 
 import dev.ikm.komet.framework.observable.ObservableField;
 import dev.ikm.komet.framework.view.ObservableView;
-import dev.ikm.komet.kview.controls.KLReadOnlyStringControl;
+import dev.ikm.komet.kview.controls.KLReadOnlyDataTypeControl;
 import dev.ikm.komet.kview.controls.KLStringControl;
 import dev.ikm.komet.kview.klfields.BaseDefaultKlField;
 import dev.ikm.komet.layout.component.version.field.KlStringField;
@@ -13,19 +13,23 @@ public class DefaultKlStringField extends BaseDefaultKlField<String> implements 
     public DefaultKlStringField(ObservableField<String> observableStringField, ObservableView observableView, boolean isEditable) {
         super(observableStringField, observableView, isEditable);
 
-        Node klWidget;
+        Node node;
         if (isEditable) {
             KLStringControl stringControl = new KLStringControl();
+
             stringControl.textProperty().bindBidirectional(observableStringField.valueProperty());
             stringControl.setTitle(getTitle());
-            klWidget = stringControl;
+
+            node = stringControl;
         } else {
-            KLReadOnlyStringControl readOnlyStringControl = new KLReadOnlyStringControl();
-            readOnlyStringControl.setText(observableStringField.value());
+            KLReadOnlyDataTypeControl<String> readOnlyStringControl = new KLReadOnlyDataTypeControl<>();
+
+            readOnlyStringControl.valueProperty().bindBidirectional(observableStringField.valueProperty());
             readOnlyStringControl.setTitle(getTitle());
-            klWidget = readOnlyStringControl;
+
+            node = readOnlyStringControl;
         }
 
-        setKlWidget(klWidget);
+        setKlWidget(node);
     }
 }
