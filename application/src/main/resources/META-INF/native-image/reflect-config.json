@@ -314,6 +314,12 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "type":"dev.ikm.komet.kview.controls.KLWorkspace",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "type":"dev.ikm.komet.kview.lidr.mvvm.view.analyte.AnalyteGroupController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -413,7 +419,7 @@
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.ConfirmationController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"closeProperties","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.ContinueAddFieldsController",
