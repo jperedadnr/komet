@@ -431,19 +431,19 @@
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.PatternDefinitionController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"onCancel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"onDone","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.PatternDetailsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"closeConceptWindow","parameterTypes":["javafx.event.ActionEvent"] },{"name":"initialize","parameterTypes":[] },{"name":"popupAddDescriptionContextMenu","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddEditDefinitionPanel","parameterTypes":["javafx.event.ActionEvent"] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"closeConceptWindow","parameterTypes":["javafx.event.ActionEvent"] },{"name":"initialize","parameterTypes":[] },{"name":"openPropertiesPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"openReasonerSlideout","parameterTypes":["javafx.event.ActionEvent"] },{"name":"openTimelinePanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupAddDescriptionContextMenu","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] },{"name":"savePattern","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddEditDefinitionPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddFieldsPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddFqnPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddOtherNamePanel","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.PatternFieldsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"onCancel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"onDone","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.PropertiesController",

@@ -320,6 +320,14 @@
                         <list>display</list>
                         <list>storage</list>
                     </attachList>
+                    <nativeImageArgs>
+                        <arg>-R:MaxHeapSize=8g</arg>
+                    </nativeImageArgs>
+                    <appIdentifier>com.gluonhq.komet.application</appIdentifier>
+                    <releaseConfiguration>
+                        <bundleName>KometApp</bundleName>
+                        <providedProvisioningProfile>KometApp</providedProvisioningProfile>
+                    </releaseConfiguration>
                 </configuration>
             </plugin>
         </plugins>

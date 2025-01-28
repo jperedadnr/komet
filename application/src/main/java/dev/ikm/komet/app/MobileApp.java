@@ -58,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -117,13 +118,9 @@ public class MobileApp extends Application {
     public void init() throws Exception {
         LOG.info("Starting Komet");
         LoadFonts.load();
-        String dataset = "assets/tinkar-starter-data-1.0.6-pb.zip";
-        LOG.info("Loading dataset {}", MobileApp.class.getResource("/" + dataset));
-        FileUtils fileUtils = new FileUtils(dataset);
-        if (fileUtils.checkFileInResources(dataset)) {
-            File datasetFile = fileUtils.getFileFromAssets(dataset);
-            LOG.info("Loading tinkar-starter-data: {}", datasetFile.getAbsolutePath());
-        }
+        copyDataset("assets/tinkar-starter-data-1.0.6-pb.zip", false);
+        copyDataset("assets/snomedct-loinc-international-spined-array-20241001T120000Z-1.0.1.zip", true);
+
         StorageService.create().flatMap(StorageService::getPrivateStorage).ifPresent(p -> {
             LOG.info("Got private path: {}", p);
             ServiceProperties.set(ServiceKeys.DATA_STORE_ROOT, p.toPath().toFile());
@@ -379,6 +376,22 @@ public class MobileApp extends Application {
         }
     }
 
+    private void copyDataset(String dataset, boolean unzip) {
+        URL resource = MobileApp.class.getResource("/" + dataset);
+        if (resource == null) {
+            LOG.warn("Dataset {} not found in resources", dataset);
+            return;
+        }
+        LOG.info("Loading dataset {}", resource);
+        FileUtils fileUtils = new FileUtils();
+        fileUtils.copyFileFromAssets(dataset, unzip);
+        if (fileUtils.checkFileInResources(dataset)) {
+            File datasetFile = fileUtils.getFileFromAssets(dataset);
+            LOG.info("Loaded dataset: {}", datasetFile.getAbsolutePath());
+        } else {
+            LOG.info("Error: Dataset not in resources: {}", dataset);
+        }
+    }
 
     private void quit() {
         //TODO: that this call will likely be moved into the landing page functionality

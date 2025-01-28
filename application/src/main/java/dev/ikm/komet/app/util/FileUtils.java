@@ -9,19 +9,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class FileUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
     private final File assetsFolder;
 
-    public FileUtils(String fileName) {
+    public FileUtils() {
         assetsFolder = new File(StorageService.create()
                 .flatMap(StorageService::getPrivateStorage)
                 .orElseThrow(() -> new RuntimeException("Error accessing Private Storage folder")), "Solor");
@@ -31,7 +38,9 @@ public class FileUtils {
                 LOG.error("Error creating assets folder {}", assetsFolder.getAbsolutePath());
             }
         }
+    }
 
+    public void copyFileFromAssets(String fileName, boolean unzip) {
         if (!getFileFromAssets(fileName).exists()) {
             FutureTask<Boolean> futureTask = new FutureTask<>(new CopyFile(fileName)) {
                 @Override
@@ -50,9 +59,16 @@ public class FileUtils {
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Error while waiting for thread completion", e);
                 }
+                if (unzip) {
+                    try {
+                        unzipFile(getFileFromAssets(fileName).toPath());
+                    } catch (IOException e) {
+                        LOG.error("Error unzipping file {}", fileName, e);
+                    }
+                }
             }
         } else {
-            LOG.debug("file {} already exists", fileName);
+            LOG.info("file {} already exists", fileName);
         }
     }
 
@@ -69,6 +85,45 @@ public class FileUtils {
 
     public File getFileFromAssets(String filePath) {
         return new File(assetsFolder, filePath.replaceAll("/", "_"));
+    }
+
+    private static void unzipFile(Path sourceZip) throws IOException {
+        Objects.requireNonNull(sourceZip);
+        if (!Files.exists(sourceZip)) {
+            throw new IOException("Error: " + sourceZip + " does not exist");
+        }
+        Path targetDir = sourceZip.getParent();
+        Objects.requireNonNull(targetDir);
+        if (Files.isRegularFile(targetDir)) {
+            throw new IOException("Error: " + targetDir + " is not a directory");
+        }
+        if (!Files.exists(targetDir)) {
+            Files.createDirectories(targetDir);
+        }
+
+        try (ZipFile zip = new ZipFile(sourceZip.toFile())) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                File f = new File(targetDir.resolve(Path.of(entry.getName())).toString());
+                if (entry.isDirectory()) {
+                    if (!f.isDirectory() && !f.mkdirs()) {
+                        throw new IOException("Error: failed to create directory " + f);
+                    }
+                } else {
+                    File parent = f.getParentFile();
+                    if (!parent.isDirectory() && !parent.mkdirs()) {
+                        throw new IOException("Error: failed to create directory " + parent);
+                    }
+                    try (InputStream in = zip.getInputStream(entry)) {
+                        Files.copy(in, f.toPath());
+                    }
+                }
+            }
+        } catch (IOException e) {
+            throw new IOException("Error unzipping from " + sourceZip + " into " + targetDir + ": " + e.getMessage() + "\n"
+                    + Arrays.toString(e.getSuppressed()));
+        }
     }
 
     private class CopyFile implements Callable<Boolean> {
