@@ -369,6 +369,12 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "type":"dev.ikm.komet.kview.mvvm.view.common.ConceptSearchFormItemController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "type":"dev.ikm.komet.kview.mvvm.view.common.SelectedConceptController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -378,7 +384,7 @@
   "type":"dev.ikm.komet.kview.mvvm.view.descriptionname.DescriptionNameController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"handleCancelButtonEvent","parameterTypes":["javafx.event.ActionEvent"] },{"name":"submitForm","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.details.DetailsController",
@@ -435,7 +441,7 @@
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.ContinueAddFieldsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"addField","parameterTypes":["javafx.event.ActionEvent"] },{"name":"closeProperties","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.InstancesController",
