@@ -1,6 +1,5 @@
 package dev.ikm.komet.app.util;
 
-import com.gluonhq.attach.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +28,7 @@ public class FileUtils {
     private final File assetsFolder;
 
     public FileUtils() {
-        assetsFolder = new File(StorageService.create()
-                .flatMap(StorageService::getPrivateStorage)
-                .orElseThrow(() -> new RuntimeException("Error accessing Private Storage folder")), "Solor");
+        assetsFolder = new File(System.getProperty("user.home"), "Solor");
 
         if (!assetsFolder.exists()) {
             if (!assetsFolder.mkdir()) {
@@ -84,7 +81,7 @@ public class FileUtils {
     }
 
     public File getFileFromAssets(String filePath) {
-        return new File(assetsFolder, filePath.replaceAll("/", "_"));
+        return new File(assetsFolder, Arrays.stream(filePath.split("/")).toList().getLast());
     }
 
     private static void unzipFile(Path sourceZip) throws IOException {

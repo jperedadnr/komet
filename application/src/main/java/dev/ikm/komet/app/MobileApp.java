@@ -119,7 +119,7 @@ public class MobileApp extends Application {
         LOG.info("Starting Komet");
         LoadFonts.load();
         copyDataset("assets/tinkar-starter-data-1.0.6-pb.zip", false);
-        copyDataset("assets/snomedct-loinc-international-spined-array-20241001T120000Z-1.0.1.zip", true);
+        copyDataset("assets/September2024_ConnectathonDataset_v1.zip", true);
 
         StorageService.create().flatMap(StorageService::getPrivateStorage).ifPresent(p -> {
             LOG.info("Got private path: {}", p);
