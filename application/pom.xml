@@ -326,6 +326,7 @@
                     <appIdentifier>com.gluonhq.komet.application</appIdentifier>
                     <releaseConfiguration>
                         <bundleName>KometApp</bundleName>
+                        <appLabel>KometApp</appLabel>
                         <providedProvisioningProfile>KometApp</providedProvisioningProfile>
                     </releaseConfiguration>
                 </configuration>
@@ -637,6 +638,12 @@
             <id>ios</id>
             <properties>
                 <gluonfx.target>ios</gluonfx.target>
+            </properties>
+        </profile>
+        <profile>
+            <id>android</id>
+            <properties>
+                <gluonfx.target>android</gluonfx.target>
             </properties>
         </profile>
     </profiles>
