@@ -23,11 +23,13 @@ import dev.ikm.komet.framework.ScreenInfo;
 import dev.ikm.komet.framework.events.EvtBus;
 import dev.ikm.komet.framework.events.EvtBusFactory;
 import dev.ikm.komet.framework.events.Subscriber;
+import dev.ikm.komet.framework.graphics.Icon;
 import dev.ikm.komet.framework.graphics.LoadFonts;
 import dev.ikm.komet.framework.preferences.PrefX;
 import dev.ikm.komet.framework.window.WindowSettings;
 import dev.ikm.komet.kview.events.CreateJournalEvent;
 import dev.ikm.komet.kview.events.JournalTileEvent;
+import dev.ikm.komet.kview.mvvm.view.BasicController;
 import dev.ikm.komet.kview.mvvm.view.journal.JournalController;
 import dev.ikm.komet.kview.mvvm.view.journal.JournalViewFactory;
 import dev.ikm.komet.kview.mvvm.view.landingpage.LandingPageController;
@@ -68,9 +70,6 @@ import java.util.prefs.BackingStoreException;
 import static dev.ikm.komet.app.AppState.LOADING_DATA_SOURCE;
 import static dev.ikm.komet.app.AppState.SHUTDOWN;
 import static dev.ikm.komet.app.AppState.STARTING;
-import static dev.ikm.komet.app.util.CssFile.KOMET_CSS;
-import static dev.ikm.komet.app.util.CssFile.KVIEW_CSS;
-import static dev.ikm.komet.app.util.CssUtils.addStylesheets;
 import static dev.ikm.komet.kview.events.EventTopics.JOURNAL_TOPIC;
 import static dev.ikm.komet.kview.events.JournalTileEvent.UPDATE_JOURNAL_TILE;
 import static dev.ikm.komet.preferences.JournalWindowPreferences.JOURNAL_NAMES;
@@ -166,8 +165,8 @@ public class MobileApp extends Application {
                 // Platform.exit()
             });
             Scene sourceScene = new Scene(sourceRoot, dimension2D.getWidth(), dimension2D.getHeight());
-            addStylesheets(sourceScene, KOMET_CSS, KVIEW_CSS);
-
+            sourceScene.getStylesheets().add(Icon.class.getResource("komet.css").toExternalForm());
+            sourceScene.getStylesheets().add(BasicController.class.getResource("kview.css").toExternalForm());
             stage.setScene(sourceScene);
             stage.setTitle("KOMET Startup");
 
@@ -248,7 +247,8 @@ public class MobileApp extends Application {
             BorderPane journalBorderPane = journalLoader.load();
             journalController = journalLoader.getController();
             Scene sourceScene = new Scene(journalBorderPane, dimension2D.getWidth(), dimension2D.getHeight());
-            addStylesheets(sourceScene, KOMET_CSS, KVIEW_CSS);
+            sourceScene.getStylesheets().add(Icon.class.getResource("komet.css").toExternalForm());
+            sourceScene.getStylesheets().add(BasicController.class.getResource("kview.css").toExternalForm());
 
             journalStageWindow.setScene(sourceScene);
 
