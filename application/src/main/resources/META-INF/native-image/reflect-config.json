@@ -316,6 +316,12 @@
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }]
+}, 
+{
+  "type":"dev.ikm.komet.kview.controls.KLComponentControl",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setTitle","parameterTypes":["java.lang.String"] }, {"name":"setShowAddConcept","parameterTypes":["boolean"] }]
 },
 {
   "type":"dev.ikm.komet.kview.controls.SortedComboBox",

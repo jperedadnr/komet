@@ -101,6 +101,10 @@
   },{
     "pattern":"\\Qcontrolsfx_en_GB.properties\\E"
   },{
+    "pattern":"\\Qdev\/ikm\/komet\/kview\/controls\/component-control_en.properties\\E"
+  },{
+    "pattern":"\\Qdev\/ikm\/komet\/kview\/controls\/component-control_en_GB.properties\\E"
+  },{
     "pattern":"\\Qlogback-test.scmo\\E"
   },{
     "pattern":"\\Qlogback-test.xml\\E"
@@ -112,6 +116,8 @@
     "pattern":"\\Qmenu_labels_en.properties\\E"
   },{
     "pattern":"com.sun.jna:\\Qcom\/sun\/jna\/darwin\/libjnidispatch.jnilib\\E"
+  },{
+    "pattern":"dev.ikm.komet.application:\\Qassets\/September2024_ConnectathonDataset_v1.zip\\E"
   },{
     "pattern":"dev.ikm.komet.application:\\Qassets\/snomedct-loinc-international-spined-array-20241001T120000Z-1.0.1.zip\\E"
   },{
@@ -147,7 +153,17 @@
   },{
     "pattern":"dev.ikm.komet.framework:\\Qdev\/ikm\/komet\/framework\/graphics\/fonts\/OpenSansCondensed-LightItalic.ttf\\E"
   },{
+    "pattern":"dev.ikm.komet.framework:\\Qdev\/ikm\/komet\/framework\/graphics\/komet.css\\E"
+  },{
     "pattern":"dev.ikm.komet.framework:\\Qdev\/ikm\/komet\/framework\/search\/SearchPanel.fxml\\E"
+  },{
+    "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/controls\/component-control.css\\E"
+  },{
+    "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/controls\/component-control.properties\\E"
+  },{
+    "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/controls\/component-control_en.properties\\E"
+  },{
+    "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/controls\/component-control_en_GB.properties\\E"
   },{
     "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/controls\/workspace.css\\E"
   },{
@@ -517,6 +533,9 @@
     "locales":["en-GB"]
   },{
     "name":"controlsfx",
+    "locales":["en-GB"]
+  },{
+    "name":"dev.ikm.komet.kview.controls.component-control",
     "locales":["en-GB"]
   }]
 }
