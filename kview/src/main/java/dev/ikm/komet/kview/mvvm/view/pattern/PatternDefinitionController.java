@@ -38,7 +38,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
 import org.carlfx.axonic.StateMachine;
 import org.carlfx.cognitive.loader.InjectViewModel;
 import org.slf4j.Logger;
@@ -61,13 +60,7 @@ public class PatternDefinitionController {
     private KLComponentControl meaningComponentControl;
 
     @FXML
-    private Button cancelButton;
-
-    @FXML
     private Button doneButton;
-
-    @FXML
-    private VBox semanticOuterVBox;
 
     @FXML
     private void initialize() {
@@ -81,17 +74,20 @@ public class PatternDefinitionController {
 
         purposeComponentControl.setOnSearchAction(e -> LOG.info("search: {}", purposeComponentControl.getSearchText()));
         purposeComponentControl.setOnAddConceptAction(e -> addComponentControl("Purpose"));
-        purposeComponentControl.entityProperty().subscribe(entity ->
+        purposeComponentControl.entityProperty().subscribe((old, entity) ->
                 patternDefinitionViewModel.setPropertyValue(PURPOSE_ENTITY, entity));
 
         meaningComponentControl.setOnSearchAction(e -> LOG.info("search: {}", meaningComponentControl.getSearchText()));
         meaningComponentControl.setOnAddConceptAction(e -> addComponentControl("Meaning"));
-        meaningComponentControl.entityProperty().subscribe(entity ->
+        meaningComponentControl.entityProperty().subscribe((old, entity) ->
                 patternDefinitionViewModel.setPropertyValue(MEANING_ENTITY, entity));
 
         ObjectProperty<EntityProxy> purposeProp = patternDefinitionViewModel.getProperty(PURPOSE_ENTITY);
         ObjectProperty<EntityProxy> meaningProp = patternDefinitionViewModel.getProperty(MEANING_ENTITY);
+        purposeProp.subscribe(newVal -> purposeComponentControl.setEntity(newVal));
         purposeProp.addListener(fieldsValidationListener);
+
+        meaningProp.subscribe(newVal -> meaningComponentControl.setEntity(newVal));
         meaningProp.addListener(fieldsValidationListener);
     }
 

@@ -86,15 +86,13 @@ public class KLComponentControlSkin extends SkinBase<KLComponentControl> {
             if (entity == null || entity.getValue() == null) {
                selectedConceptContainer.getChildren().clear();
                conceptContainer.setVisible(true);
-            }
-        });
-
-        control.entityProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                addConceptNode(getSkinnable().getEntity());
+            } else if (entity.getValue() instanceof EntityProxy entityProxy) {
+                LOG.info("Add entity to concept container: {}", entityProxy);
+                addConceptNode(entityProxy);
             }
         });
         if (control.getEntity() != null) {
+            LOG.info("Set entity to concept container: {}", control.getEntity());
             addConceptNode(control.getEntity());
         }
     }
@@ -102,8 +100,8 @@ public class KLComponentControlSkin extends SkinBase<KLComponentControl> {
     /** {@inheritDoc} */
     @Override
     public void dispose() {
-        super.dispose();
         unregisterChangeListeners(getSkinnable().entityProperty());
+        super.dispose();
     }
 
     /** {@inheritDoc} */
@@ -202,12 +200,9 @@ public class KLComponentControlSkin extends SkinBase<KLComponentControl> {
                     LOG.info("publicId: {}", dragboard.getString());
                     if (event.getGestureSource() instanceof Node source &&
                             source.getUserData() instanceof DragAndDropInfo dropInfo &&
-                            dropInfo.publicId() != null
-//                            &&
-//                            dropInfo.publicId().toString().equals(dragboard.getString())
-                    ) { // TODO: should this be needed? shouldn't we get PublicId from dragboard content?
-
-                        //if (control.getEntity() == null) {
+                            dropInfo.publicId() != null) {
+                        // allow drop only if control is empty (else previous entity should be removed first):
+                        if (control.getEntity() == null) {
                             int nid = EntityService.get().nidForPublicId(dropInfo.publicId());
                             EntityProxy entity = EntityProxy.make(nid);
                             if (!(control.getParent() instanceof KLComponentSetControl componentSetControl) ||
@@ -216,7 +211,7 @@ public class KLComponentControlSkin extends SkinBase<KLComponentControl> {
                                 addConceptNode(entity);
                                 success = true;
                             }
-                        //}
+                        }
                     }
                 } catch (Exception e) {
                     LOG.error("exception: ", e);
