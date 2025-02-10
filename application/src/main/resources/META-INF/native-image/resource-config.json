@@ -183,12 +183,6 @@
   },{
     "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/mvvm\/view\/changeset\/time-export-picker.fxml\\E"
   },{
-    "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/mvvm\/view\/common\/concept-drag-over-animation.fxml\\E"
-  },{
-    "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/mvvm\/view\/common\/concept-search-form-item.fxml\\E"
-  },{
-    "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/mvvm\/view\/common\/selected-concept.fxml\\E"
-  },{
     "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/mvvm\/view\/descriptionname\/description-name.fxml\\E"
   },{
     "pattern":"dev.ikm.komet.kview:\\Qdev\/ikm\/komet\/kview\/mvvm\/view\/details\/concept-details.fxml\\E"
