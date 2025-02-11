@@ -241,8 +241,8 @@ public class PropertiesController {
                 PatternDefinition patternDefinition = evt.getPatternDefinition();
                 Optional<PatternDefinitionViewModel> optionalDefinitionViewModel = patternDefinitionControllerJFXNode.getViewModel("patternDefinitionViewModel");
                 optionalDefinitionViewModel.ifPresent(definitionViewModel -> {
-                    definitionViewModel.setPropertyValue(PURPOSE_ENTITY, patternDefinition.purpose());
-                    definitionViewModel.setPropertyValue(MEANING_ENTITY, patternDefinition.meaning());
+                    definitionViewModel.setPropertyValue(PURPOSE_ENTITY, patternDefinition.purpose() != null ? patternDefinition.purpose().toProxy() : null);
+                    definitionViewModel.setPropertyValue(MEANING_ENTITY, patternDefinition.meaning() != null ? patternDefinition.meaning().toProxy() : null);
                 });
             } else if (evt.getEventType() == SHOW_EDIT_FIELDS) {
                 //Set the field values for edit.
@@ -254,8 +254,8 @@ public class PropertiesController {
                     model.setPropertyValue(FIELD_ORDER, evt.getFieldOrder());
                     model.setPropertyValue(DISPLAY_NAME, patternField.displayName());
                     model.setPropertyValue(DATA_TYPE, patternField.dataType());
-                    model.setPropertyValue(PURPOSE_ENTITY, patternField.purpose());
-                    model.setPropertyValue(MEANING_ENTITY, patternField.meaning());
+                    model.setPropertyValue(PURPOSE_ENTITY, patternField.purpose() != null ? patternField.purpose().toProxy() : null);
+                    model.setPropertyValue(MEANING_ENTITY, patternField.meaning() != null ? patternField.meaning().toProxy() : null);
                     model.setPropertyValue(COMMENTS, patternField.comments());
                     model.setPropertyValue(PREVIOUS_PATTERN_FIELD, patternField);
                 });

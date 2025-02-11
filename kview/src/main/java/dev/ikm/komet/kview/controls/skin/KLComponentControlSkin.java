@@ -204,7 +204,12 @@ public class KLComponentControlSkin extends SkinBase<KLComponentControl> {
                         // allow drop only if control is empty (else previous entity should be removed first):
                         if (control.getEntity() == null) {
                             int nid = EntityService.get().nidForPublicId(dropInfo.publicId());
-                            EntityProxy entity = EntityProxy.make(nid);
+                            EntityProxy entity = switch (dropInfo.type()) {
+                                case CONCEPT -> EntityProxy.Concept.make(nid);
+                                case SEMANTIC -> EntityProxy.Semantic.make(nid);
+                                case PATTERN -> EntityProxy.Pattern.make(nid);
+                                case null, default -> EntityProxy.make(nid);
+                            };
                             if (!(control.getParent() instanceof KLComponentSetControl componentSetControl) ||
                                     !componentSetControl.getValue().contains(nid)) {
                                 control.setEntity(entity);
