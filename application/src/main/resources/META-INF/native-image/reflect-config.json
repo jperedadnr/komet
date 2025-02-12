@@ -321,7 +321,7 @@
   "type":"dev.ikm.komet.kview.controls.DetailsToolbar",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
-  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setSaveButtonVisible","parameterTypes":["boolean"] }, {"name":"setSaveButtonDisabled","parameterTypes":["boolean"] }]
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setTitle","parameterTypes":["java.lang.String"] }, {"name":"setSaveButtonVisible","parameterTypes":["boolean"] }, {"name":"setSaveButtonDisabled","parameterTypes":["boolean"] }]
 },
 {
   "type":"dev.ikm.komet.kview.controls.KLComponentControl",

@@ -4,20 +4,25 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 
-public class DetailsToolbar extends HBox {
+public class DetailsToolbar extends VBox {
 
+    private final Label titleLabel;
     private final Button coordinateButton;
     private final Button saveButton;
     private final Button shareButton;
@@ -29,6 +34,10 @@ public class DetailsToolbar extends HBox {
     private final Button closeButton;
 
     public DetailsToolbar() {
+
+        titleLabel = new Label(null, new IconRegion("icon", "lidr-tab-icon"));
+        titleLabel.getStyleClass().addAll("title-label", "lidr-tab-text", "lidr-rounded-tab");
+
         coordinateButton = new Button(null, new IconRegion("icon", "coordinate"));
 
         saveButton = new Button(null, new IconRegion("icon", "save"));
@@ -51,13 +60,32 @@ public class DetailsToolbar extends HBox {
 
         closeButton = new Button(null, new IconRegion("icon", "close-window"));
 
-        getChildren().addAll(coordinateButton, new Divider(),
+        HBox toolbarBox = new HBox(coordinateButton, new Divider(),
                 saveButton, shareButton, favoriteButton, reasonerToggleButton, new Divider(),
                 listViewButton, timelineToggleButton, span,
                 propertiesToggleButton, new Divider(),
                 closeButton);
+        toolbarBox.getStyleClass().add("toolbar-box");
 
+        getChildren().addAll(titleLabel, toolbarBox);
         getStyleClass().addAll("details-toolbar", "concept-header-control", "draggable-region");
+    }
+
+    // titleProperty
+    private final StringProperty titleProperty = new SimpleStringProperty(this, "title") {
+        @Override
+        protected void invalidated() {
+            titleLabel.setText(get());
+        }
+    };
+    public final StringProperty titleProperty() {
+        return titleProperty;
+    }
+    public final String getTitle() {
+        return titleProperty.get();
+    }
+    public final void setTitle(String value) {
+        titleProperty.set(value);
     }
 
     // coordinateButtonEventHandlerProperty
@@ -230,10 +258,10 @@ public class DetailsToolbar extends HBox {
 
     // propertiesToggleButtonSelectedProperty
     public final BooleanProperty propertiesToggleButtonSelectedProperty() {
-       return propertiesToggleButton.selectedProperty();
+        return propertiesToggleButton.selectedProperty();
     }
     public final boolean isPropertiesToggleButtonSelected() {
-       return propertiesToggleButton.isSelected();
+        return propertiesToggleButton.isSelected();
     }
     public final void setPropertiesToggleButtonSelected(boolean value) {
         propertiesToggleButton.setSelected(value);
