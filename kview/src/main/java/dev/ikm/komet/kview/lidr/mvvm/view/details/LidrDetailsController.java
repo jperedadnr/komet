@@ -21,6 +21,7 @@ import dev.ikm.komet.framework.events.EvtBusFactory;
 import dev.ikm.komet.framework.events.EvtType;
 import dev.ikm.komet.framework.events.Subscriber;
 import dev.ikm.komet.framework.view.ViewProperties;
+import dev.ikm.komet.kview.controls.DetailsToolbar;
 import dev.ikm.komet.kview.data.schema.STAMPDetail;
 import dev.ikm.komet.kview.events.StampModifiedEvent;
 import dev.ikm.komet.kview.lidr.events.AddDeviceEvent;
@@ -105,6 +106,9 @@ public class LidrDetailsController {
     @FXML
     private BorderPane detailsOuterBorderPane;
 
+    @FXML
+    private DetailsToolbar conceptHeaderDetailsToolbar;
+
     /**
      * The inner border pane contains all content.
      */
@@ -178,18 +182,6 @@ public class LidrDetailsController {
     @FXML
     private Button elppSemanticCountButton;
 
-    @FXML
-    private HBox conceptHeaderControlToolBarHbox;
-
-    /**
-     * Opens or slides out the properties window.
-     */
-    @FXML
-    private ToggleButton propertiesToggleButton;
-    /**
-     * This is called after dependency injection has occurred to the JavaFX controls above.
-     */
-
     /**
      * Used slide out the properties view
      */
@@ -227,6 +219,12 @@ public class LidrDetailsController {
 
     @FXML
     public void initialize() {
+        conceptHeaderDetailsToolbar.setReasonerToggleButtonEventHandler(this::openReasonerSlideout);
+        conceptHeaderDetailsToolbar.setTimelineToggleButtonEventHandler(this::openTimelinePanel);
+        conceptHeaderDetailsToolbar.setPropertiesToggleButtonEventHandler(this::openPropertiesPanel);
+        conceptHeaderDetailsToolbar.setCloseButtonEventHandler(this::closeConceptWindow);
+
+
         // event bus will listen on this topic.
         if (conceptTopic == null) {
             // if not set caller used the one set inside the view model.
@@ -244,14 +242,14 @@ public class LidrDetailsController {
         // listen for open and close events
         Subscriber<LidrPropertyPanelEvent> propBumpOutListener = (evt) -> {
                 if (evt.getEventType() == CLOSE_PANEL) {
-                    LOG.info("propBumpOutListener - Close Properties bumpout toggle = " + propertiesToggleButton.isSelected());
-                    propertiesToggleButton.setSelected(false);
+                    LOG.info("propBumpOutListener - Close Properties bumpout toggle");
+                    conceptHeaderDetailsToolbar.setPropertiesToggleButtonSelected(false);
                     if (isOpen(propertiesSlideoutTrayPane)) {
                         slideIn(propertiesSlideoutTrayPane, detailsOuterBorderPane);
                     }
                 } else if (evt.getEventType() == OPEN_PANEL) {
-                    LOG.info("propBumpOutListener - Opening Properties bumpout toggle = " + propertiesToggleButton.isSelected());
-                    propertiesToggleButton.setSelected(true);
+                    LOG.info("propBumpOutListener - Opening Properties bumpout toggle");
+                    conceptHeaderDetailsToolbar.setPropertiesToggleButtonSelected(true);
                     if (isClosed(propertiesSlideoutTrayPane)) {
                         slideOut(propertiesSlideoutTrayPane, detailsOuterBorderPane);
                     }
@@ -437,7 +435,6 @@ public class LidrDetailsController {
     public void setOnCloseConceptWindow(Consumer<LidrDetailsController> onClose) {
         this.onCloseConceptWindow = onClose;
     }
-    @FXML
     void closeConceptWindow(ActionEvent event) {
         LOG.info("Cleanup occurring: Closing Window with concept: " + deviceTitleText.getText());
         if (this.onCloseConceptWindow != null) {
@@ -640,14 +637,12 @@ public class LidrDetailsController {
         lidrRecordsVBox.getChildren().clear();
     }
 
-    @FXML
     private void openPropertiesPanel(ActionEvent event) {
         ToggleButton propertyToggle = (ToggleButton) event.getSource();
         EvtType<LidrPropertyPanelEvent> eventEvtType = propertyToggle.isSelected() ? OPEN_PANEL : CLOSE_PANEL;
         eventBus.publish(conceptTopic, new LidrPropertyPanelEvent(propertyToggle, eventEvtType));
     }
 
-    @FXML
     private void openTimelinePanel(ActionEvent event) {
         ToggleButton timelineToggle = (ToggleButton) event.getSource();
         // if selected open properties
@@ -660,10 +655,11 @@ public class LidrDetailsController {
         }
     }
 
-    @FXML
     private void openReasonerSlideout(ActionEvent event) {
         ToggleButton reasonerToggle = (ToggleButton) event.getSource();
-        reasonerResultsControllerConsumer.accept(reasonerToggle);
+        if (reasonerResultsControllerConsumer != null) {
+            reasonerResultsControllerConsumer.accept(reasonerToggle);
+        }
     }
 
     /**

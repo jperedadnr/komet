@@ -318,6 +318,12 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 }, 
 {
+  "type":"dev.ikm.komet.kview.controls.DetailsToolbar",
+  "queryAllDeclaredMethods":true,
+  "queryAllPublicConstructors":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"setSaveButtonVisible","parameterTypes":["boolean"] }, {"name":"setSaveButtonDisabled","parameterTypes":["boolean"] }]
+},
+{
   "type":"dev.ikm.komet.kview.controls.KLComponentControl",
   "queryAllDeclaredMethods":true,
   "queryAllPublicConstructors":true,
@@ -339,7 +345,7 @@
   "type":"dev.ikm.komet.kview.lidr.mvvm.view.details.LidrDetailsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"openPropertiesPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddAnalyteGroupPanel","parameterTypes":["javafx.event.ActionEvent"] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddAnalyteGroupPanel","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.lidr.mvvm.view.device.DeviceController",
@@ -396,10 +402,28 @@
   "type":"dev.ikm.komet.kview.mvvm.view.details.DetailsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"addSufficientSet","parameterTypes":["javafx.event.ActionEvent"] },{"name":"closeConceptWindow","parameterTypes":["javafx.event.ActionEvent"] },{"name":"initialize","parameterTypes":[] },{"name":"openPropertiesPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"openTimelinePanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupAddAxiomContextMenu","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupAddContextMenu","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] }]
+  "methods":[{"name":"addSufficientSet","parameterTypes":["javafx.event.ActionEvent"] },{"name":"initialize","parameterTypes":[] },{"name":"popupAddAxiomContextMenu","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.details.DetailsNodeFactory"
+},
+{
+  "type":"dev.ikm.komet.kview.mvvm.view.genediting.GenEditingDetailsController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"showAddEditRefComponentPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAndEditSemanticFieldsPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] }]
+},
+{
+  "type":"dev.ikm.komet.kview.mvvm.view.genediting.PropertiesController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"showAddEditView","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showInstances","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showHistoryView","parameterTypes":["javafx.event.ActionEvent"] }]
+},
+{
+  "type":"dev.ikm.komet.kview.mvvm.view.genediting.SemanticFieldsController",
+  "allDeclaredFields":true,
+  "queryAllDeclaredMethods":true,
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"cancel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"clearForm","parameterTypes":["javafx.event.ActionEvent"] },{"name":"submit","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.journal.JournalController",
@@ -465,7 +489,7 @@
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.PatternDetailsController",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"closeConceptWindow","parameterTypes":["javafx.event.ActionEvent"] },{"name":"initialize","parameterTypes":[] },{"name":"openPropertiesPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"openReasonerSlideout","parameterTypes":["javafx.event.ActionEvent"] },{"name":"openTimelinePanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupAddDescriptionContextMenu","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] },{"name":"savePattern","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddEditDefinitionPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddFieldsPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddFqnPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddOtherNamePanel","parameterTypes":["javafx.event.ActionEvent"] }]
+  "methods":[{"name":"<init>","parameterTypes":[] },{"name":"initialize","parameterTypes":[] },{"name":"openReasonerSlideout","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupAddDescriptionContextMenu","parameterTypes":["javafx.event.ActionEvent"] },{"name":"popupStampEdit","parameterTypes":["javafx.event.ActionEvent"] },{"name":"savePattern","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddEditDefinitionPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddFieldsPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddFqnPanel","parameterTypes":["javafx.event.ActionEvent"] },{"name":"showAddOtherNamePanel","parameterTypes":["javafx.event.ActionEvent"] }]
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.view.pattern.PatternFieldsController",
@@ -587,6 +611,10 @@
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
+  "type":"dev.ikm.komet.kview.mvvm.viewmodel.GenEditingViewModel",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
   "type":"dev.ikm.komet.kview.mvvm.viewmodel.PatternDefinitionViewModel",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -604,6 +632,10 @@
 },
 {
   "type":"dev.ikm.komet.kview.mvvm.viewmodel.PatternViewModel",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "type":"dev.ikm.komet.kview.mvvm.viewmodel.StampViewModel",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
@@ -1451,6 +1483,10 @@
 },
 {
   "type":"org.carlfx.cognitive.viewmodel.SimpleViewModel",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "type":"org.carlfx.cognitive.viewmodel.ValidationViewModel",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {

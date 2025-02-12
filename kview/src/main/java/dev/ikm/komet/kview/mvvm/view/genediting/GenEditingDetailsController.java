@@ -42,6 +42,7 @@ import dev.ikm.komet.framework.events.EvtType;
 import dev.ikm.komet.framework.events.Subscriber;
 import dev.ikm.komet.framework.observable.ObservableField;
 import dev.ikm.komet.framework.view.ViewProperties;
+import dev.ikm.komet.kview.controls.DetailsToolbar;
 import dev.ikm.komet.kview.events.genediting.GenEditingEvent;
 import dev.ikm.komet.kview.events.genediting.PropertyPanelEvent;
 import dev.ikm.komet.kview.klfields.KlFieldHelper;
@@ -106,7 +107,7 @@ public class GenEditingDetailsController {
     private BorderPane detailsOuterBorderPane;
 
     @FXML
-    private ToggleButton propertiesToggleButton;
+    private DetailsToolbar conceptHeaderDetailsToolbar;
 
     /**
      * Used slide out the properties view
@@ -169,9 +170,6 @@ public class GenEditingDetailsController {
     @FXML
     private Button editFieldsButton;
 
-    @FXML
-    private Button saveButton;
-
     @InjectViewModel
     private StampViewModel stampViewModel;
 
@@ -193,6 +191,12 @@ public class GenEditingDetailsController {
 
     @FXML
     private void initialize() {
+        conceptHeaderDetailsToolbar.setSaveButtonEventHandler(this::save);
+        conceptHeaderDetailsToolbar.setReasonerToggleButtonEventHandler(this::openReasonerSlideout);
+        conceptHeaderDetailsToolbar.setTimelineToggleButtonEventHandler(this::openTimelinePanel);
+        conceptHeaderDetailsToolbar.setPropertiesToggleButtonEventHandler(this::openPropertiesPanel);
+        conceptHeaderDetailsToolbar.setCloseButtonEventHandler(this::closeConceptWindow);
+
         // clear all semantic details.
         semanticDetailsVBox.getChildren().clear();
 
@@ -362,14 +366,14 @@ public class GenEditingDetailsController {
         // listen for open and close events
         propertiesEventSubscriber = (evt) -> {
             if (evt.getEventType() == dev.ikm.komet.kview.events.genediting.PropertyPanelEvent.CLOSE_PANEL) {
-                LOG.info("propBumpOutListener - Close Properties bumpout toggle = " + propertiesToggleButton.isSelected());
-                propertiesToggleButton.setSelected(false);
+                LOG.info("propBumpOutListener - Close Properties bumpout toggle");
+                conceptHeaderDetailsToolbar.setPropertiesToggleButtonSelected(false);
                 if (isOpen(propertiesSlideoutTrayPane)) {
                     slideIn(propertiesSlideoutTrayPane, detailsOuterBorderPane);
                 }
             } else if (evt.getEventType() == PropertyPanelEvent.OPEN_PANEL) {
-                LOG.info("propBumpOutListener - Opening Properties bumpout toggle = " + propertiesToggleButton.isSelected());
-                propertiesToggleButton.setSelected(true);
+                LOG.info("propBumpOutListener - Opening Properties bumpout toggle");
+                conceptHeaderDetailsToolbar.setPropertiesToggleButtonSelected(true);
                 if (isClosed(propertiesSlideoutTrayPane)) {
                     slideOut(propertiesSlideoutTrayPane, detailsOuterBorderPane);
                 }
@@ -422,7 +426,6 @@ public class GenEditingDetailsController {
 //        putArrowOnRight(this.semanticDetailsTitledPane);
     }
 
-    @FXML
     void closeConceptWindow(ActionEvent event) {
         if (this.onCloseConceptWindow != null) {
             onCloseConceptWindow.accept(this);
@@ -451,12 +454,10 @@ public class GenEditingDetailsController {
         EvtBusFactory.getDefaultEvtBus().publish(genEditingViewModel.getPropertyValue(WINDOW_TOPIC), new PropertyPanelEvent(actionEvent.getSource(), OPEN_PANEL));
     }
 
-    @FXML
     private void openReasonerSlideout(ActionEvent actionEvent) {
         // TODO: perform reasoner
     }
 
-    @FXML
     private void openTimelinePanel(ActionEvent actionEvent) {
         // TODO: perform reasoner
     }
@@ -520,14 +521,12 @@ public class GenEditingDetailsController {
      *
      * @param event Button click event.
      */
-    @FXML
     private void openPropertiesPanel(ActionEvent event) {
         ToggleButton propertyToggle = (ToggleButton) event.getSource();
         EvtType<PropertyPanelEvent> eventEvtType = propertyToggle.isSelected() ? OPEN_PANEL : CLOSE_PANEL;
         EvtBusFactory.getDefaultEvtBus().publish(genEditingViewModel.getPropertyValue(WINDOW_TOPIC), new PropertyPanelEvent(propertyToggle, eventEvtType));
     }
 
-    @FXML
     private void save(ActionEvent actionEvent) {
         // TODO create a commit transaction of current Semantic (Add or edit will add a new Semantic Version)
     }

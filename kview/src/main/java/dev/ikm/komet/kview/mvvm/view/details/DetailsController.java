@@ -24,6 +24,7 @@ import dev.ikm.komet.framework.observable.ObservableField;
 import dev.ikm.komet.framework.propsheet.KometPropertySheet;
 import dev.ikm.komet.framework.propsheet.SheetItem;
 import dev.ikm.komet.framework.view.ViewProperties;
+import dev.ikm.komet.kview.controls.DetailsToolbar;
 import dev.ikm.komet.kview.events.*;
 import dev.ikm.komet.kview.fxutils.MenuHelper;
 import dev.ikm.komet.kview.mvvm.model.DataModelHelper;
@@ -189,19 +190,10 @@ public class DetailsController  {
 
 
     @FXML
-    private HBox conceptHeaderControlToolBarHbox;
+    private DetailsToolbar conceptHeaderDetailsToolbar;
 
     @FXML
     private Button addAxiomButton;
-
-    /**
-     * Opens or slides out the properties window.
-     */
-    @FXML
-    private ToggleButton propertiesToggleButton;
-    /**
-     * This is called after dependency injection has occurred to the JavaFX controls above.
-     */
 
     /**
      * Used slide out the properties view
@@ -266,6 +258,22 @@ public class DetailsController  {
 
     @FXML
     public void initialize() {
+        conceptHeaderDetailsToolbar.setReasonerToggleButtonEventHandler(this::popupAddContextMenu);
+        ContextMenu reasonerToggleButtonContextMenu = conceptHeaderDetailsToolbar.getReasonerToggleButtonContextMenu();
+        MenuItem menuItem1 = new MenuItem("Run full reasoner");
+        menuItem1.setOnAction(this::runFullReasoner);
+        MenuItem menuItem2 = new MenuItem("Run incremental reasoner");
+        menuItem2.setOnAction(this::runIncrementalReasoner);
+        menuItem2.setDisable(true);
+        MenuItem menuItem3 = new MenuItem("Redo navigation");
+        menuItem3.setOnAction(this::redoNavigation);
+        reasonerToggleButtonContextMenu.getItems().addAll(menuItem1, menuItem2, menuItem3);
+        reasonerToggleButtonContextMenu.getStyleClass().add("kview-context-menu");
+
+        conceptHeaderDetailsToolbar.setTimelineToggleButtonEventHandler(this::openTimelinePanel);
+        conceptHeaderDetailsToolbar.setPropertiesToggleButtonEventHandler(this::openPropertiesPanel);
+        conceptHeaderDetailsToolbar.setCloseButtonEventHandler(this::closeConceptWindow);
+
         identiconImageView.setOnContextMenuRequested(contextMenuEvent -> {
             // query all available memberships (semantics having the purpose as 'membership', and no fields)
             // query current concept's membership semantic records.
@@ -319,37 +327,37 @@ public class DetailsController  {
 
         // when the user clicks a fully qualified name, open the PropertiesPanel
         editConceptFullyQualifiedNameEventSubscriber = evt -> {
-            if (!propertiesToggleButton.isSelected()) {
-                propertiesToggleButton.fire();
+            if (!conceptHeaderDetailsToolbar.isPropertiesToggleButtonSelected()) {
+                openPropertiesPanel(new ActionEvent());
             }
         };
         eventBus.subscribe(conceptTopic, EditConceptFullyQualifiedNameEvent.class, editConceptFullyQualifiedNameEventSubscriber);
 
         addFullyQualifiedNameEventSubscriber = evt -> {
-            if (!propertiesToggleButton.isSelected()) {
-                propertiesToggleButton.fire();
+            if (!conceptHeaderDetailsToolbar.isPropertiesToggleButtonSelected()) {
+                openPropertiesPanel(new ActionEvent());
             }
         };
         eventBus.subscribe(conceptTopic, AddFullyQualifiedNameEvent.class, addFullyQualifiedNameEventSubscriber);
 
         // when the user clicks one of the other names, open the PropertiesPanel
         editOtherNameConceptEventSubscriber = evt -> {
-            if (!propertiesToggleButton.isSelected()) {
-                propertiesToggleButton.fire();
+            if (!conceptHeaderDetailsToolbar.isPropertiesToggleButtonSelected()) {
+                openPropertiesPanel(new ActionEvent());
             }
         };
         eventBus.subscribe(conceptTopic, EditOtherNameConceptEvent.class, editOtherNameConceptEventSubscriber);
 
         addOtherNameToConceptEventSubscriber = evt -> {
-            if (!propertiesToggleButton.isSelected()) {
-                propertiesToggleButton.fire();
+            if (!conceptHeaderDetailsToolbar.isPropertiesToggleButtonSelected()) {
+                openPropertiesPanel(new ActionEvent());
             }
         };
         eventBus.subscribe(conceptTopic, AddOtherNameToConceptEvent.class, addOtherNameToConceptEventSubscriber);
 
         // if the user clicks the Close Properties Button from the Edit Descriptions panel
         // in that state, the properties bump out will be slid out, therefore firing will perform a slide in
-        closePropertiesPanelEventSubscriber = evt -> propertiesToggleButton.fire();
+        closePropertiesPanelEventSubscriber = evt -> openPropertiesPanel(new ActionEvent());
         eventBus.subscribe(conceptTopic, ClosePropertiesPanelEvent.class, closePropertiesPanelEventSubscriber);
 
         // Listener when user enters a new fqn
@@ -602,8 +610,8 @@ public class DetailsController  {
     public void setOnCloseConceptWindow(Consumer<DetailsController> onClose) {
         this.onCloseConceptWindow = onClose;
     }
-    @FXML
-    void closeConceptWindow(ActionEvent event) {
+
+    private void closeConceptWindow(ActionEvent event) {
         LOG.info("Cleanup occurring: Closing Window with concept: " + fqnTitleText.getText());
         if (this.onCloseConceptWindow != null) {
             onCloseConceptWindow.accept(this);
@@ -1139,11 +1147,6 @@ public class DetailsController  {
 
     }
 
-    public HBox getConceptHeaderControlToolBarHbox() {
-        return conceptHeaderControlToolBarHbox;
-    }
-
-    @FXML
     private void openPropertiesPanel(ActionEvent event) {
         ToggleButton propertyToggle = (ToggleButton) event.getSource();
         // if selected open properties
@@ -1166,7 +1169,6 @@ public class DetailsController  {
         }
     }
 
-    @FXML
     private void openTimelinePanel(ActionEvent event) {
         ToggleButton timelineToggle = (ToggleButton) event.getSource();
         // if selected open properties
@@ -1250,7 +1252,6 @@ public class DetailsController  {
         this.stampEditController = stampEditController;
     }
 
-    @FXML
     private void popupAddContextMenu(ActionEvent actionEvent) {
         MenuHelper.fireContextMenuEvent(actionEvent, Side.BOTTOM, 0, 0);
     }

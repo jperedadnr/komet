@@ -57,7 +57,7 @@ public class DetailsToolbar extends HBox {
                 propertiesToggleButton, new Divider(),
                 closeButton);
 
-        getStyleClass().addAll("details-toolbar", "concept-header-control", "draggable-region", "rounded-upper-right-only");
+        getStyleClass().addAll("details-toolbar", "concept-header-control", "draggable-region");
     }
 
     // coordinateButtonEventHandlerProperty
@@ -228,6 +228,13 @@ public class DetailsToolbar extends HBox {
         propertiesToggleButtonEventHandlerProperty.set(value);
     }
 
+    // propertiesToggleButtonSelectedProperty
+    public final BooleanProperty propertiesToggleButtonSelectedProperty() {
+       return propertiesToggleButton.selectedProperty();
+    }
+    public final boolean isPropertiesToggleButtonSelected() {
+       return propertiesToggleButton.isSelected();
+    }
     public final void setPropertiesToggleButtonSelected(boolean value) {
         propertiesToggleButton.setSelected(value);
     }

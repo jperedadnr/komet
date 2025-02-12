@@ -69,6 +69,7 @@ import dev.ikm.komet.framework.events.EvtBusFactory;
 import dev.ikm.komet.framework.events.EvtType;
 import dev.ikm.komet.framework.events.Subscriber;
 import dev.ikm.komet.framework.view.ViewProperties;
+import dev.ikm.komet.kview.controls.DetailsToolbar;
 import dev.ikm.komet.kview.events.pattern.MakePatternWindowEvent;
 import dev.ikm.komet.kview.events.pattern.PatternCreationEvent;
 import dev.ikm.komet.kview.events.pattern.PatternDefinitionEvent;
@@ -88,6 +89,7 @@ import dev.ikm.tinkar.entity.ConceptEntity;
 import dev.ikm.tinkar.terms.EntityFacade;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -151,7 +153,7 @@ public class PatternDetailsController {
     private BorderPane detailsOuterBorderPane;
 
     @FXML
-    private ToggleButton propertiesToggleButton;
+    private DetailsToolbar conceptHeaderDetailsToolbar;
 
     /**
      * Used slide out the properties view
@@ -202,8 +204,6 @@ public class PatternDetailsController {
     @FXML
     private Text semanticPurposeText;
 
-    @FXML
-    private Button savePatternButton;
 
     // pattern definition fields
     @FXML
@@ -271,6 +271,12 @@ public class PatternDetailsController {
 
     @FXML
     private void initialize() {
+        conceptHeaderDetailsToolbar.setSaveButtonEventHandler(this::savePattern);
+        conceptHeaderDetailsToolbar.setReasonerToggleButtonEventHandler(this::openReasonerSlideout);
+        conceptHeaderDetailsToolbar.setTimelineToggleButtonEventHandler(this::openTimelinePanel);
+        conceptHeaderDetailsToolbar.setPropertiesToggleButtonEventHandler(this::openPropertiesPanel);
+        conceptHeaderDetailsToolbar.setCloseButtonEventHandler(this::closeConceptWindow);
+
         identifierText.setText("");
         fieldsTilePane.getChildren().clear();
         fieldsTilePane.setPrefColumns(2);
@@ -279,14 +285,14 @@ public class PatternDetailsController {
         // listen for open and close events
         patternPropertiesEventSubscriber = (evt) -> {
             if (evt.getEventType() == CLOSE_PANEL) {
-                LOG.info("propBumpOutListener - Close Properties bumpout toggle = " + propertiesToggleButton.isSelected());
-                propertiesToggleButton.setSelected(false);
+                LOG.info("propBumpOutListener - Close Properties bumpout toggle");
+                conceptHeaderDetailsToolbar.setPropertiesToggleButtonSelected(false);
                 if (isOpen(propertiesSlideoutTrayPane)) {
                     slideIn(propertiesSlideoutTrayPane, detailsOuterBorderPane);
                 }
             } else if (evt.getEventType() == OPEN_PANEL) {
-                LOG.info("propBumpOutListener - Opening Properties bumpout toggle = " + propertiesToggleButton.isSelected());
-                propertiesToggleButton.setSelected(true);
+                LOG.info("propBumpOutListener - Opening Properties bumpout toggle");
+                conceptHeaderDetailsToolbar.setPropertiesToggleButtonSelected(true);
                 if (isClosed(propertiesSlideoutTrayPane)) {
                     slideOut(propertiesSlideoutTrayPane, detailsOuterBorderPane);
                 }
@@ -294,8 +300,7 @@ public class PatternDetailsController {
         };
         EvtBusFactory.getDefaultEvtBus().subscribe(patternViewModel.getPropertyValue(PATTERN_TOPIC), PropertyPanelEvent.class, patternPropertiesEventSubscriber);
 
-        savePatternButton.disableProperty().bind(patternViewModel.getProperty(IS_INVALID));
-
+        ((BooleanProperty) patternViewModel.getProperty(IS_INVALID)).subscribe(b -> conceptHeaderDetailsToolbar.setSaveButtonDisabled(b));
 
         patternDefinitionEventSubscriber = evt -> patternViewModel.setPurposeAndMeaningText(evt.getPatternDefinition());
 
@@ -749,7 +754,6 @@ public class PatternDetailsController {
         EvtBusFactory.getDefaultEvtBus().publish(patternViewModel.getPropertyValue(PATTERN_TOPIC), new PropertyPanelEvent(actionEvent.getSource(), OPEN_PANEL));
     }
 
-    @FXML
     private void openReasonerSlideout(ActionEvent event) {
         LOG.info("not implemented yet");
 //        ToggleButton reasonerToggle = (ToggleButton) event.getSource();
@@ -800,7 +804,6 @@ public class PatternDetailsController {
         return patternViewModel.getPropertyValue(STAMP_VIEW_MODEL);
     }
 
-    @FXML
     private void openTimelinePanel(ActionEvent event) {
         LOG.info("not implemented yet");
 //        ToggleButton timelineToggle = (ToggleButton) event.getSource();
@@ -814,7 +817,6 @@ public class PatternDetailsController {
 //        }
     }
 
-    @FXML
     private void openPropertiesPanel(ActionEvent event) {
         ToggleButton propertyToggle = (ToggleButton) event.getSource();
         EvtType<PropertyPanelEvent> eventEvtType = propertyToggle.isSelected() ? OPEN_PANEL : CLOSE_PANEL;
@@ -842,7 +844,6 @@ public class PatternDetailsController {
         putArrowOnRight(this.fieldsTitledPane);
     }
 
-    @FXML
     private void savePattern(ActionEvent actionEvent) {
         boolean isValidSave = patternViewModel.createPattern();
         LOG.info(isValidSave ? "success" : "failed");

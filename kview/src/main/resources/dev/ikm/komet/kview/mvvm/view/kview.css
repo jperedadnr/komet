@@ -5101,15 +5101,6 @@ Styling a context menu for kview ui/ux controls
 }
 
 /* Details Toolbar */
-.details-toolbar > .vertical-divider {
-    -fx-min-width: 1;
-    -fx-min-height: 32;
-    -fx-max-width: 1;
-    -fx-max-height: 32;
-    -fx-background-color: -Grey-8;
-    -fx-shape: "M0 0V10H1V0Z";
-}
-
 .details-toolbar.rounded-upper-right-only {
     -fx-background-radius: 0 10 0 0;
     -fx-border-radius: 0 10 0 0;
@@ -5120,7 +5111,7 @@ Styling a context menu for kview ui/ux controls
     -fx-spacing: 4;
     -fx-alignment: center;
     -fx-background-insets: 0;
-    -fx-background-color: -Natural-Grey-Main;
+    -fx-background-color: -Secondary-06;
 
     -fx-min-height: 40;
     -fx-pref-height: 40;
@@ -5130,6 +5121,19 @@ Styling a context menu for kview ui/ux controls
     -fx-pref-width: -1;
     -fx-max-width: 5000;
     -fx-padding: 2 5 2 5;
+}
+
+.details-toolbar.concept-header-control.rounded-upper-right-only {
+    -fx-background-color: -Natural-Grey-Main;
+}
+
+.details-toolbar > .vertical-divider {
+    -fx-min-width: 1;
+    -fx-min-height: 32;
+    -fx-max-width: 1;
+    -fx-max-height: 32;
+    -fx-background-color: -Grey-8;
+    -fx-shape: "M0 0V10H1V0Z";
 }
 
 .details-toolbar > .toggle-button,
