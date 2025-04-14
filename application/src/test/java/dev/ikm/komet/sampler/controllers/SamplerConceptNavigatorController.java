@@ -14,8 +14,13 @@ import dev.ikm.komet.preferences.KometPreferencesImpl;
 import dev.ikm.tinkar.common.service.DataUriOption;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.service.TinkExecutor;
+import dev.ikm.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
+import dev.ikm.tinkar.coordinate.view.calculator.ViewCalculator;
 import dev.ikm.tinkar.entity.Entity;
 import dev.ikm.tinkar.entity.EntityService;
+import dev.ikm.tinkar.entity.SemanticEntityVersion;
+import dev.ikm.tinkar.terms.ConceptFacade;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
@@ -25,6 +30,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -73,8 +79,7 @@ public class SamplerConceptNavigatorController {
             
             .sample-control-container > * > .inner-container {
                 -fx-background-color: #6E7989;
-                -fx-spacing: 8;
-                -fx-padding: 8;
+                -fx-padding: 0 8 8 8;
             }
             .sample-control-container > * > .center-container {
                 -fx-background-color: #fbfbfb;
@@ -135,7 +140,43 @@ public class SamplerConceptNavigatorController {
     public void initialize() {
         samplerDescription.setText("The Concept Navigator control is a tree view to display a hierarchy of concepts");
 
-        searchControl.setOnAction(_ -> System.out.println("Search for: " + searchControl.getText()));
+        searchControl.setOnAction(_ -> {
+            Navigator navigator = conceptNavigatorControl.getNavigator();
+            if (navigator == null) {
+                return;
+            }
+            ViewCalculator calculator = navigator.getViewCalculator();
+            TinkExecutor.threadPool().execute(() -> {
+                try {
+                    List<LatestVersionSearchResult> results = calculator.search(searchControl.getText(), 1000).toList();
+                    List<SearchControl.SearchResult> searchResults = new ArrayList<>();
+                    results.stream()
+                            .filter(result -> result.latestVersion().isPresent())
+                            .forEach(result -> {
+                                SemanticEntityVersion semantic = result.latestVersion().get();
+                                searchResults.addAll(
+                                        Entity.getConceptForSemantic(semantic.nid()).map(entity -> {
+                                            int[] parentNids = navigator.getParentNids(entity.nid());
+                                            List<SearchControl.SearchResult> list = new ArrayList<>();
+                                            if (parentNids != null) {
+                                                for (int parentNid : parentNids) {
+                                                    ConceptFacade parent = Entity.getFast(parentNid);
+                                                    list.add(new SearchControl.SearchResult(parent, entity, searchControl.getText()));
+                                                }
+                                            } else {
+                                                list.add(new SearchControl.SearchResult(null, entity, searchControl.getText()));
+                                            }
+                                            return list;
+                                        }).orElse(List.of()));
+                            });
+                    // NOTE: different semanticIds give same entity
+                    List<SearchControl.SearchResult> distinctResults = searchResults.stream().distinct().toList();
+                    Platform.runLater(() -> searchControl.resultsProperty().addAll(distinctResults));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
         searchControl.setOnFilterAction(_ -> {
             // DUMMY
             searchControl.setFilterSet(!searchControl.isFilterSet());

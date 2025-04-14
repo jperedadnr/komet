@@ -1,16 +1,23 @@
 package dev.ikm.komet.controls;
 
 import dev.ikm.komet.controls.skin.SearchControlSkin;
+import dev.ikm.tinkar.terms.ConceptFacade;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
+
+import java.util.function.Consumer;
 
 public class SearchControl extends Control {
 
@@ -55,7 +62,20 @@ public class SearchControl extends Control {
     public final void setOnAction(EventHandler<ActionEvent> value) {
         onActionProperty.set(value);
     }
-    
+
+    // onLongHoverProperty
+    private final ObjectProperty<Consumer<ConceptFacade>> onLongHoverProperty = new SimpleObjectProperty<>(this, "onLongHover");
+    public final ObjectProperty<Consumer<ConceptFacade>> onLongHoverProperty() {
+       return onLongHoverProperty;
+    }
+    public final Consumer<ConceptFacade> getOnLongHover() {
+       return onLongHoverProperty.get();
+    }
+    public final void setOnLongHover(Consumer<ConceptFacade> value) {
+        onLongHoverProperty.set(value);
+    }
+
+
     // onFilterActionProperty
     private final ObjectProperty<EventHandler<ActionEvent>> onFilterActionProperty = new SimpleObjectProperty<>(this, "onFilterAction");
     public final ObjectProperty<EventHandler<ActionEvent>> onFilterActionProperty() {
@@ -80,6 +100,25 @@ public class SearchControl extends Control {
         filterSetProperty.set(value);
     }
 
+    // activationProperty
+    private final DoubleProperty activationProperty = new SimpleDoubleProperty(this, "activation", 500);
+    public final DoubleProperty activationProperty() {
+        return activationProperty;
+    }
+    public final double getActivation() {
+        return activationProperty.get();
+    }
+    public final void setActivation(double value) {
+        activationProperty.set(value);
+    }
+
+    public record SearchResult(ConceptFacade parentConcept, ConceptFacade concept, String highlight) {}
+
+    // resultsProperty
+    private final ObservableList<SearchResult> resultsProperty = FXCollections.observableArrayList();
+    public final ObservableList<SearchResult> resultsProperty() {
+       return resultsProperty;
+    }
 
     @Override
     protected Skin<?> createDefaultSkin() {
