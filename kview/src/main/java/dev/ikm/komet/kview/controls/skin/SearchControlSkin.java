@@ -71,7 +71,7 @@ public class SearchControlSkin extends SkinBase<SearchControl> {
         double searchPaneWidth = snapSizeX(searchPane.prefWidth(contentHeight));
         double closePaneWidth = snapSizeX(closePane.prefWidth(contentHeight));
         double filterPaneWidth = snapSizeX(filterPane.prefWidth(contentHeight));
-        double textFieldWidth = contentWidth - filterPaneWidth - 8;
+        double textFieldWidth = contentWidth - filterPaneWidth - 12;
         double textFieldHeight = snapSizeY(textField.prefHeight(textFieldWidth));
         textField.resizeRelocate(x, y, textFieldWidth, textFieldHeight);
 
