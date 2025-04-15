@@ -75,7 +75,6 @@ public class SearchControl extends Control {
         onLongHoverProperty.set(value);
     }
 
-
     // onFilterActionProperty
     private final ObjectProperty<EventHandler<ActionEvent>> onFilterActionProperty = new SimpleObjectProperty<>(this, "onFilterAction");
     public final ObjectProperty<EventHandler<ActionEvent>> onFilterActionProperty() {
@@ -110,6 +109,18 @@ public class SearchControl extends Control {
     }
     public final void setActivation(double value) {
         activationProperty.set(value);
+    }
+
+    // resultsPlaceholderProperty
+    private final StringProperty resultsPlaceholderProperty = new SimpleStringProperty(this, "resultsPlaceholder");
+    public final StringProperty resultsPlaceholderProperty() {
+       return resultsPlaceholderProperty;
+    }
+    public final String getResultsPlaceholder() {
+       return resultsPlaceholderProperty.get();
+    }
+    public final void setResultsPlaceholder(String value) {
+        resultsPlaceholderProperty.set(value);
     }
 
     public record SearchResult(ConceptFacade parentConcept, ConceptFacade concept, String highlight) {}
