@@ -241,7 +241,7 @@ public class SearchControlSkin extends SkinBase<SearchControl> {
             subscription = subscription.and(actualTextProperty.subscribe(text -> {
                 Platform.runLater(this::addHighlightPaths);
                 if (text != null && !text.isEmpty() && descriptionLabel.getText() != null && !text.equals(descriptionLabel.getText())) {
-                    descriptionLabel.setTooltip(new Tooltip(descriptionLabel.getText() + " :: " + text));
+                    descriptionLabel.setTooltip(new Tooltip(descriptionLabel.getText()));
                 }
             }));
             subscription = subscription.and(hoverProperty().subscribe(h -> {
