@@ -15,7 +15,6 @@
  */
 package dev.ikm.komet.kview.mvvm.model;
 
-import static dev.ikm.komet.kview.controls.KLComponentControl.EMPTY_NID;
 import static dev.ikm.komet.kview.events.EventTopics.SAVE_PATTERN_TOPIC;
 import static dev.ikm.komet.kview.events.pattern.PatternCreationEvent.PATTERN_CREATION_EVENT;
 import static dev.ikm.tinkar.terms.TinkarTerm.ANONYMOUS_CONCEPT;
@@ -26,10 +25,8 @@ import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_FIELD;
 import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_ID_LIST_FIELD;
 import static dev.ikm.tinkar.terms.TinkarTerm.COMPONENT_ID_SET_FIELD;
 import static dev.ikm.tinkar.terms.TinkarTerm.CONCEPT_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.DESCRIPTION_NOT_CASE_SENSITIVE;
 import static dev.ikm.tinkar.terms.TinkarTerm.DIGRAPH_FIELD;
 import static dev.ikm.tinkar.terms.TinkarTerm.DITREE_FIELD;
-import static dev.ikm.tinkar.terms.TinkarTerm.ENGLISH_LANGUAGE;
 import static dev.ikm.tinkar.terms.TinkarTerm.FLOAT_FIELD;
 import static dev.ikm.tinkar.terms.TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE;
 import static dev.ikm.tinkar.terms.TinkarTerm.INSTANT_LITERAL;
@@ -57,10 +54,7 @@ import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.service.TinkExecutor;
 import dev.ikm.tinkar.composer.Composer;
 import dev.ikm.tinkar.composer.Session;
-import dev.ikm.tinkar.composer.assembler.ConceptAssembler;
-import dev.ikm.tinkar.composer.assembler.ConceptAssemblerConsumer;
 import dev.ikm.tinkar.composer.assembler.SemanticAssembler;
-import dev.ikm.tinkar.composer.template.FullyQualifiedName;
 import dev.ikm.tinkar.composer.template.USDialect;
 import dev.ikm.tinkar.coordinate.Calculators;
 import dev.ikm.tinkar.coordinate.edit.EditCoordinate;
@@ -377,19 +371,12 @@ public class DataModelHelper {
         Composer composer = new Composer("Semantic for %s".formatted(pattern.description()));
         Session session = composer.open(status, author, module, path);
 
-        //FIXME we need to define a default reference component
-        session.compose((ConceptAssembler conceptAssembler) -> conceptAssembler
-                .attach((FullyQualifiedName fqn) -> fqn
-                        .language(ENGLISH_LANGUAGE)
-                        .text("Reference Component")
-                        .caseSignificance(DESCRIPTION_NOT_CASE_SENSITIVE)));
-
         EntityProxy.Semantic defaultSemantic = EntityProxy.Semantic.make(PublicIds.newRandom());
         session.compose((SemanticAssembler semanticAssembler) -> {
             semanticAssembler
                     .semantic(defaultSemantic)
-                    //FIXME we don't want this circular reference to its own pattern.  We want a default reference component
-                    .reference(patternProxy) // can we overwrite the reference component so long as we don't commit?
+                    // using anonymous concept for both reference component and for fields that are concepts for consistency
+                    .reference(ANONYMOUS_CONCEPT)
                     .pattern((EntityProxy.Pattern) patternProxy)
                     .fieldValues(fieldValues -> {
                         patternVersionRecord.fieldDefinitions().forEach(f -> {

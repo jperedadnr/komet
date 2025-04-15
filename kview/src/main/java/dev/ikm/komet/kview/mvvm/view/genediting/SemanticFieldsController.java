@@ -16,7 +16,9 @@
 package dev.ikm.komet.kview.mvvm.view.genediting;
 
 
+import static dev.ikm.komet.kview.events.EventTopics.SAVE_PATTERN_TOPIC;
 import static dev.ikm.komet.kview.events.genediting.GenEditingEvent.PUBLISH;
+import static dev.ikm.komet.kview.events.pattern.PatternCreationEvent.PATTERN_CREATION_EVENT;
 import static dev.ikm.komet.kview.klfields.KlFieldHelper.calculteHashValue;
 import static dev.ikm.komet.kview.klfields.KlFieldHelper.generateHashValue;
 import static dev.ikm.komet.kview.klfields.KlFieldHelper.retrieveCommittedLatestVersion;
@@ -28,6 +30,7 @@ import dev.ikm.komet.framework.events.EvtBusFactory;
 import dev.ikm.komet.framework.observable.ObservableField;
 import dev.ikm.komet.framework.view.ViewProperties;
 import dev.ikm.komet.kview.events.genediting.GenEditingEvent;
+import dev.ikm.komet.kview.events.pattern.PatternCreationEvent;
 import dev.ikm.komet.kview.klfields.KlFieldHelper;
 import dev.ikm.tinkar.common.service.TinkExecutor;
 import dev.ikm.tinkar.coordinate.stamp.calculator.Latest;
@@ -54,6 +57,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SemanticFieldsController {
 
@@ -82,16 +86,35 @@ public class SemanticFieldsController {
     private int committedHash;
 
     private void enableDisableSubmitButton(Object value){
-        if (value != null && !value.toString().isEmpty()) {
-            enableDisableSubmitButton();
-        } else {
+        if (value == null || value.toString().isEmpty()){
             submitButton.setDisable(true);
+        } else {
+            enableDisableSubmitButton();
         }
     }
 
     private void enableDisableSubmitButton(){
-        int uncommittedHash = calculteHashValue(observableFields);
-        submitButton.setDisable(committedHash == uncommittedHash);
+        //Disable submit button if any of the fields are blank.
+        boolean disabled = checkForEmptyFields();
+        if(!disabled){
+            int uncommittedHash = calculteHashValue(observableFields);
+            disabled = (committedHash == uncommittedHash);
+        }
+        submitButton.setDisable(disabled);
+    }
+
+    /**
+     * This method checks for empty/blank/null fields
+     * @return invalid
+     */
+    private boolean checkForEmptyFields() {
+        AtomicBoolean invalid = new AtomicBoolean(false);
+        observableFields.forEach(observableField -> {
+            if (!invalid.get()) {
+                invalid.set((observableField.value() == null || observableField.value().toString().isEmpty()));
+            }
+        });
+        return invalid.get();
     }
 
     private void processCommittedValues() {
@@ -104,7 +127,7 @@ public class SemanticFieldsController {
         // This flag is used to avoid unnecessary calling for
         // method when value for other listeners is updated.
         // It is similar to refreshProperty in Observable interface.
-        if(updateStampVersions){
+        if (updateStampVersions) {
             updateStampVersionsNidsForAllFields();
         }
     };
@@ -228,8 +251,12 @@ public class SemanticFieldsController {
             SemanticVersionRecord version = Entity.getVersionFast(semantic.nid(), stamp.nid());
             Transaction.forVersion(version).ifPresentOrElse(transaction -> {
                 commitTransactionTask(transaction);
-                //EventBus implementation changes to refresh the details area if commit successful
-                EvtBusFactory.getDefaultEvtBus().publish(semanticFieldsViewModel.getPropertyValue(CURRENT_JOURNAL_WINDOW_TOPIC), new GenEditingEvent(actionEvent.getSource(), PUBLISH, list, semantic.nid()));
+                // EventBus implementation changes to refresh the details area if commit successful
+                EvtBusFactory.getDefaultEvtBus().publish(semanticFieldsViewModel.getPropertyValue(CURRENT_JOURNAL_WINDOW_TOPIC),
+                        new GenEditingEvent(actionEvent.getSource(), PUBLISH, list, semantic.nid()));
+                // refesh the pattern navigation
+                EvtBusFactory.getDefaultEvtBus().publish(SAVE_PATTERN_TOPIC,
+                        new PatternCreationEvent(actionEvent.getSource(), PATTERN_CREATION_EVENT));
             }, () -> {
                 //TODO this is a temp alert / workaround till we figure how to reload transactions across multiple restarts of app.
                 LOG.error("Unable to commit: Transaction for the given version does not exist.");

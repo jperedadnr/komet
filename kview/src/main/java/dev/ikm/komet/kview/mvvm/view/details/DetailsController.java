@@ -22,6 +22,7 @@ import static dev.ikm.komet.kview.fxutils.MenuHelper.fireContextMenuEvent;
 import static dev.ikm.komet.kview.fxutils.SlideOutTrayHelper.slideIn;
 import static dev.ikm.komet.kview.fxutils.SlideOutTrayHelper.slideOut;
 import static dev.ikm.komet.kview.fxutils.ViewportHelper.clipChildren;
+import static dev.ikm.komet.kview.lidr.mvvm.viewmodel.DeviceViewModel.DEVICE_ENTITY;
 import static dev.ikm.komet.kview.mvvm.model.DataModelHelper.addToMembershipPattern;
 import static dev.ikm.komet.kview.mvvm.model.DataModelHelper.getMembershipPatterns;
 import static dev.ikm.komet.kview.mvvm.model.DataModelHelper.isInMembershipPattern;
@@ -105,7 +106,6 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToggleButton;
@@ -114,11 +114,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -139,12 +135,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -180,7 +171,7 @@ public class DetailsController  {
     private Tooltip conceptNameTooltip;
 
     @FXML
-    private TextArea definitionTextArea;
+    private TextField definitionTextField;
 
     @FXML
     private TextField identifierText;
@@ -189,19 +180,19 @@ public class DetailsController  {
     private Tooltip identifierTooltip;
 
     @FXML
-    private Text lastUpdatedText;
+    private Label lastUpdatedLabel;
 
     @FXML
-    private Text moduleText;
+    private Label moduleLabel;
 
     @FXML
-    private Text pathText;
+    private Label pathLabel;
 
     @FXML
-    private Text originationText;
+    private Label originationLabel;
 
     @FXML
-    private Text statusText;
+    private Label statusLabel;
 
     /**
      * Applied to lastUpdatedText component.
@@ -389,7 +380,7 @@ public class DetailsController  {
         });
 
         Tooltip.install(identifierText, identifierTooltip);
-        Tooltip.install(lastUpdatedText, authorTooltip);
+        Tooltip.install(lastUpdatedLabel, authorTooltip);
         Tooltip.install(fqnTitleText, conceptNameTooltip);
 
         clearView();
@@ -820,7 +811,7 @@ public class DetailsController  {
         conceptNameTooltip.setText(conceptNameStr);
 
         // Definition description text
-        definitionTextArea.setText("");
+        definitionTextField.setText("");
 
     }
     /**
@@ -841,7 +832,7 @@ public class DetailsController  {
         conceptNameTooltip.setText(conceptNameStr);
 
         // Definition description text
-        definitionTextArea.setText(viewCalculator.getDefinitionDescriptionText(entityFacade.nid()).orElse(""));
+        definitionTextField.setText(viewCalculator.getDefinitionDescriptionText(entityFacade.nid()).orElse(""));
 
         // Public ID (UUID)
         List<String> idList = entityFacade.publicId().asUuidList().stream()
@@ -862,22 +853,22 @@ public class DetailsController  {
 
         // Status
         String status = stamp.state() != null && State.ACTIVE == stamp.state() ? "Active" : "Inactive";
-        statusText.setText(status);
+        statusLabel.setText(status);
 
         // Module
         String module = stamp.module().description();
-        moduleText.setText(module);
+        moduleLabel.setText(module);
 
         // Path
         String path = stamp.path().description();
-        pathText.setText(path);
+        pathLabel.setText(path);
 
         // Latest update time
         DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ss");
         Instant stampInstance = Instant.ofEpochSecond(stamp.time()/1000);
         ZonedDateTime stampTime = ZonedDateTime.ofInstant(stampInstance, ZoneOffset.UTC);
         String time = DATE_TIME_FORMATTER.format(stampTime);
-        lastUpdatedText.setText(time);
+        lastUpdatedLabel.setText(time);
 
         // Author tooltip
         authorTooltip.setText(stamp.author().description());
@@ -916,6 +907,8 @@ public class DetailsController  {
             LOG.error("missing case sensitivity and language when adding a fully qualified name");
             fqnDescriptionSemanticText.setText("");
         }
+
+        fqnContainer.getChildren().setAll(latestFqnText, fqnDescriptionSemanticText);
     }
 
     public void updateOtherNamesDescription(List<DescrName> descrNameViewModels) {
@@ -1058,9 +1051,14 @@ public class DetailsController  {
 
         // create textflow to hold regular name label
         TextFlow row1 = new TextFlow();
-        Object obj = otherName.getNameText();
-        String nameLabel = String.valueOf(obj);
-        Text otherNameLabel = new Text(nameLabel);
+
+        // TODO: need to retrieve the description Semantic's Text field (latest version text).
+        PublicId semanticPid = otherName.getSemanticPublicId();
+        int nid = EntityService.get().nidForPublicId(semanticPid);
+        Latest<SemanticEntityVersion> regularDescriptionTextversion = getViewProperties().calculator().latest(nid);
+        Text otherNameLabel = new Text(regularDescriptionTextversion.get().fieldValues().get(1).toString());
+        LOG.info("otherNameLabel : "+otherNameLabel);
+
         otherNameLabel.getStyleClass().add("descr-concept-name");
 
         Text semanticDescrText = new Text();
@@ -1098,8 +1096,15 @@ public class DetailsController  {
     private void updateFQNSemantics(SemanticEntityVersion semanticEntityVersion, List<String> fieldDescriptions) {
         DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy");
         // Latest FQN
-        String fullyQualifiedName = (String) semanticEntityVersion.fieldValues().get(1);
-        latestFqnText.setText(fullyQualifiedName);
+        ViewCalculator viewCalculator = getViewProperties().calculator();
+        EntityFacade entityFacade = getConceptViewModel().getPropertyValue(DEVICE_ENTITY);
+        Latest<EntityVersion> latestEntityVersion = viewCalculator.latest(entityFacade);
+        if (latestEntityVersion.isPresent()) {
+            // obtain the latest entity's version (concept version)
+            EntityVersion entityVersion = latestEntityVersion.get();
+            String fullyQualifiedName = viewCalculator.getFullyQualifiedDescriptionTextWithFallbackOrNid(entityVersion.nid());
+            latestFqnText.setText(fullyQualifiedName);
+        }
 
         this.fqnPublicId = semanticEntityVersion.publicId();
         fqnContainer.setOnMouseClicked(event -> eventBus.publish(conceptTopic,
@@ -1112,6 +1117,9 @@ public class DetailsController  {
         } else {
             fqnDescriptionSemanticText.setText("");
         }
+
+        fqnContainer.getChildren().setAll(latestFqnText, fqnDescriptionSemanticText);
+
         // update date
         Instant stampInstance = Instant.ofEpochSecond(semanticEntityVersion.stamp().time()/1000);
         ZonedDateTime stampTime = ZonedDateTime.ofInstant(stampInstance, ZoneOffset.UTC);
@@ -1162,7 +1170,9 @@ public class DetailsController  {
         viewCalculator.getDescriptionsForComponent(conceptFacade).stream()
                 .filter(semanticEntity -> {
                     // semantic -> semantic version -> pattern version(index meaning field from DESCR_Type)
-                    Latest<SemanticEntityVersion> semanticVersion = viewCalculator.latest(semanticEntity);
+                    // ((SemanticEntityVersion)viewCalculator.latest(semanticEntity.nid()).get()).fieldValues().get(1) // Hello Status
+                    // viewCalculator.latest(semanticEntity).get() semanticVersion.get().fieldValues().get(1)    // Status
+                    Latest<SemanticEntityVersion> semanticVersion = viewCalculator.latest(semanticEntity.nid());
 
                     PatternEntity<PatternEntityVersion> patternEntity = semanticEntity.pattern();
                     PatternEntityVersion patternEntityVersion = viewCalculator.latest(patternEntity).get();
@@ -1178,9 +1188,10 @@ public class DetailsController  {
                                 typeId == DEFINITION_DESCRIPTION_TYPE.nid());
                     }
                     return false;
+
                 }).forEach(semanticEntity -> {
                     // Each description obtain the latest semantic version, pattern version and their field values based on index
-                    Latest<SemanticEntityVersion> semanticVersion = viewCalculator.latest(semanticEntity);
+                    Latest<SemanticEntityVersion> semanticVersion = viewCalculator.latest(semanticEntity.nid());
                     PatternEntity<PatternEntityVersion> patternEntity = semanticEntity.pattern();
                     PatternEntityVersion patternEntityVersion = viewCalculator.latest(patternEntity).get();
 
@@ -1273,18 +1284,18 @@ public class DetailsController  {
     }
 
     public void clearView() {
-        identiconImageView.setImage(null);
-        //fqnTitleText.setText(""); // Defaults to 'Concept Name'. It's what is specified in Scene builder
-        definitionTextArea.setText("");
-        identifierText.setText("");
-        lastUpdatedText.setText("");
-        moduleText.setText("");
-        pathText.setText("");
-        originationText.setText("");
-        statusText.setText("");
+        definitionTextField.clear();
+        identifierText.clear();
+        lastUpdatedLabel.setText("");
+        moduleLabel.setText("");
+        pathLabel.setText("");
+        originationLabel.setText("");
+        statusLabel.setText("");
         authorTooltip.setText("");
         notAvailInferredAxiomLabel.setVisible(true);
         notAvailStatedAxiomLabel.setVisible(true);
+        fqnContainer.getChildren().clear();
+        fqnDateAddedTextFlow.getChildren().clear();
         otherNamesNodeListControl.getItems().clear();
     }
     @FXML
@@ -1429,20 +1440,20 @@ public class DetailsController  {
         ZonedDateTime stampTime = ZonedDateTime.ofInstant(stampInstance, ZoneOffset.UTC);
         String lastUpdated = DATE_TIME_FORMATTER.format(stampTime);
 
-        lastUpdatedText.setText(lastUpdated);
+        lastUpdatedLabel.setText(lastUpdated);
         ConceptEntity moduleEntity = stampViewModel.getValue(MODULE);
         if (moduleEntity == null) {
             LOG.warn("Must select a valid module for Stamp.");
             return;
         }
         String moduleDescr = viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(moduleEntity.nid());
-        moduleText.setText(moduleDescr);
+        moduleLabel.setText(moduleDescr);
         ConceptEntity pathEntity = stampViewModel.getValue(PATH);
         String pathDescr = viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(pathEntity.nid());
-        pathText.setText(pathDescr);
+        pathLabel.setText(pathDescr);
         State status = stampViewModel.getValue(STATUS);
         String statusMsg = status == null ? "Active" : viewProperties.calculator().getPreferredDescriptionTextWithFallbackOrNid(status.nid());
-        statusText.setText(statusMsg);
+        statusLabel.setText(statusMsg);
     }
 
     public void compactSizeWindow() {
