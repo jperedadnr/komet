@@ -75,6 +75,8 @@ public class KLConceptNavigatorTreeCell extends TreeCell<ConceptFacade> {
                 e.consume();
             }
         });
+
+        getStyleClass().add("navigator-tree-cell");
     }
 
     public void unselectItem() {
