@@ -7,10 +7,10 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import dev.ikm.komet.controls.KLConceptNavigatorControl?>
-
+<?import dev.ikm.komet.kview.controls.KLConceptNavigatorControl?>
+<?import dev.ikm.komet.kview.controls.SearchControl?>
 <?import javafx.scene.control.CheckBox?>
-<?import dev.ikm.komet.controls.SearchControl?>
+
 <ScrollPane styleClass="sample-container" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dev.ikm.komet.sampler.controllers.SamplerConceptNavigatorController">
     <VBox>

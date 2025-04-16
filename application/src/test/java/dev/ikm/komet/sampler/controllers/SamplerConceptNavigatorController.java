@@ -2,8 +2,8 @@ package dev.ikm.komet.sampler.controllers;
 
 import dev.ikm.komet.app.AppState;
 import dev.ikm.komet.app.LoadDataSourceTask;
-import dev.ikm.komet.controls.KLConceptNavigatorControl;
-import dev.ikm.komet.controls.SearchControl;
+import dev.ikm.komet.kview.controls.KLConceptNavigatorControl;
+import dev.ikm.komet.kview.controls.SearchControl;
 import dev.ikm.komet.framework.view.ObservableViewNoOverride;
 import dev.ikm.komet.framework.view.ViewProperties;
 import dev.ikm.komet.framework.window.WindowSettings;
@@ -37,7 +37,7 @@ import java.util.function.Consumer;
 
 import static dev.ikm.komet.app.AppState.RUNNING;
 import static dev.ikm.komet.app.AppState.STARTING;
-import static dev.ikm.komet.controls.KLConceptNavigatorTreeCell.CONCEPT_NAVIGATOR_DRAG_FORMAT;
+import static dev.ikm.komet.kview.controls.KLConceptNavigatorTreeCell.CONCEPT_NAVIGATOR_DRAG_FORMAT;
 import static dev.ikm.komet.preferences.JournalWindowPreferences.MAIN_KOMET_WINDOW;
 
 public class SamplerConceptNavigatorController {
