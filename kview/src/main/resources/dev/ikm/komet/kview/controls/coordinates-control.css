@@ -1,0 +1,259 @@
+/*
+ Coordinates Control
+*/
+
+.coordinates-control {
+    -fx-background-color: #2E3240, #6E7989;
+    -fx-background-insets: 0, 1;
+    -fx-min-width: 448;
+    -fx-pref-width: 448;
+    -fx-padding: 0;
+    -fx-border-width: 0;
+}
+
+/*
+ Coordinates Control - Header
+*/
+
+.coordinates-control > .header-box {
+    -fx-background-color: #2E3240, #44495E;
+    -fx-background-insets: 0, 1;
+    -fx-border-width: 0;
+    -fx-alignment: center;
+    -fx-padding: 0 8 0 8;
+    -fx-pref-height: 32;
+}
+
+.coordinates-control > .header-box > .label.title {
+    -fx-text-fill: #FBFBFC;
+    -fx-font-family: "Noto Sans";
+    -fx-font-weight: 500;
+    -fx-font-size: 14;
+    -fx-alignment: center;
+    -fx-pref-width: 376;
+}
+
+.coordinates-control > .header-box > .region,
+.coordinates-control > .header-box > .filter-button {
+    -fx-min-width: 28;
+    -fx-pref-width: 28;
+    -fx-max-width: 28;
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-max-height: 28;
+    -fx-background-color: transparent;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+
+.coordinates-control > .header-box > .filter-button:selected {
+    -fx-background-color: #5DCF16;
+}
+
+.coordinates-control > .header-box > .region > .icon,
+.coordinates-control > .header-box > .filter-button > .icon {
+    -fx-background-color: white;
+    -fx-scale-shape: false;
+}
+
+.coordinates-control > .header-box > .region > .icon.close {
+    /* 0.167, 0.167 11.667x11.667 */
+    -fx-shape: "M11.8333 1.34175L10.6583 0.166748L5.99999 4.82508L1.34166 0.166748L0.166656 1.34175L4.82499 6.00008L0.166656 10.6584L1.34166 11.8334L5.99999 7.17508L10.6583 11.8334L11.8333 10.6584L7.17499 6.00008L11.8333 1.34175Z";
+}
+
+.coordinates-control > .header-box > .filter-button > .icon.filter {
+    /* 0.77, 0.63 17.70x17.07 */
+    -fx-shape: "M13.8184 17.7021H0.770508V15.6523H13.8184V17.7021ZM13.8184 13.6016H0.770508V11.5508H13.8184V13.6016ZM8.89551 9.50098H0.770508V7.4502H8.89551V9.50098ZM15.7998 0.629883C17.2969 0.630014 18.4795 1.80737 18.4795 3.30957C18.4794 4.22249 18.064 5.02366 17.4121 5.82129C16.7658 6.61205 15.8484 7.44458 14.7793 8.41406L14.7715 8.4209L13.9121 9.20312L13.0537 8.4209L13.0459 8.41406C11.9767 7.44453 11.0585 6.61208 10.4121 5.82129C9.76026 5.02371 9.3458 4.22244 9.3457 3.30957C9.3457 1.80729 10.5282 0.629883 12.0254 0.629883C12.728 0.629994 13.4028 0.901379 13.9121 1.34668C14.4216 0.901202 15.097 0.629883 15.7998 0.629883ZM15.7998 2.21387C15.2989 2.21387 14.8128 2.54753 14.6494 2.9668L14.5566 3.2041H13.2676L13.1748 2.9668C13.0115 2.54765 12.5262 2.21406 12.0254 2.21387C11.3925 2.21387 10.9297 2.67666 10.9297 3.30957C10.9298 3.77796 11.1851 4.29284 11.748 4.95117C12.2685 5.55985 13.003 6.2366 13.9102 7.06055C14.8193 6.23647 15.5552 5.55989 16.0762 4.95117C16.6395 4.2929 16.8944 3.77791 16.8945 3.30957C16.8945 2.67675 16.4326 2.21399 15.7998 2.21387Z";
+}
+
+.coordinates-control > .header-box > .filter-button:selected > .icon.filter {
+    -fx-background-color: black;
+}
+
+/*
+ Coordinates Control - Bottom
+*/
+
+.coordinates-control > .bottom-box {
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-background-color: #2E3240, #44495E;
+    -fx-background-insets: 0, 1;
+    -fx-border-width: 0;
+    -fx-pref-height: 90;
+    -fx-padding: 12 12 16 12;
+}
+
+.coordinates-control > .bottom-box > .button {
+    -fx-font-family: "Noto Sans";
+    -fx-font-weight: 600;
+    -fx-font-size: 12;
+    -fx-alignment: center;
+    -fx-text-fill: #5896F6;
+    -fx-background-color: #4A7AD2, #2E3240;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4, 4;
+    -fx-pref-height: 24;
+    -fx-min-width: 256;
+}
+
+.coordinates-control > .bottom-box > .button:hover {
+    -fx-text-fill: #9DC4FF;
+    -fx-background-color: #4A7AD2, #44495E;
+}
+
+.coordinates-control > .bottom-box > .button:disabled {
+    -fx-text-fill: #6E7989;
+    -fx-background-color: #6E7989, #2E3240;
+}
+
+.coordinates-control > .bottom-box > .button > .region {
+    -fx-min-width: 16;
+    -fx-pref-width: 16;
+    -fx-max-width: 16;
+    -fx-min-height: 16;
+    -fx-pref-height: 16;
+    -fx-max-height: 16;
+    -fx-background-color: transparent;
+}
+
+.coordinates-control > .bottom-box > .button > .region > .icon {
+    -fx-scale-shape: false;
+    -fx-background-color: #5896F6;
+}
+
+.coordinates-control > .bottom-box > .button > .region > .icon.save {
+    /* 0.42, 0.49 14.17x15.19 */
+    -fx-shape: "M10.8555 15.6768H0.416992V14.0371H10.8555V15.6768ZM10.8555 12.3965H0.416992V10.7559H10.8555V12.3965ZM6.91699 9.11621H0.416992V7.47559H6.91699V9.11621ZM12.4395 0.487305C13.6372 0.487305 14.583 1.42904 14.583 2.63086C14.5829 3.36127 14.2511 4.00246 13.7295 4.64062C13.2124 5.27317 12.4782 5.93838 11.623 6.71387L11.6172 6.71973L10.9297 7.3457L10.2432 6.71973L10.2363 6.71387C9.38113 5.93838 8.64691 5.27317 8.12988 4.64062C7.60826 4.00246 7.27643 3.36127 7.27637 2.63086C7.27637 1.42905 8.22218 0.487328 9.41992 0.487305C9.98214 0.487305 10.5221 0.704244 10.9297 1.06055C11.3372 0.704215 11.8772 0.487354 12.4395 0.487305ZM12.4395 1.75488C12.0388 1.75497 11.6502 2.02109 11.5195 2.35645L11.4453 2.54688H10.4141L10.3398 2.35645C10.2091 2.02104 9.82067 1.75488 9.41992 1.75488C8.91362 1.7549 8.54395 2.12455 8.54395 2.63086C8.54402 3.00558 8.7479 3.41765 9.19824 3.94434C9.61465 4.43133 10.2028 4.97258 10.9287 5.63184C11.6559 4.97267 12.2444 4.43126 12.6611 3.94434C13.1118 3.4177 13.3154 3.00554 13.3154 2.63086C13.3154 2.12453 12.9458 1.75488 12.4395 1.75488Z";
+}
+
+.coordinates-control > .bottom-box > .button > .region > .icon.revert {
+    /* 3.01, 2.62 9.98x9.72 */
+    -fx-shape: "M4.31272 12.3334V11H9.05634C9.75634 11 10.3646 10.7778 10.881 10.3334C11.3979 9.88892 11.6563 9.33337 11.6563 8.6667C11.6563 8.00003 11.3979 7.44448 10.881 7.00003C10.3646 6.55559 9.75634 6.33337 9.05634 6.33337H5.52301L6.78968 7.60003C6.9119 7.72225 6.97301 7.87781 6.97301 8.0667C6.97301 8.25559 6.9119 8.41114 6.78968 8.53337C6.66745 8.65559 6.5119 8.7167 6.32301 8.7167C6.13412 8.7167 5.97857 8.65559 5.85634 8.53337L3.0105 5.66146L5.85634 2.80003C5.97857 2.67781 6.13412 2.6167 6.32301 2.6167C6.5119 2.6167 6.66745 2.67781 6.78968 2.80003C6.9119 2.92225 6.97301 3.07781 6.97301 3.2667C6.97301 3.45559 6.9119 3.61114 6.78968 3.73337L5.52301 5.00003H9.05634C10.1341 5.00003 11.0592 5.35003 11.8317 6.05003C12.6037 6.75003 12.9897 7.62225 12.9897 8.6667C12.9897 9.71114 12.6037 10.5834 11.8317 11.2834C11.0592 11.9834 10.1341 12.3334 9.05634 12.3334H4.31272Z";
+}
+
+.coordinates-control > .bottom-box > .button:hover > .region > .icon {
+    -fx-background-color: #9DC4FF;
+}
+
+.coordinates-control > .bottom-box > .button:disabled > .region > .icon {
+    -fx-background-color: #6E7989;
+}
+
+/*
+ Coordinates Control - Center
+ ScrollPane
+*/
+
+.coordinates-control > .scroll-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.coordinates-control > .scroll-pane > .scroll-bar:vertical,
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal {
+    -fx-padding: 2;
+}
+
+.coordinates-control > .scroll-pane > .viewport,
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal,
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal:focused,
+.coordinates-control > .scroll-pane > .scroll-bar:vertical,
+.coordinates-control > .scroll-pane > .scroll-bar:vertical:focused {
+    -fx-background-color: transparent;
+}
+
+.coordinates-control > .scroll-pane > .scroll-bar:vertical > .track,
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal > .track {
+    fx-background-insets: 0;
+}
+
+.coordinates-control > .scroll-pane > .corner {
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+}
+
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal .track,
+.coordinates-control > .scroll-pane > .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 0em;
+    -fx-border-radius: 0;
+    -fx-background-insets: 0;
+}
+
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal .increment-button,
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0em;
+    -fx-padding: 0;
+}
+
+.coordinates-control > .scroll-pane > .scroll-bar:vertical .increment-button,
+.coordinates-control > .scroll-pane > .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0em;
+    -fx-padding: 0 4 0 0;
+}
+
+.coordinates-control > .scroll-pane > .scroll-bar .increment-arrow,
+.coordinates-control > .scroll-pane > .scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+.coordinates-control > .scroll-pane > .scroll-bar:horizontal .thumb,
+.coordinates-control > .scroll-pane > .scroll-bar:vertical .thumb {
+    -fx-background-color: transparent, #FFFFFF99;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 2, 2;
+}
+
+/*
+ Coordinates Control - Center
+ ScrollPane > Accordion
+*/
+
+.coordinates-control > .scroll-pane .accordion {
+    -fx-padding: 0 0 10 0;
+}
+
+/*
+ Coordinates Control - Center
+ ScrollPane > Accordion > TitledPane
+*/
+
+.coordinates-control > .scroll-pane .accordion > .coordinate-titled-pane {
+    -fx-background-color: transparent;
+}
+
+.coordinates-control > .scroll-pane .accordion > .titled-pane:hover {
+}
+
+.coordinates-control > .scroll-pane .accordion > .titled-pane:expanded {
+}
+
+.coordinates-control > .scroll-pane .accordion > .titled-pane:focused {
+}
+
+.coordinates-control > .scroll-pane .accordion > .coordinate-titled-pane > .title {
+    -fx-text-fill: white;
+}
+
+.coordinates-control > .scroll-pane .accordion > .coordinates-titled-pane:focused > .title > .arrow-button > .arrow {
+    -fx-background-color: white;
+    -fx-background-insets: 0;
+    -fx-effect: null;
+}
+.coordinates-control > .scroll-pane .accordion > .coordinates-titled-pane > .title > .arrow-button {
+    -fx-background-color: null;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 0.0em 0.583em 0.0em 0.0em; /* 0 7 0 0 */
+}
+.coordinates-control > .scroll-pane .accordion > .coordinates-titled-pane > .title > .arrow-button > .arrow {
+    -fx-background-color: white;
+    -fx-background-insets: 0;
+    -fx-padding: 0.25em 0.3125em 0.25em 0.3125em; /* 3 3.75 3 3.75 */
+    -fx-shape: "M1.70492 0L0.294922 1.41L4.87492 6L0.294922 10.59L1.70492 12L7.70492 6L1.70492 0Z";
+}
