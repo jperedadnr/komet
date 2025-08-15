@@ -1,6 +1,8 @@
 package dev.ikm.komet.kview.controls.skin;
 
 import static dev.ikm.komet.kview.controls.FilterOptions.OPTION_ITEM.MODULE;
+
+import dev.ikm.komet.kview.controls.ConceptNavigatorUtils;
 import dev.ikm.komet.kview.controls.DateFilterTitledPane;
 import dev.ikm.komet.kview.controls.FilterOptions;
 import dev.ikm.komet.kview.controls.FilterOptionsPopup;
@@ -270,25 +272,15 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
 
         // module: all descendants of Module
         option = filterOptions.getModule();
-        setAvailableOptions(option, getDescendentsList(navigator, rootNid, MODULE.getPath()));
+        setAvailableOptions(option, ConceptNavigatorUtils.getDescendentsList(navigator, rootNid, MODULE.getPath()));
         FilterTitledPane moduleFilterTitledPane = setupTitledPane(option);
         setDefaultOptions(option);
 
         // path: all descendants of Path
         option = control.getInitialFilterOptions().getPath();
-        setAvailableOptions(option, getDescendentsList(navigator, rootNid, FilterOptions.OPTION_ITEM.PATH.getPath()));
+        setAvailableOptions(option, ConceptNavigatorUtils.getDescendentsList(navigator, rootNid, FilterOptions.OPTION_ITEM.PATH.getPath()));
         FilterTitledPane pathFilterTitledPane = setupTitledPane(option);
         setInitialOptions(option);
-
-        // language: all descendants of Model concept->Tinkar Model concept->Language
-        option = filterOptions.getLanguage();
-        setAvailableOptions(option, getDescendentsList(navigator, rootNid, FilterOptions.OPTION_ITEM.LANGUAGE.getPath()));
-        FilterTitledPane languageFilterTitledPane = setupTitledPane(option);
-        setDefaultOptions(option);
-
-        option = filterOptions.getDescription();
-        FilterTitledPane descriptionFilterTitledPane = setupTitledPane(option);
-        setDefaultOptions(option);
 
         option = filterOptions.getKindOf();
         FilterTitledPane kindOfFilterTitledPane = setupTitledPane(option);
@@ -304,9 +296,9 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
             setDefaultOptions(option);
         }
 
-        option = filterOptions.getDate();
+        option = filterOptions.getTime();
         FilterTitledPane dateFilterTitledPane = setupTitledPane(option);
-        defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().clear(); // latest has no selected options
+        defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().clear(); // latest has no selected options
 
         if (control.getFilterType() == FilterOptionsPopup.FILTER_TYPE.NAVIGATOR) {
             accordion.getPanes().setAll(
@@ -314,8 +306,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
                     statusFilterTitledPane,
                     moduleFilterTitledPane,
                     pathFilterTitledPane,
-                    languageFilterTitledPane,
-                    descriptionFilterTitledPane,
                     kindOfFilterTitledPane,
                     membershipFilterTitledPane,
                     dateFilterTitledPane);
@@ -325,8 +315,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
                     statusFilterTitledPane,
                     moduleFilterTitledPane,
                     pathFilterTitledPane,
-                    languageFilterTitledPane,
-                    descriptionFilterTitledPane,
                     kindOfFilterTitledPane,
                     membershipFilterTitledPane,
                     sortByFilterTitledPane,
@@ -340,7 +328,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
     }
 
     private FilterTitledPane setupTitledPane(FilterOptions.Option option) {
-        FilterTitledPane titledPane = option.item() == FilterOptions.OPTION_ITEM.DATE ?
+        FilterTitledPane titledPane = option.item() == FilterOptions.OPTION_ITEM.TIME ?
                 new DateFilterTitledPane() : new FilterTitledPane();
         titledPane.setTitle(option.title());
         titledPane.setOption(option);
@@ -354,31 +342,31 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
     }
 
     private void setInitialOptions(FilterOptions.Option option) {
-        defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().clear();
+        defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().clear();
         defaultFilterOptions.getOptionForItem(option.item()).defaultOptions().clear();
         if (option.isMultiSelectionAllowed()) {
-            defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().addAll(option.selectedOptions());
+            defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().addAll(option.getOptionSet().selectedOptions());
         } else {
-            defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().add(option.availableOptions().getFirst());
+            defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().add(option.availableOptions().getFirst());
         }
-        defaultFilterOptions.getOptionForItem(option.item()).defaultOptions().addAll(option.selectedOptions());
+        defaultFilterOptions.getOptionForItem(option.item()).defaultOptions().addAll(option.getOptionSet().selectedOptions());
     }
 
     private void setDefaultOptions(FilterOptions.Option option) {
-        defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().clear();
+        defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().clear();
         if (option.isMultiSelectionAllowed()) {
-            defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().addAll(option.availableOptions());
+            defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().addAll(option.availableOptions());
         } else {
-            defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().add(option.availableOptions().getFirst());
+            defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().add(option.availableOptions().getFirst());
         }
         defaultFilterOptions.getOptionForItem(option.item()).defaultOptions().clear();
-        if (defaultFilterOptions.getOptionForItem(option.item()).selectedOptions().containsAll(
+        if (defaultFilterOptions.getOptionForItem(option.item()).getOptionSet().selectedOptions().containsAll(
                 defaultFilterOptions.getOptionForItem(option.item()).availableOptions())) {
             //FIXME this is a temporary work around, the custom control should be refactored to not use a text property
             // for the default options but to instead inherit from the parent coordinate menu
             defaultFilterOptions.getOptionForItem(option.item()).defaultOptions().addAll(List.of("All"));
         } else {
-            defaultFilterOptions.getOptionForItem(option.item()).defaultOptions().addAll(option.selectedOptions());
+            defaultFilterOptions.getOptionForItem(option.item()).defaultOptions().addAll(option.getOptionSet().selectedOptions());
         }
     }
 
@@ -406,25 +394,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
     private void updateSavedFilterList() {
         List<String> savedFilters = kometPreferences.getList(SAVED_FILTERS_KEY, new ArrayList<>());
         savedFiltersPopup.getSavedFiltersList().setAll(savedFilters);
-    }
-
-    private static int findNidForDescription(Navigator navigator, int nid, String description) {
-        return navigator.getChildEdges(nid).stream()
-                .filter(edge -> Entity.getFast(edge.destinationNid()).description().equals(description))
-                .findFirst()
-                .map(Edge::destinationNid)
-                .orElseThrow();
-    }
-
-    private static List<String> getDescendentsList(Navigator navigator, int parentNid, String description) {
-        int nid = parentNid;
-        for (String s : description.split(", ")) {
-            nid = findNidForDescription(navigator, nid, s);
-        }
-        return navigator.getViewCalculator().descendentsOf(nid).intStream().boxed()
-                .map(i -> Entity.getFast(i).description())
-                .sorted()
-                .toList();
     }
 
     private static byte[] serialize(FilterOptions filterOptions) throws IOException {

@@ -99,6 +99,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -187,7 +188,7 @@ public class NextGenSearchController {
         TinkExecutor.threadPool().execute(TaskWrapper.make(new FilterMenuTask(getViewProperties()),
                 (FilterOptions filterOptions) ->
                         FXUtils.runOnFxThread(() ->
-                            filterOptionsPopup.initialFilterOptionsProperty().setValue(filterOptions))
+                            filterOptionsPopup.setInitialFilterOptions(filterOptions))
         ));
 
         root.heightProperty().subscribe(h -> filterOptionsPopup.setStyle("-popup-pref-height: " + h));
@@ -212,16 +213,16 @@ public class NextGenSearchController {
         // listen for changes to the filter options
         filterOptionsPopup.filterOptionsProperty().subscribe((oldFilterOptions, newFilterOptions) -> {
             if (newFilterOptions != null) {
-                if (!newFilterOptions.getStatus().selectedOptions().isEmpty()) {
+                if (!newFilterOptions.getStatus().getOptionSet().selectedOptions().isEmpty()) {
                     StateSet stateSet = StateSet.make(
-                            newFilterOptions.getStatus().selectedOptions().stream().map(
-                                    s -> State.valueOf(s.toUpperCase())).toList());
+                            newFilterOptions.getStatus().getOptionSet().selectedOptions().stream().map(
+                                    s -> State.valueOf(s.toUpperCase(Locale.ROOT))).toList());
                     // update the STATUS
                     getViewProperties().nodeView().stampCoordinate().allowedStatesProperty().setValue(stateSet);
                 }
-                if (!newFilterOptions.getPath().selectedOptions().isEmpty()) {
+                if (!newFilterOptions.getPath().getOptionSet().selectedOptions().isEmpty()) {
                     //NOTE: there is no known way to set multiple paths
-                    String pathStr = newFilterOptions.getPath().selectedOptions().stream().findFirst().get();
+                    String pathStr = newFilterOptions.getPath().getOptionSet().selectedOptions().stream().findFirst().get();
 
                     ConceptFacade conceptPath = switch(pathStr) {
                         case "Master path" -> TinkarTerm.MASTER_PATH;
@@ -232,8 +233,8 @@ public class NextGenSearchController {
                     // update the Path
                     getViewProperties().nodeView().stampCoordinate().pathConceptProperty().setValue(conceptPath);
                 }
-                if (!newFilterOptions.getDate().selectedOptions().isEmpty() &&
-                        !oldFilterOptions.getDate().selectedOptions().equals(newFilterOptions.getDate().selectedOptions())) {
+                if (!newFilterOptions.getTime().getOptionSet().selectedOptions().isEmpty() &&
+                        !oldFilterOptions.getTime().getOptionSet().selectedOptions().equals(newFilterOptions.getTime().getOptionSet().selectedOptions())) {
                     long millis = getMillis(newFilterOptions);
                     // update the time
                     getViewProperties().nodeView().stampCoordinate().timeProperty().set(millis);
@@ -256,8 +257,8 @@ public class NextGenSearchController {
     }
 
     private long getMillis(FilterOptions newFilterOptions) {
-        int lastElementIndex = newFilterOptions.getDate().selectedOptions().size() - 1;
-        String newDate = newFilterOptions.getDate().selectedOptions().get(lastElementIndex);
+        int lastElementIndex = newFilterOptions.getTime().getOptionSet().selectedOptions().size() - 1;
+        String newDate = newFilterOptions.getTime().getOptionSet().selectedOptions().get(lastElementIndex);
 
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
         Date date;

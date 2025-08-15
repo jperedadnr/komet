@@ -153,7 +153,7 @@ public class DateFilterTitledPaneSkin extends TitledPaneSkin {
         subscription = subscription.and(comboBox.getSelectionModel().selectedIndexProperty().subscribe((_, value) -> {
             if (comboBox.isShowing()) {
                 // reset
-                currentOption = new FilterOptions().getDate();
+                currentOption = new FilterOptions().getTime();
             }
 
             if (value.intValue() == 0) {
@@ -181,17 +181,17 @@ public class DateFilterTitledPaneSkin extends TitledPaneSkin {
         // confirm changes
         subscription = subscription.and(control.expandedProperty().subscribe((_, expanded) -> {
             if (!expanded) {
-                currentOption.selectedOptions().clear();
-                currentOption.excludedOptions().clear();
+                currentOption.getOptionSet().selectedOptions().clear();
+                currentOption.getOptionSet().excludedOptions().clear();
                 if (calendarControl != null && calendarControl.getDate() != null) {
-                    currentOption.selectedOptions().add(DATE_FORMATTER.format(calendarControl.getDate()));
+                    currentOption.getOptionSet().selectedOptions().add(DATE_FORMATTER.format(calendarControl.getDate()));
                 } else if (calendarControl != null && !calendarControl.dateRangeList().isEmpty()) {
                     calendarControl.dateRangeList().stream()
                             .filter(r -> !r.exclude())
-                            .forEach(dr -> currentOption.selectedOptions().add(dr.toString()));
+                            .forEach(dr -> currentOption.getOptionSet().selectedOptions().add(dr.toString()));
                     calendarControl.dateRangeList().stream()
                             .filter(DateRange::exclude)
-                            .forEach(dr -> currentOption.excludedOptions().add(dr.toString()));
+                            .forEach(dr -> currentOption.getOptionSet().excludedOptions().add(dr.toString()));
                 }
                 control.setOption(currentOption.copy());
             }
@@ -199,8 +199,8 @@ public class DateFilterTitledPaneSkin extends TitledPaneSkin {
 
         subscription = subscription.and(control.optionProperty().subscribe((_, _) -> setupTitledPane()));
 
-        List<String> selectedOptions = control.getOption().selectedOptions();
-        List<String> excludedOptions = control.getOption().excludedOptions();
+        List<String> selectedOptions = control.getOption().getOptionSet().selectedOptions();
+        List<String> excludedOptions = control.getOption().getOptionSet().excludedOptions();
         if (containsDateRange(selectedOptions) || containsDateRange(excludedOptions)) {
             control.setMode(DateFilterTitledPane.MODE.DATE_RANGE_LIST);
         } else if (containsDate(selectedOptions) && (excludedOptions == null || excludedOptions.isEmpty())) {
@@ -232,9 +232,9 @@ public class DateFilterTitledPaneSkin extends TitledPaneSkin {
         calendarControl = new RangeCalendarControl();
         contentBox.getChildren().setAll(separatorRegion, calendarControl);
 
-        if (containsDate(option.selectedOptions())) {
+        if (containsDate(option.getOptionSet().selectedOptions())) {
             try {
-                LocalDate date = LocalDate.parse(option.selectedOptions().getFirst(), DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN));
+                LocalDate date = LocalDate.parse(option.getOptionSet().selectedOptions().getFirst(), DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN));
                 calendarControl.setDate(date);
             } catch (DateTimeParseException e) {
                 e.printStackTrace();
@@ -263,15 +263,15 @@ public class DateFilterTitledPaneSkin extends TitledPaneSkin {
         bottomBox.disableProperty().bind(calendarControl.canAddNewRangeProperty().not());
         contentBox.getChildren().setAll(separatorRegion, calendarControl, bottomBox);
 
-        if (!option.selectedOptions().isEmpty() || !option.excludedOptions().isEmpty()) {
+        if (!option.getOptionSet().selectedOptions().isEmpty() || !option.getOptionSet().excludedOptions().isEmpty()) {
             try {
                 List<DateRange> dateRanges = new ArrayList<>();
                 AtomicInteger counter = new AtomicInteger();
-                dateRanges.addAll(option.selectedOptions().stream()
+                dateRanges.addAll(option.getOptionSet().selectedOptions().stream()
                         .map(s -> DateRange.of(counter.getAndIncrement(), s, false).orElse(null))
                         .filter(Objects::nonNull)
                         .toList());
-                dateRanges.addAll(option.excludedOptions().stream()
+                dateRanges.addAll(option.getOptionSet().excludedOptions().stream()
                         .map(s -> DateRange.of(counter.getAndIncrement(), s, true).orElse(null))
                         .filter(Objects::nonNull)
                         .toList());

@@ -22,9 +22,9 @@ public class FilterMenuTask extends TrackingCallable {
 
     private static final Logger LOG = LoggerFactory.getLogger(FilterMenuTask.class);
 
-    private ViewProperties viewProperties;
+    private final ViewProperties viewProperties;
 
-    private static final List<String> ALL_STATES = StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN.toEnumSet().stream().map(s -> s.name()).toList();
+    private static final List<String> ALL_STATES = StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN.toEnumSet().stream().map(Enum::name).toList();
 
     public FilterMenuTask(ViewProperties viewProperties) {
         this.viewProperties = viewProperties;
@@ -41,27 +41,29 @@ public class FilterMenuTask extends TrackingCallable {
 
                 // populate the STATUS
                 StateSet currentStates = observableStampCoordinate.allowedStatesProperty().getValue();
-                List<String> currentStatesStr = currentStates.toEnumSet().stream().map(s -> s.name()).toList();
+                List<String> currentStatesStr = currentStates.toEnumSet().stream().map(Enum::name).toList();
 
-                filterOptions.getStatus().selectedOptions().clear();
-                filterOptions.getStatus().selectedOptions().addAll(currentStatesStr);
+                FilterOptions.Option statusOption = filterOptions.getStatus();
+                statusOption.getOptionSet().selectedOptions().clear();
+                statusOption.getOptionSet().selectedOptions().addAll(currentStatesStr);
 
-                filterOptions.getStatus().availableOptions().clear();
-                filterOptions.getStatus().availableOptions().addAll(ALL_STATES);
+                statusOption.availableOptions().clear();
+                statusOption.availableOptions().addAll(ALL_STATES);
 
-                filterOptions.getStatus().defaultOptions().clear();
-                filterOptions.getStatus().defaultOptions().addAll(currentStatesStr);
+                statusOption.defaultOptions().clear();
+                statusOption.defaultOptions().addAll(currentStatesStr);
 
                 // populate the PATH
                 ConceptFacade currentPath = observableStampCoordinate.pathConceptProperty().getValue();
                 String currentPathStr = currentPath.description();
 
-                List<String> defaultSelectedPaths = new ArrayList(List.of(currentPathStr));
-                filterOptions.getPath().defaultOptions().clear();
-                filterOptions.getPath().defaultOptions().addAll(defaultSelectedPaths);
+                List<String> defaultSelectedPaths = new ArrayList<>(List.of(currentPathStr));
+                FilterOptions.Option pathOption = filterOptions.getPath();
+                pathOption.defaultOptions().clear();
+                pathOption.defaultOptions().addAll(defaultSelectedPaths);
 
-                filterOptions.getPath().selectedOptions().clear();
-                filterOptions.getPath().selectedOptions().addAll(defaultSelectedPaths);
+                pathOption.getOptionSet().selectedOptions().clear();
+                pathOption.getOptionSet().selectedOptions().addAll(defaultSelectedPaths);
             }
             //TODO Type, Module, Language, Description Type, Kind of, Membership, Sort By
         }

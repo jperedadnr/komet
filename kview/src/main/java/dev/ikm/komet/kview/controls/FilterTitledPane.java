@@ -11,7 +11,7 @@ import javafx.scene.control.TitledPane;
 public class FilterTitledPane extends TitledPane {
 
     public FilterTitledPane() {
-
+        getStyleClass().add("filter-titled-pane");
     }
 
     // titleProperty
