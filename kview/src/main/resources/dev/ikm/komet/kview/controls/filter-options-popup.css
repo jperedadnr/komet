@@ -220,10 +220,50 @@
 
 /*
  Filter Options Popup - Center
- ScrollPane > Accordion > TitledPane
+ ScrollPane > Accordion > regular TitledPane
 */
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane {
+.filter-options-popup > .scroll-pane .accordion > .titled-pane,
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title {
+    -fx-background-color: transparent;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .text {
+    -fx-fill: #5896F6;
+    -fx-font-family: "Noto Sans";
+    -fx-font-size: 13px;
+    -fx-font-style: bold;
+    -fx-font-weight: 700;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .arrow-button {
+    -fx-background-color: null;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-pref-width: 24;
+    -fx-pref-height: 24;
+    -fx-padding: 4;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .arrow-button > .arrow {
+    -fx-background-color: #5896F6;
+    -fx-background-insets: 0;
+    -fx-scale-shape: false;
+    -fx-shape: "M1.41 0.295078L-2.62268e-07 1.70508L6 7.70508L12 1.70508L10.59 0.295078L6 4.87508L1.41 0.295078Z";
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane:focused > .title > .arrow-button > .arrow {
+    -fx-background-color: #5896F6;
+    -fx-background-insets: 0;
+    -fx-effect: null;
+}
+
+/*
+ Filter Options Popup - Center
+ ScrollPane > Accordion > FilterTitledPane
+*/
+
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane {
     -fx-content-display: graphic-only;
     -fx-background-color: #2E3240, #545D72, #2E3240;
     -fx-background-insets: 0, 0 0 6 0, 1 1 7 1;
@@ -233,20 +273,20 @@
     -fx-padding: 4;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:hover {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:hover {
     -fx-background-color: #2E3240, #4A7AD2, #44495E;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded {
     -fx-padding: 4 4 6 4;
     -fx-background-color: #2E3240, #545D72, #44495E;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:focused {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:focused {
     -fx-color: transparent;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
     -fx-background-radius: 0;
@@ -260,39 +300,39 @@
  ScrollPane > Accordion > TitledPane > TitleBox
 */
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:taller > .title {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:taller > .title {
     -fx-padding: 4 -16 11 8;
     -fx-pref-height: 72;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:taller:expanded > .title,
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:taller:expanded > .title,
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title {
     -fx-padding: 4 -16 0 8;
     -fx-pref-height: 64;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded:single-select > .title {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded:single-select > .title {
     -fx-pref-height: 24;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box {
     -fx-alignment: top-left;
     -fx-spacing: 4;
     -fx-padding: 0;
     -fx-pref-height: 52;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title > .title-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title > .title-box {
     -fx-spacing: 6;
     -fx-pref-height: 60;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded:single-select > .title > .title-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded:single-select > .title > .title-box {
     -fx-spacing: 6;
     -fx-pref-height: 20;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .title-label {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .title-label {
     -fx-font-family: "Noto Sans";
     -fx-font-size: 13px;
     -fx-font-style: normal;
@@ -304,11 +344,11 @@
     -fx-alignment: center-left;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title > .title-box > .title-label {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title > .title-box > .title-label {
     -fx-text-fill: #E1E8F1;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .title-label > .circle {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .title-label > .circle {
     -fx-pref-width: 4;
     -fx-pref-height: 4;
     -fx-background-radius: 4;
@@ -316,41 +356,42 @@
     -fx-translate-y: -6;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:modified > .title > .title-box > .title-label > .circle {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:modified > .title > .title-box > .title-label > .circle {
     -fx-background-color: #F3BE00;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .option.truncated-text-flow {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .option.truncated-text-flow {
     -fx-managed: true;
     visibility: visible;
+    -fx-max-width: 286;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title > .title-box > .option.truncated-text-flow {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title > .title-box > .option.truncated-text-flow {
     -fx-managed: false;
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .option.truncated-text-flow > .text {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .option.truncated-text-flow > .text {
     -fx-fill: white;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .toggles-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .toggles-box {
     -fx-managed: false;
     visibility: hidden;
     -fx-spacing: 8;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title > .title-box > .toggles-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title > .title-box > .toggles-box {
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded:single-select > .title > .title-box > .toggles-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded:single-select > .title > .title-box > .toggles-box {
     -fx-managed: false;
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .toggles-box > .toggle-button {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .toggles-box > .toggle-button {
     -fx-background-color: #4A7AD2, white;
     -fx-background-insets: 0, 1;
     -fx-background-radius: 12, 12;
@@ -363,29 +404,29 @@
     -fx-text-fill: #4A7AD2;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .toggles-box > .toggle-button:disabled {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .toggles-box > .toggle-button:disabled {
     -fx-background-color: #9CAABF, #9CAABF;
     -fx-text-fill: black;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .toggles-box > .any-toggle.toggle-button,
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .toggles-box > .exclude-toggle.toggle-button {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .toggles-box > .any-toggle.toggle-button,
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .toggles-box > .exclude-toggle.toggle-button {
     -fx-managed: false;
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .toggles-box:any > .any-toggle.toggle-button,
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .title-box > .toggles-box:excluding > .exclude-toggle.toggle-button {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .toggles-box:any > .any-toggle.toggle-button,
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .title-box > .toggles-box:excluding > .exclude-toggle.toggle-button {
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title > .title-box > .toggles-box > .toggle-button:selected {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title > .title-box > .toggles-box > .toggle-button:selected {
     -fx-background-color: #5DCF16, #5DCF16;
     -fx-text-fill: black;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title > .title-box > .toggles-box > .toggle-button > .check {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title > .title-box > .toggles-box > .toggle-button > .check {
     /* 0, 0.08 10x7.83 */
     -fx-pref-width: 10;
     -fx-pref-height: 7.83;
@@ -395,19 +436,19 @@
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:expanded > .title > .title-box > > .toggles-box > .toggle-button:selected > .check {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:expanded > .title > .title-box > > .toggles-box > .toggle-button:selected > .check {
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .arrow-button {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .arrow-button {
     -fx-padding: 0;
     -fx-rotate: 90;
     -fx-pref-width: 20;
     -fx-pref-height: 20;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .title > .arrow-button > .arrow {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .title > .arrow-button > .arrow {
     -fx-background-color: #5896F6;
     -fx-background-insets: 0;
     -fx-shape: "M8.0876 5L6.9126 6.175L10.7293 10L6.9126 13.825L8.0876 15L13.0876 10L8.0876 5Z";
@@ -420,31 +461,31 @@
  ScrollPane > Accordion > Content
 */
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content {
     -fx-background-color: #44495E;
     -fx-padding: 2;
     -fx-border-color: transparent transparent #545D72 transparent;
     -fx-border-insets: 0;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box {
     -fx-spacing: 6;
     -fx-alignment: center-left;
     -fx-padding: 0 6 1 6;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .separator-region {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .separator-region {
     -fx-pref-height: 1;
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:single-select > .content > .content-box > .separator-region {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:single-select > .content > .content-box > .separator-region {
     -fx-managed: false;
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .separator-region > .line {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .separator-region > .line {
     -fx-background-color: #545D72;
 }
 
@@ -453,13 +494,13 @@
  ScrollPane > Accordion > TitledPane > Content > OptionToggle
 */
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box {
     -fx-spacing: 8;
     -fx-alignment: center-left;
     -fx-cursor: hand;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box > .option-toggle {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box > .option-toggle {
     -fx-background-color: #4A7AD2, white;
     -fx-background-insets: 0, 1;
     -fx-background-radius: 12, 12;
@@ -472,17 +513,17 @@
     -fx-text-fill: #4A7AD2;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:selected {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:selected {
     -fx-background-color: #5DCF16, #5DCF16;
     -fx-text-fill: black;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:disabled {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:disabled {
     -fx-background-color: #9CAABF, #9CAABF;
     -fx-text-fill: black;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box > .option-toggle > .check {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box > .option-toggle > .check {
     /* 0, 0.08 10x7.83 */
     -fx-pref-width: 10;
     -fx-pref-height: 7.83;
@@ -492,12 +533,12 @@
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:selected > .check {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:selected > .check {
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box > .option-check {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box > .option-check {
     -fx-background-color: #F1F3F8, #44495E;
     -fx-background-insets: 0, 2;
     -fx-background-radius: 2, 0;
@@ -511,12 +552,12 @@
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box:excluded > .option-check {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box:excluded > .option-check {
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .content-box > .option-toggle-box > .option-check > .cross {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane > .content > .content-box > .option-toggle-box > .option-check > .cross {
     -fx-background-color: #5DCF16;
     -fx-scale-shape: false;
     -fx-shape: "M10.361 9 14.354 12.993 12.993 14.354 9 10.361 5.007 14.354 3.646 12.993 7.639 9 3.646 5.007 5.007 3.646 9 7.639 12.993 3.646 14.354 5.007 10.361 9Z";
@@ -527,22 +568,22 @@
  ScrollPane > Accordion > DateFilterTitledPane
 */
 
-.filter-options-popup > .scroll-pane .accordion > .titled-pane:selected > .title {
+.filter-options-popup > .scroll-pane .accordion > .filter-titled-pane.titled-pane:selected > .title {
     -fx-padding: 4 -16 8 8;
     -fx-pref-height: 68;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .title > .title-box > .option.truncated-text-flow {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .title > .title-box > .option.truncated-text-flow {
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane:selected > .title > .title-box > .option.truncated-text-flow {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane:selected > .title > .title-box > .option.truncated-text-flow {
     -fx-managed: false;
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box {
     -fx-font-size: 14;
     -fx-text-base-color: #2E3240;
     -fx-text-fill: #2E3240;
@@ -560,40 +601,40 @@
     visibility: hidden;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane:selected > .title > .title-box > .date-combo-box {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane:selected > .title > .title-box > .date-combo-box {
     -fx-managed: true;
     visibility: visible;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box > .arrow-button {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box > .arrow-button {
     -fx-rotate: -90;
     transition-property: -fx-rotate;
     transition-duration: 0.5s;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box:showing > .arrow-button {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box:showing > .arrow-button {
     -fx-rotate: 0;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box > .arrow-button > .arrow {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .title > .title-box > .date-combo-box > .arrow-button > .arrow {
     -fx-shape: "M7.41 8.29508L6 9.70508L12 15.7051L18 9.70508L16.59 8.29508L12 12.8751L7.41 8.29508Z";
     -fx-background-color: #4277D8;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content {
     -fx-padding: -6 2 2 2;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box {
     -fx-spacing: 8;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box > .bottom-box {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box > .bottom-box {
     -fx-alignment: center;
     -fx-spacing: 4;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button {
     -fx-font-family: "Noto Sans";
     -fx-font-weight: 600;
     -fx-font-size: 12;
@@ -606,27 +647,27 @@
     -fx-min-width: 279;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button.additional {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button.additional {
     -fx-text-fill: white;
     -fx-background-color: #4A7AD2, #4A7AD2;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button:hover {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button:hover {
     -fx-text-fill: #9DC4FF;
     -fx-background-color: #4A7AD2, #44495E;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button.additional:hover {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button.additional:hover {
     -fx-text-fill: white;
     -fx-background-color: #5896F6, #5896F6;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button:disabled {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button:disabled {
     -fx-text-fill: #6E7989;
     -fx-background-color: #6E7989, #2E3240;
 }
 
-.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button.additional:disabled {
+.filter-options-popup > .scroll-pane .accordion > .date-filter-titled-pane.filter-titled-pane.titled-pane > .content > .content-box > .bottom-box > .button.additional:disabled {
     -fx-text-fill: #CFD8E4;
     -fx-background-color: #6E7989, #6E7989;
 }
@@ -666,6 +707,373 @@
     -fx-text-fill: #9DC4FF;
     -fx-background: #44495E;
     -fx-background-color: #44495E;
+}
+
+/*
+ Filter Options Popup - Center
+ ScrollPane > Accordion > TitledPane > Accordion > LangFilterTitledPane
+*/
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content {
+    -fx-background-color: #2E3240;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion {
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane {
+    -fx-content-display: graphic-only;
+    -fx-background-color: #2E3240, #545D72, #2E3240;
+    -fx-background-insets: 0, 0 0 6 0, 1 1 7 1;
+    -fx-background-radius: 0, 4, 4;
+    -fx-min-width: 256;
+    -fx-pref-width: 256;
+    -fx-padding: 0;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:hover {
+    -fx-background-color: #2E3240, #4A7AD2, #44495E;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:expanded {
+    -fx-padding: 0 0 6 0;
+    -fx-background-color: #2E3240, #545D72, #44495E;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:focused {
+    -fx-color: transparent;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-padding: 8 0 18 12;
+    -fx-spacing: 2;
+    -fx-pref-height: -1;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:expanded > .title {
+    -fx-padding: 8 0 4 12;
+    -fx-spacing: 2;
+}
+
+/*
+ Filter Options Popup - Center
+ ScrollPane > Accordion > TitledPane > Accordion > LangFilterTitledPane > TitleBox
+*/
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .title-box {
+    -fx-alignment: top-left;
+    -fx-spacing: 4;
+    -fx-padding: 0;
+    -fx-pref-height: -1;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:expanded > .title > .title-box {
+    -fx-spacing: 4;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .title-box > .title-label {
+    -fx-font-family: "Noto Sans";
+    -fx-font-size: 12px;
+    -fx-font-style: normal;
+    -fx-font-weight: 600;
+    -fx-text-fill: #4A7AD2;
+    -fx-min-width: 100;
+    -fx-pref-width: 100;
+    -fx-pref-height: 24;
+    -fx-content-display: right;
+    -fx-alignment: center-left;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:expanded > .title > .title-box > .title-label {
+    -fx-text-fill: #4A7AD2;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .title-box > .title-label > .circle {
+    -fx-pref-width: 4;
+    -fx-pref-height: 4;
+    -fx-background-radius: 4;
+    -fx-background-color: transparent;
+    -fx-translate-y: -6;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:modified > .title > .title-box > .title-label > .circle {
+    -fx-background-color: #F3BE00;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .title-box > .grid-option {
+    -fx-managed: true;
+    visibility: visible;
+    -fx-max-width: 234;
+    -fx-pref-height: 200;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane:expanded > .title > .title-box > .grid-option {
+    -fx-managed: false;
+    visibility: hidden;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .title-box > .grid-option > .title-label {
+    -fx-text-fill: #9CAABF;
+    -fx-font-family: "Noto Sans";
+    -fx-font-size: 11px;
+    -fx-font-style: normal;
+    -fx-font-weight: 600;
+    -fx-wrap-text: true;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .title-box > .grid-option > .option-label {
+    -fx-text-fill: white;
+    -fx-font-family: "Noto Sans";
+    -fx-font-size: 13px;
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-wrap-text: true;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .title-box > .grid-option > .line {
+    -fx-background-color: transparent, #E1E8F1;
+    -fx-background-insets: 0, 4 0 4 0;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .arrow-button {
+    -fx-padding: 0;
+    -fx-rotate: 90;
+    -fx-pref-width: 24;
+    -fx-pref-height: 24;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .title > .arrow-button > .arrow {
+    -fx-background-color: #4A7AD2;
+    -fx-background-insets: 0;
+    -fx-shape: "M8.0876 5L6.9126 6.175L10.7293 10L6.9126 13.825L8.0876 15L13.0876 10L8.0876 5Z";
+    -fx-scale-shape: false;
+    -fx-effect: null;
+}
+
+/*
+ Filter Options Popup - Center
+ ScrollPane > Accordion > TitledPane > Accordion > LangFilterTitledPane > Content
+*/
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content {
+    -fx-background-color: transparent;
+    -fx-padding: 8 8 8 12;
+    -fx-border-width: 0;
+    -fx-border-insets: 0;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box {
+    -fx-spacing: 6;
+    -fx-alignment: center-left;
+    -fx-padding: 2;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .title-label {
+    -fx-text-fill: white;
+    -fx-font-family: "Noto Sans";
+    -fx-font-size: 13px;
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-wrap-text: true;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .line {
+    -fx-pref-height: 1;
+    -fx-background-color: #CFD8E4;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .lang-combo-box {
+    -fx-font-size: 14;
+    -fx-text-base-color: #2E3240;
+    -fx-text-fill: #2E3240;
+    -fx-pref-width: 233;
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-font-family: "Noto Sans";
+    -fx-font-style: normal;
+    -fx-font-weight: 500;
+    -fx-background-color: #C3CDDC, #FBFBFC;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 4px, 4px;
+    -fx-padding: 0;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .lang-combo-box > .arrow-button {
+    -fx-rotate: -90;
+    transition-property: -fx-rotate;
+    transition-duration: 0.5s;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .lang-combo-box:showing > .arrow-button {
+    -fx-rotate: 0;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .lang-combo-box > .arrow-button > .arrow {
+    -fx-shape: "M7.41 8.29508L6 9.70508L12 15.7051L18 9.70508L16.59 8.29508L12 12.8751L7.41 8.29508Z";
+    -fx-background-color: #4277D8;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view {
+    -fx-background: #2E3240;
+    -fx-background-color: #2E3240;
+    -fx-background-insets: 0;
+    -fx-background-radius: 8;
+    -fx-border-color: null;
+    -fx-border-width: 0;
+    -fx-translate-y: 5;
+    -fx-padding: 8 0 8 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0.0, 0, 4);
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
+    -fx-padding: 4 8 4 8;
+    -fx-background: #2E3240;
+    -fx-background-color: #2E3240;
+    -fx-background-insets: 0;
+    -fx-pref-height: 28;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell > .box {
+    -fx-alignment: center-left;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell > .box > .label {
+    -fx-font-size: 13;
+    -fx-text-fill: white;
+    -fx-font-family: "Noto Sans";
+    -fx-font-style: normal;
+    -fx-font-weight: 500;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell > .box > .region {
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    visibility: hidden;
+    -fx-managed: false;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:selected > .box > .region {
+    visibility: visible;
+    -fx-managed: true;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell > .box > .region > .icon.check {
+    -fx-background-color: #5DCF16;
+    -fx-shape: "M5.49989 9.47487L2.02489 5.99987L0.841553 7.17487L5.49989 11.8332L15.4999 1.8332L14.3249 0.658203L5.49989 9.47487Z";
+    -fx-scale-shape: false;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:hover {
+    -fx-background: #545D72;
+    -fx-background-color: #545D72;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected,
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:filled:selected:hover {
+    -fx-text-fill: #9DC4FF;
+    -fx-background: #44495E;
+    -fx-background-color: #44495E;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view .scroll-bar {
+    -fx-background-color: transparent;
+    -fx-padding: 2px 0 0 0;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view .scroll-bar:vertical .increment-button,
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view .scroll-bar:vertical .decrement-button,
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view .scroll-bar:vertical .increment-arrow,
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view .scroll-bar:vertical .decrement-arrow {
+    -fx-background-color:transparent;
+    -fx-background-radius: 0em;
+    -fx-padding: 0 2 0 2;
+}
+
+.filter-options-popup .lang-combo-box .combo-box-popup  > .list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #a9aeb8;
+    -fx-background-insets: 3px 5px 3px 1px;
+    -fx-background-radius: 16px;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .dialect-box > .arrow-button > .arrow {
+}
+
+
+/*
+Filter Options Popup - Center
+ScrollPane > Accordion > TitledPane > Content > OptionToggle
+*/
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+    -fx-cursor: hand;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box > .option-toggle {
+    -fx-background-color: #4A7AD2, white;
+    -fx-background-insets: 0, 1;
+    -fx-background-radius: 12, 12;
+    -fx-pref-height: 18;
+    -fx-font-family: "Noto Sans";
+    -fx-font-size: 12px;
+    -fx-font-style: normal;
+    -fx-font-weight: 600;
+    -fx-text-fill: #4A7AD2;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:selected {
+    -fx-background-color: #5DCF16, #5DCF16;
+    -fx-text-fill: black;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:disabled {
+    -fx-background-color: #9CAABF, #9CAABF;
+    -fx-text-fill: black;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box > .option-toggle > .check {
+    /* 0, 0.08 10x7.83 */
+    -fx-pref-width: 10;
+    -fx-pref-height: 7.83;
+    -fx-shape: "M3.33333 7.91683L0 4.5835L1.16667 3.41683L3.33333 5.5835L8.83333 0.0834961L10 1.25016L3.33333 7.91683Z";
+    -fx-background-color: black;
+    -fx-managed: false;
+    visibility: hidden;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box > .option-toggle:selected > .check {
+    -fx-managed: true;
+    visibility: visible;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box > .option-check {
+    -fx-background-color: #F1F3F8, #44495E;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 2, 0;
+    -fx-min-width: 18;
+    -fx-pref-width: 18;
+    -fx-max-width: 18;
+    -fx-min-height: 18;
+    -fx-pref-height: 18;
+    -fx-max-height: 18;
+    -fx-managed: false;
+    visibility: hidden;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box:excluded > .option-check {
+    -fx-managed: true;
+    visibility: visible;
+}
+
+.filter-options-popup > .scroll-pane .accordion > .titled-pane > .content > .accordion > .lang-filter-titled-pane > .content > .content-box > .option-toggle-box > .option-check > .cross {
+    -fx-background-color: #5DCF16;
+    -fx-scale-shape: false;
+    -fx-shape: "M10.361 9 14.354 12.993 12.993 14.354 9 10.361 5.007 14.354 3.646 12.993 7.639 9 3.646 5.007 5.007 3.646 9 7.639 12.993 3.646 14.354 5.007 10.361 9Z";
 }
 
 /*
