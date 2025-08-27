@@ -315,4 +315,23 @@ public class ConceptNavigatorUtils {
             }
         }
     }
+
+    private static int findNidForDescription(Navigator navigator, int nid, String description) {
+        return navigator.getChildEdges(nid).stream()
+                .filter(edge -> Entity.getFast(edge.destinationNid()).description().equals(description))
+                .findFirst()
+                .map(Edge::destinationNid)
+                .orElseThrow();
+    }
+
+    public static List<String> getDescendentsList(Navigator navigator, int parentNid, String description) {
+        int nid = parentNid;
+        for (String s : description.split(", ")) {
+            nid = findNidForDescription(navigator, nid, s);
+        }
+        return navigator.getViewCalculator().descendentsOf(nid).intStream().boxed()
+                .map(i -> Entity.getFast(i).description())
+                .sorted()
+                .toList();
+    }
 }

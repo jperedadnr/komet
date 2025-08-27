@@ -153,6 +153,7 @@ module dev.ikm.komet.kview {
 
     exports dev.ikm.komet.kview.mvvm.view.loginauthor;
     opens dev.ikm.komet.kview.mvvm.view.loginauthor;
+    exports dev.ikm.komet.kview.tasks;
 
     provides dev.ikm.komet.framework.KometNodeFactory with dev.ikm.komet.kview.mvvm.view.details.DetailsNodeFactory, dev.ikm.komet.kview.mvvm.view.properties.PropertiesNodeFactory;
 
