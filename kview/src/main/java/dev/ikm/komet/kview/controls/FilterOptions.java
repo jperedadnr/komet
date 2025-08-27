@@ -404,6 +404,9 @@ public class FilterOptions implements Serializable {
         private Option descriptionType;
         {
             List<String> descriptionTypeOptions = Stream.of(
+                            //FIXME, the parent/classic menu uses FxGET::allowedDescriptionTypeOrder and hard codes FQN
+                            // and Regular Name as options... as new designs for Language+Dialect get implemented
+                            // we will additionally need to address this setting as well
                             "description.option.fqn", "description.option.preferred", "description.option.regular",
                             "description.option.preferredfqn", "description.option.regularfqn")
                     .map(resources::getString)

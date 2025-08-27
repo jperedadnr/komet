@@ -166,7 +166,7 @@ public class HelloApplication extends Application {
             TinkExecutor.threadPool().execute(TaskWrapper.make(new FilterMenuTask(viewProperties),
                     (FilterOptions fo) ->
                             FXUtils.runOnFxThread(() -> {
-                                filterOptionsPopup.setInitialFilterOptions(fo);
+                                filterOptionsPopup.setInheritedFilterOptionsProperty(fo);
                             })
             ));
         }, filterOptionsPopup::setNavigator);

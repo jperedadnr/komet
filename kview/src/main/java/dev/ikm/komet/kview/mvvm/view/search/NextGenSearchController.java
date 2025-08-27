@@ -25,26 +25,27 @@ import static dev.ikm.komet.kview.mvvm.model.DragAndDropType.SEMANTIC;
 import static dev.ikm.komet.kview.mvvm.model.DragAndDropType.STAMP;
 import static dev.ikm.komet.kview.mvvm.viewmodel.FormViewModel.CURRENT_JOURNAL_WINDOW_TOPIC;
 import static dev.ikm.komet.kview.mvvm.viewmodel.FormViewModel.VIEW_PROPERTIES;
+import static dev.ikm.tinkar.common.service.PrimitiveData.PREMUNDANE_TIME;
 import static dev.ikm.tinkar.events.FrameworkTopics.SEARCH_SORT_TOPIC;
-import dev.ikm.komet.framework.concurrent.TaskWrapper;
+import static dev.ikm.tinkar.terms.TinkarTerm.MODULE;
 import dev.ikm.komet.framework.dnd.DragImageMaker;
 import dev.ikm.komet.framework.dnd.KometClipboard;
 import dev.ikm.komet.framework.search.SearchPanelController;
+import dev.ikm.komet.framework.view.ObservableCoordinate;
+import dev.ikm.komet.framework.view.ObservableLanguageCoordinate;
+import dev.ikm.komet.framework.view.ObservableStampCoordinate;
 import dev.ikm.komet.framework.view.ViewProperties;
 import dev.ikm.komet.kview.controls.AutoCompleteTextField;
 import dev.ikm.komet.kview.controls.FilterOptions;
 import dev.ikm.komet.kview.controls.FilterOptionsPopup;
 import dev.ikm.komet.kview.events.SearchSortOptionEvent;
-import dev.ikm.komet.kview.fxutils.FXUtils;
 import dev.ikm.komet.kview.mvvm.model.DragAndDropInfo;
 import dev.ikm.komet.kview.mvvm.model.DragAndDropType;
 import dev.ikm.komet.kview.mvvm.viewmodel.NextGenSearchViewModel;
-import dev.ikm.komet.kview.tasks.FilterMenuTask;
 import dev.ikm.komet.navigator.graph.Navigator;
 import dev.ikm.komet.navigator.graph.ViewNavigator;
 import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.service.PrimitiveData;
-import dev.ikm.tinkar.common.service.TinkExecutor;
 import dev.ikm.tinkar.common.util.text.NaturalOrder;
 import dev.ikm.tinkar.common.util.uuid.UuidUtil;
 import dev.ikm.tinkar.coordinate.stamp.StateSet;
@@ -52,6 +53,7 @@ import dev.ikm.tinkar.coordinate.stamp.calculator.Latest;
 import dev.ikm.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
 import dev.ikm.tinkar.entity.ConceptEntity;
 import dev.ikm.tinkar.entity.Entity;
+import dev.ikm.tinkar.entity.EntityService;
 import dev.ikm.tinkar.entity.EntityVersion;
 import dev.ikm.tinkar.entity.PatternEntity;
 import dev.ikm.tinkar.entity.SemanticEntity;
@@ -64,6 +66,8 @@ import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityFacade;
 import dev.ikm.tinkar.terms.State;
 import dev.ikm.tinkar.terms.TinkarTerm;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -80,6 +84,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import javafx.util.Subscription;
 import org.carlfx.cognitive.loader.FXMLMvvmLoader;
 import org.carlfx.cognitive.loader.InjectViewModel;
 import org.carlfx.cognitive.loader.JFXNode;
@@ -93,6 +98,9 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -104,7 +112,6 @@ import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.TreeMap;
 import java.util.UUID;
-
 
 
 public class NextGenSearchController {
@@ -125,6 +132,7 @@ public class NextGenSearchController {
 
     private static final PseudoClass FILTER_SHOWING = PseudoClass.getPseudoClass("filter-showing");
 
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
     @FXML
     private Pane root;
@@ -148,6 +156,11 @@ public class NextGenSearchController {
     private FilterOptionsPopup filterOptionsPopup;
 
     private SearchResultType currentSearchResultType;
+
+    private Subscription parentSubscription;
+
+    private static final List<String> ALL_STATES = StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN.toEnumSet().stream().map(s -> s.name()).toList();
+
 
     @InjectViewModel
     private NextGenSearchViewModel nextGenSearchViewModel;
@@ -184,11 +197,8 @@ public class NextGenSearchController {
 
         filterOptionsPopup = new FilterOptionsPopup(FilterOptionsPopup.FILTER_TYPE.SEARCH);
 
-        TinkExecutor.threadPool().execute(TaskWrapper.make(new FilterMenuTask(getViewProperties()),
-                (FilterOptions filterOptions) ->
-                        FXUtils.runOnFxThread(() ->
-                            filterOptionsPopup.setInitialFilterOptions(filterOptions))
-        ));
+        // initialize the filter options
+        filterOptionsPopup.inheritedFilterOptionsProperty().setValue(loadFilterOptions());
 
         root.heightProperty().subscribe(h -> filterOptionsPopup.setStyle("-popup-pref-height: " + h));
         filterPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
@@ -210,7 +220,7 @@ public class NextGenSearchController {
                 filterPane.pseudoClassStateChanged(FILTER_SHOWING, showing));
 
         // listen for changes to the filter options
-        filterOptionsPopup.filterOptionsProperty().subscribe((oldFilterOptions, newFilterOptions) -> {
+        ChangeListener<FilterOptions> changeListener = ((obs, oldFilterOptions, newFilterOptions) -> {
             if (newFilterOptions != null) {
                 if (!newFilterOptions.getMainCoordinates().getStatus().selectedOptions().isEmpty()) {
                     StateSet stateSet = StateSet.make(
@@ -243,17 +253,119 @@ public class NextGenSearchController {
                     Date latest = new Date();
                     getViewProperties().nodeView().stampCoordinate().timeProperty().set(latest.getTime());
                 }
+
                 //TODO Type, Module, Language, Description Type, Kind of, Membership, Sort By
             }
-        });
-
-        getViewProperties().nodeView().addListener((obs, oldVC, newVC) -> {
-                    doSearch(new ActionEvent(null, null));
-        });
-        getViewProperties().nodeView().stampCoordinate().pathConceptProperty().addListener((obs, oldVC, newVC) -> {
             doSearch(new ActionEvent(null, null));
         });
 
+
+
+        // listen for changes to the filter options
+        filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
+
+        // listen to changes to the parent of the current overrideable view
+        parentSubscription = getViewProperties().parentView().subscribe((oldValue, newValue) -> {
+            filterOptionsPopup.filterOptionsProperty().removeListener(changeListener);
+            filterOptionsPopup.inheritedFilterOptionsProperty().setValue(loadFilterOptions());
+            filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
+            doSearch(new ActionEvent(null, null));
+        });
+    }
+
+    private FilterOptions loadFilterOptions() {
+        Instant start = Instant.now();
+        FilterOptions filterOptions = new FilterOptions();
+
+        // get parent menu settings
+        ObservableCoordinate parentView = getViewProperties().parentView();
+        for (ObservableCoordinate<?> observableCoordinate : parentView.getCompositeCoordinates()) {
+            if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
+
+                // populate the TYPE; this isn't in the parent view coordinate
+                // it is All | Concepts | Semantics
+                filterOptions.getMainCoordinates().getType().selectedOptions().clear();
+                filterOptions.getMainCoordinates().getType().selectedOptions().addAll(new ArrayList<>(List.of("Concepts", "Semantics")));
+                filterOptions.getMainCoordinates().getType().defaultOptions().clear();
+                filterOptions.getMainCoordinates().getType().defaultOptions().addAll(filterOptions.getMainCoordinates().getType().selectedOptions());
+
+                // populate the STATUS
+                StateSet currentStates = observableStampCoordinate.allowedStatesProperty().getValue();
+                List<String> currentStatesStr = currentStates.toEnumSet().stream().map(s -> s.name()).toList();
+
+                filterOptions.getMainCoordinates().getStatus().selectedOptions().clear();
+                filterOptions.getMainCoordinates().getStatus().selectedOptions().addAll(currentStatesStr);
+
+                filterOptions.getMainCoordinates().getStatus().availableOptions().clear();
+                filterOptions.getMainCoordinates().getStatus().availableOptions().addAll(ALL_STATES);
+
+                filterOptions.getMainCoordinates().getStatus().defaultOptions().clear();
+                filterOptions.getMainCoordinates().getStatus().defaultOptions().addAll(currentStatesStr);
+
+                // MODULE
+                filterOptions.getMainCoordinates().getModule().defaultOptions().clear();
+                observableStampCoordinate.moduleNids().intStream().forEach(moduleNid -> {
+                    String moduleStr = getViewProperties().calculator().getPreferredDescriptionStringOrNid(moduleNid);
+                    filterOptions.getMainCoordinates().getModule().defaultOptions().add(moduleStr);
+                });
+
+                // populate the PATH
+                ConceptFacade currentPath = observableStampCoordinate.pathConceptProperty().getValue();
+                String currentPathStr = currentPath.description();
+
+                List<String> defaultSelectedPaths = new ArrayList(List.of(currentPathStr));
+                filterOptions.getMainCoordinates().getPath().defaultOptions().clear();
+                filterOptions.getMainCoordinates().getPath().defaultOptions().addAll(defaultSelectedPaths);
+
+                filterOptions.getMainCoordinates().getPath().selectedOptions().clear();
+                filterOptions.getMainCoordinates().getPath().selectedOptions().addAll(defaultSelectedPaths);
+
+                // TIME
+                filterOptions.getMainCoordinates().getTime().defaultOptions().clear();
+                filterOptions.getMainCoordinates().getTime().selectedOptions().clear();
+
+                Long time = observableStampCoordinate.timeProperty().getValue();
+                if (time.equals(Long.MAX_VALUE)) {
+                    filterOptions.getMainCoordinates().getTime().selectedOptions().add("Latest");
+                } else if (time.equals(PREMUNDANE_TIME)) {
+                    //FIXME the custom control doesn't support premundane yet
+                    filterOptions.getMainCoordinates().getTime().selectedOptions().add("Latest");
+                } else {
+                    Date date = new Date(time);
+                    filterOptions.getMainCoordinates().getTime().selectedOptions().add(simpleDateFormat.format(date));
+                }
+                filterOptions.getMainCoordinates().getTime().defaultOptions().addAll(filterOptions.getMainCoordinates().getTime().selectedOptions());
+            } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
+                // populate the LANGUAGE
+                filterOptions.getLanguageCoordinates(0).getLanguage().defaultOptions().clear();
+                String languageStr = getViewProperties().calculator().languageCalculator().getPreferredDescriptionTextWithFallbackOrNid(
+                        observableLanguageCoordinate.languageConceptProperty().get().nid());
+                filterOptions.getLanguageCoordinates(0).getLanguage().defaultOptions().add(languageStr);
+                filterOptions.getLanguageCoordinates(0).getLanguage().selectedOptions().clear();
+                filterOptions.getLanguageCoordinates(0).getLanguage().selectedOptions().addAll(filterOptions.getLanguageCoordinates(0).getLanguage().defaultOptions());
+
+                //FIXME description choices don't yet align with parent/classic menu, more discussion needs to happen on
+                // how we want to fix this.
+                filterOptions.getLanguageCoordinates(0).getDescriptionType().selectedOptions().add("All");
+                filterOptions.getLanguageCoordinates(0).getDescriptionType().defaultOptions().addAll(filterOptions.getLanguageCoordinates(0).getDescriptionType().selectedOptions());
+            }
+        }
+        // set values for 'Kind Of'
+        filterOptions.getMainCoordinates().getKindOf().defaultOptions().clear();
+        filterOptions.getMainCoordinates().getKindOf().defaultOptions().add("All");
+        filterOptions.getMainCoordinates().getKindOf().selectedOptions().addAll(filterOptions.getMainCoordinates().getKindOf().defaultOptions());
+
+        // membership
+        filterOptions.getMainCoordinates().getMembership().defaultOptions().clear();
+        filterOptions.getMainCoordinates().getMembership().defaultOptions().add("All");
+        filterOptions.getMainCoordinates().getMembership().selectedOptions().addAll(filterOptions.getMainCoordinates().getMembership().defaultOptions());
+
+        // sort by
+        filterOptions.getMainCoordinates().getSortBy().defaultOptions().clear();
+
+        //TODO Description Type
+
+        return filterOptions;
     }
 
     private long getMillis(FilterOptions newFilterOptions) {
@@ -555,7 +667,9 @@ public class NextGenSearchController {
     }
 
     public void cleanup() {
-
+        if (parentSubscription != null) {
+            parentSubscription.unsubscribe();
+        }
     }
 
 
