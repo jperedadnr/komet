@@ -244,7 +244,7 @@ public class FilterOptions implements Serializable {
                     .map(resources::getString)
                     .toList();
             time = new Option(OPTION_ITEM.TIME, "time.title", new ArrayList<>(List.of(dateOptions.getFirst())),
-                    new ArrayList<>(dateOptions), new ArrayList<>(List.of(dateOptions.getFirst())), new ArrayList<>(), true, false, noneSet);
+                    new ArrayList<>(dateOptions), new ArrayList<>(List.of(dateOptions.getFirst())), new ArrayList<>(), false, false, noneSet);
         }
 
         private Option module = new Option(OPTION_ITEM.MODULE, "module.title", new ArrayList<>(),
@@ -532,8 +532,11 @@ public class FilterOptions implements Serializable {
         return languageCoordinatesList;
     }
 
-    public LanguageCoordinates getLanguageCoordinates(int order) {
-        return getLanguageCoordinatesList().get(order);
+    public LanguageCoordinates getLanguageCoordinates(int ordinal) {
+        if (ordinal < 0 || ordinal >= languageCoordinatesList.size()) {
+            Thread.dumpStack();
+        }
+        return getLanguageCoordinatesList().get(ordinal);
     }
 
     public LanguageCoordinates addLanguageCoordinates() {
@@ -544,6 +547,13 @@ public class FilterOptions implements Serializable {
 
     public Option getOptionForItem(OPTION_ITEM item) {
         return mainCoordinates.options.stream()
+                .filter(o -> o.item() == item)
+                .findFirst()
+                .orElseThrow();
+    }
+
+    public Option getLangOptionForItem(int ordinal, OPTION_ITEM item) {
+        return languageCoordinatesList.get(ordinal).options.stream()
                 .filter(o -> o.item() == item)
                 .findFirst()
                 .orElseThrow();

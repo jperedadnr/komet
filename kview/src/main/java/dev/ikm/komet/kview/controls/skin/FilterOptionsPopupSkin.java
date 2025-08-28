@@ -74,19 +74,18 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
 
     private static final List<String> ALL_STATES = StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN.toEnumSet().stream().map(s -> s.name()).toList();
 
-    private FilterOptions inheritedFilterOptions = new FilterOptions();
+    private FilterOptions defaultFilterOptions = new FilterOptions();
     private final ObjectProperty<FilterOptions> currentFilterOptionsProperty = new SimpleObjectProperty<>() {
         @Override
         protected void invalidated() {
             FilterOptions filterOptions = get();
             if (filterOptions != null) {
-                System.out.println("got filter options: " + filterOptions);
                 if (!updating) {
                     control.setFilterOptions(filterOptions);
                 }
                 // Keep button always enabled, though it won't do anything, since filterOptions are already passed to the control
 //                applyButton.setDisable(control.getFilterOptions().equals(filterOptions));
-                revertButton.setDisable(inheritedFilterOptions.equals(filterOptions));
+                revertButton.setDisable(defaultFilterOptions.equals(filterOptions));
 
                 accordionBox.disableAddButton(filterOptions.getLanguageCoordinatesList().stream()
                         .anyMatch(l -> l.getLanguage().selectedOptions().isEmpty()));
@@ -165,18 +164,18 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         subscription = control.filterOptionsProperty().subscribe(this::setupFilter);
         subscription = subscription.and(control.navigatorProperty().subscribe(navigator -> {
             // reset default filter options
-            inheritedFilterOptions = new FilterOptions();
+            defaultFilterOptions = new FilterOptions();
             // once we have navigator, update pending options with av/def/sel default options
-            setAvailableOptionsFromNavigator(inheritedFilterOptions, navigator);
-            // then pass the initial options, where set, to override av/def/sel default options
+            setAvailableOptionsFromNavigator(defaultFilterOptions, navigator);
+            // then pass the inherited options, to override av/def/sel default options where set
             setDefaultOptions(control.getInheritedFilterOptions());
             // pass default options to panes
             accordionBox.updateMainPanes(pane ->
-                    pane.setDefaultOption(inheritedFilterOptions.getOptionForItem(pane.getOption().item())));
+                    pane.setDefaultOption(defaultFilterOptions.getOptionForItem(pane.getOption().item())));
             accordionBox.updateLangPanes(pane ->
-                    pane.setDefaultLangCoordinates(inheritedFilterOptions.getLanguageCoordinates(pane.getOrdinal())));
+                    pane.setDefaultLangCoordinates(defaultFilterOptions.getLanguageCoordinates(pane.getOrdinal())));
             // finally, setup filter with default options
-            setupFilter(inheritedFilterOptions);
+            setupFilter(defaultFilterOptions);
         }));
 
         subscription = subscription.and(savedFiltersPopup.showingProperty().subscribe((_, showing) -> {
@@ -186,7 +185,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         }));
         //experimental... trying to listen to changes when the inherited options change to change what is selected
         subscription = subscription.and(control.inheritedFilterOptionsProperty().subscribe((oldVal, newVal) -> {
-            currentFilterOptionsProperty.setValue(control.getInheritedFilterOptions());
+//            currentFilterOptionsProperty.setValue(control.getInheritedFilterOptions());
         }));
         subscription = subscription.and(filterPane.selectedProperty().subscribe((_, selected) -> {
             if (selected) {
@@ -197,6 +196,8 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
                 savedFiltersPopup.hide();
             }
         }));
+
+        control.setOnShown(_ -> scrollPane.setVvalue(scrollPane.getVmin()));
     }
 
     private void setupFilter(FilterOptions filterOptions) {
@@ -240,7 +241,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
             });
         skipUpdateFilterOptions = false;
         updateCurrentFilterOptions();
-        control.getProperties().put(DEFAULT_OPTIONS_KEY, inheritedFilterOptions.equals(control.getFilterOptions()));
+        control.getProperties().put(DEFAULT_OPTIONS_KEY, defaultFilterOptions.equals(control.getFilterOptions()));
         updating = false;
     }
 
@@ -266,10 +267,12 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
 
     private void revertFilterOptions() {
         accordionBox.setExpandedPane(null);
+        accordionBox.getLangAccordion().getPanes().removeIf(t -> t instanceof LangFilterTitledPane langFilterTitledPane
+                && langFilterTitledPane.getOrdinal() > 0);
         updating = true;
         currentFilterOptionsProperty.set(null);
         setupFilter(null);
-        setupFilter(inheritedFilterOptions);
+        setupFilter(defaultFilterOptions);
         updating = false;
         updateCurrentFilterOptions();
     }
@@ -362,13 +365,10 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
     }
 
     private void setDefaultOptions(FilterOptions filterOptions) {
-        // status: all descendants of Status
-        FilterOptions.Option option = filterOptions.getMainCoordinates().getStatus();
-        setInitialOptions(option);
-
-        // path: all descendants of Path
-        option = filterOptions.getMainCoordinates().getPath();
-        setInitialOptions(option);
+        filterOptions.getMainCoordinates().getOptions().forEach(sourceOption ->
+                setInitialOptions(sourceOption, defaultFilterOptions.getOptionForItem(sourceOption.item())));
+        filterOptions.getLanguageCoordinates(0).getOptions().forEach(sourceOption ->
+                setInitialOptions(sourceOption, defaultFilterOptions.getLangOptionForItem(0, sourceOption.item())));
     }
 
     private void setAvailableOptionsFromNavigator(FilterOptions options, Navigator navigator) {
@@ -433,16 +433,20 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         option.selectedOptions().addAll(option.isMultiSelectionAllowed() ? options : List.of(options.getFirst()));
     }
 
-    private void setInitialOptions(FilterOptions.Option option) {
-        FilterOptions.Option optionForItem = inheritedFilterOptions.getOptionForItem(option.item());
-        optionForItem.selectedOptions().clear();
-        optionForItem.defaultOptions().clear();
-        if (option.isMultiSelectionAllowed()) {
-            optionForItem.selectedOptions().addAll(option.selectedOptions());
-        } else if (!(option.selectedOptions().isEmpty() || option.selectedOptions().getFirst() == null)) {
-            optionForItem.selectedOptions().add(option.selectedOptions().getFirst());
+    private void setInitialOptions(FilterOptions.Option sourceOption, FilterOptions.Option targetOption) {
+        targetOption.selectedOptions().clear();
+        targetOption.defaultOptions().clear();
+        if (sourceOption.isMultiSelectionAllowed()) {
+            if (!sourceOption.selectedOptions().isEmpty()) {
+                targetOption.selectedOptions().addAll(sourceOption.selectedOptions());
+            } else {
+                targetOption.setAny(targetOption.hasAny());
+                targetOption.selectedOptions().addAll(sourceOption.availableOptions());
+            }
+        } else if (!(sourceOption.selectedOptions().isEmpty() || sourceOption.selectedOptions().getFirst() == null)) {
+            targetOption.selectedOptions().add(sourceOption.selectedOptions().getFirst());
         }
-        optionForItem.defaultOptions().addAll(option.selectedOptions());
+        targetOption.defaultOptions().addAll(sourceOption.selectedOptions());
     }
 
     private void applyFilter(String i) {
@@ -544,7 +548,8 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
                 languageCoordinates.getLanguage().excludedOptions().addAll(list);
                 languageCoordinates.getLanguage().availableOptions().addAll(
                         currentFilterOptionsProperty.get().getLanguageCoordinatesList().getFirst().getLanguage().availableOptions());
-                languageCoordinates.getLanguage().defaultOptions().addAll(List.of(languageCoordinates.getLanguage().availableOptions().getFirst()));
+                languageCoordinates.getOptions().forEach(sourceOption ->
+                        setInitialOptions(sourceOption, defaultFilterOptions.getLangOptionForItem(0, sourceOption.item())));
                 LangFilterTitledPane langFilterTitledPane = setupLangTitledPane(languageCoordinates);
                 langAccordion.getPanes().add(langFilterTitledPane);
                 updateCurrentFilterOptions();

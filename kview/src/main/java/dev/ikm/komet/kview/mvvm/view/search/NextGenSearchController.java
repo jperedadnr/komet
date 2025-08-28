@@ -198,8 +198,7 @@ public class NextGenSearchController {
         filterOptionsPopup = new FilterOptionsPopup(FilterOptionsPopup.FILTER_TYPE.SEARCH);
 
         // initialize the filter options
-        filterOptionsPopup.inheritedFilterOptionsProperty().setValue(loadFilterOptions());
-
+        filterOptionsPopup.setInheritedFilterOptionsProperty(loadFilterOptions());
         root.heightProperty().subscribe(h -> filterOptionsPopup.setStyle("-popup-pref-height: " + h));
         filterPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             if (filterOptionsPopup.getNavigator() == null) {
@@ -283,24 +282,18 @@ public class NextGenSearchController {
             if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
 
                 // populate the TYPE; this isn't in the parent view coordinate
-                // it is All | Concepts | Semantics
-                filterOptions.getMainCoordinates().getType().selectedOptions().clear();
-                filterOptions.getMainCoordinates().getType().selectedOptions().addAll(new ArrayList<>(List.of("Concepts", "Semantics")));
-                filterOptions.getMainCoordinates().getType().defaultOptions().clear();
-                filterOptions.getMainCoordinates().getType().defaultOptions().addAll(filterOptions.getMainCoordinates().getType().selectedOptions());
+                // it is all set in FilterOptions
 
                 // populate the STATUS
                 StateSet currentStates = observableStampCoordinate.allowedStatesProperty().getValue();
                 List<String> currentStatesStr = currentStates.toEnumSet().stream().map(s -> s.name()).toList();
 
-                filterOptions.getMainCoordinates().getStatus().selectedOptions().clear();
-                filterOptions.getMainCoordinates().getStatus().selectedOptions().addAll(currentStatesStr);
+                FilterOptions.Option statusOption = filterOptions.getMainCoordinates().getStatus();
+                statusOption.selectedOptions().clear();
+                statusOption.selectedOptions().addAll(currentStatesStr);
 
-                filterOptions.getMainCoordinates().getStatus().availableOptions().clear();
-                filterOptions.getMainCoordinates().getStatus().availableOptions().addAll(ALL_STATES);
-
-                filterOptions.getMainCoordinates().getStatus().defaultOptions().clear();
-                filterOptions.getMainCoordinates().getStatus().defaultOptions().addAll(currentStatesStr);
+                statusOption.defaultOptions().clear();
+                statusOption.defaultOptions().addAll(currentStatesStr);
 
                 // MODULE
                 filterOptions.getMainCoordinates().getModule().defaultOptions().clear();
@@ -314,51 +307,45 @@ public class NextGenSearchController {
                 String currentPathStr = currentPath.description();
 
                 List<String> defaultSelectedPaths = new ArrayList(List.of(currentPathStr));
-                filterOptions.getMainCoordinates().getPath().defaultOptions().clear();
-                filterOptions.getMainCoordinates().getPath().defaultOptions().addAll(defaultSelectedPaths);
+                FilterOptions.Option pathOption = filterOptions.getMainCoordinates().getPath();
+                pathOption.defaultOptions().clear();
+                pathOption.defaultOptions().addAll(defaultSelectedPaths);
 
-                filterOptions.getMainCoordinates().getPath().selectedOptions().clear();
-                filterOptions.getMainCoordinates().getPath().selectedOptions().addAll(defaultSelectedPaths);
+                pathOption.selectedOptions().clear();
+                pathOption.selectedOptions().addAll(defaultSelectedPaths);
 
                 // TIME
-                filterOptions.getMainCoordinates().getTime().defaultOptions().clear();
-                filterOptions.getMainCoordinates().getTime().selectedOptions().clear();
+                FilterOptions.Option timeOption = filterOptions.getMainCoordinates().getTime();
 
                 Long time = observableStampCoordinate.timeProperty().getValue();
-                if (time.equals(Long.MAX_VALUE)) {
-                    filterOptions.getMainCoordinates().getTime().selectedOptions().add("Latest");
-                } else if (time.equals(PREMUNDANE_TIME)) {
+                if (!time.equals(Long.MAX_VALUE) && !time.equals(PREMUNDANE_TIME)) {
                     //FIXME the custom control doesn't support premundane yet
-                    filterOptions.getMainCoordinates().getTime().selectedOptions().add("Latest");
-                } else {
                     Date date = new Date(time);
-                    filterOptions.getMainCoordinates().getTime().selectedOptions().add(simpleDateFormat.format(date));
+                    timeOption.defaultOptions().clear();
+                    timeOption.selectedOptions().clear();
+                    timeOption.selectedOptions().add(simpleDateFormat.format(date));
                 }
-                filterOptions.getMainCoordinates().getTime().defaultOptions().addAll(filterOptions.getMainCoordinates().getTime().selectedOptions());
+                timeOption.defaultOptions().addAll(timeOption.selectedOptions());
             } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
                 // populate the LANGUAGE
-                filterOptions.getLanguageCoordinates(0).getLanguage().defaultOptions().clear();
+                FilterOptions.Option language = filterOptions.getLanguageCoordinates(0).getLanguage();
+                language.defaultOptions().clear();
                 String languageStr = getViewProperties().calculator().languageCalculator().getPreferredDescriptionTextWithFallbackOrNid(
                         observableLanguageCoordinate.languageConceptProperty().get().nid());
-                filterOptions.getLanguageCoordinates(0).getLanguage().defaultOptions().add(languageStr);
-                filterOptions.getLanguageCoordinates(0).getLanguage().selectedOptions().clear();
-                filterOptions.getLanguageCoordinates(0).getLanguage().selectedOptions().addAll(filterOptions.getLanguageCoordinates(0).getLanguage().defaultOptions());
+                language.defaultOptions().add(languageStr);
+                language.selectedOptions().clear();
+                language.selectedOptions().addAll(language.defaultOptions());
 
                 //FIXME description choices don't yet align with parent/classic menu, more discussion needs to happen on
                 // how we want to fix this.
-                filterOptions.getLanguageCoordinates(0).getDescriptionType().selectedOptions().add("All");
-                filterOptions.getLanguageCoordinates(0).getDescriptionType().defaultOptions().addAll(filterOptions.getLanguageCoordinates(0).getDescriptionType().selectedOptions());
+                // all set in FilterOptions
             }
         }
         // set values for 'Kind Of'
-        filterOptions.getMainCoordinates().getKindOf().defaultOptions().clear();
-        filterOptions.getMainCoordinates().getKindOf().defaultOptions().add("All");
-        filterOptions.getMainCoordinates().getKindOf().selectedOptions().addAll(filterOptions.getMainCoordinates().getKindOf().defaultOptions());
+        // all set in FilterOptions
 
         // membership
-        filterOptions.getMainCoordinates().getMembership().defaultOptions().clear();
-        filterOptions.getMainCoordinates().getMembership().defaultOptions().add("All");
-        filterOptions.getMainCoordinates().getMembership().selectedOptions().addAll(filterOptions.getMainCoordinates().getMembership().defaultOptions());
+        // all set in FilterOptions
 
         // sort by
         filterOptions.getMainCoordinates().getSortBy().defaultOptions().clear();

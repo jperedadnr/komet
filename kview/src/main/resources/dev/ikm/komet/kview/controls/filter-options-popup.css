@@ -232,7 +232,6 @@
     -fx-fill: #5896F6;
     -fx-font-family: "Noto Sans";
     -fx-font-size: 13px;
-    -fx-font-style: bold;
     -fx-font-weight: 700;
 }
 
@@ -747,7 +746,6 @@
 .filter-options-popup > .scroll-pane .accordion > .lang-titled-pane.titled-pane > .title > .title-box > .title-label {
     -fx-font-family: "Noto Sans";
     -fx-font-size: 13px;
-    -fx-font-style: bold;
     -fx-font-weight: 700;
     -fx-text-fill: #5896F6;
 }
@@ -950,7 +948,6 @@
     -fx-text-fill: #9CAABF;
     -fx-font-family: "Noto Sans";
     -fx-font-size: 13px;
-    -fx-font-style: bold;
     -fx-font-weight: 700;
     -fx-wrap-text: true;
 }
