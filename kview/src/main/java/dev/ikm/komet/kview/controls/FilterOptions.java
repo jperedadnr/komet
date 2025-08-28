@@ -10,10 +10,10 @@ import dev.ikm.tinkar.terms.ConceptFacade;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -21,13 +21,14 @@ import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static dev.ikm.komet.kview.controls.RangeCalendarControl.DATE_FORMATTER;
 import static dev.ikm.tinkar.common.service.PrimitiveData.PREMUNDANE_TIME;
 
 public class FilterOptions implements Serializable {
 
     @Serial
     private final static long serialVersionUID = 1L;
+
+    private static final SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
     private static final ResourceBundle resources = ResourceBundle.getBundle("dev.ikm.komet.kview.controls.filter-options");
 
@@ -661,9 +662,9 @@ public class FilterOptions implements Serializable {
 
                 // populate the STATUS
                 StateSet currentStates = observableStampCoordinate.allowedStatesProperty().getValue();
-                List<String> currentStatesStr = currentStates.toEnumSet().stream().map(s -> s.name()).toList();
+                List<String> currentStatesStr = currentStates.toEnumSet().stream().map(Enum::name).toList();
 
-                FilterOptions.Option statusOption = filterOptions.getMainCoordinates().getStatus();
+                Option statusOption = filterOptions.getMainCoordinates().getStatus();
                 statusOption.selectedOptions().clear();
                 statusOption.selectedOptions().addAll(currentStatesStr);
 
@@ -671,18 +672,22 @@ public class FilterOptions implements Serializable {
                 statusOption.defaultOptions().addAll(currentStatesStr);
 
                 // MODULE
-                filterOptions.getMainCoordinates().getModule().defaultOptions().clear();
-                observableStampCoordinate.moduleNids().intStream().forEach(moduleNid -> {
-                    String moduleStr = calculator.getPreferredDescriptionStringOrNid(moduleNid);
-                    filterOptions.getMainCoordinates().getModule().defaultOptions().add(moduleStr);
-                });
+                if (!observableStampCoordinate.moduleNids().isEmpty()) {
+                    Option moduleOption = filterOptions.getMainCoordinates().getModule();
+                    moduleOption.defaultOptions().clear();
+                    observableStampCoordinate.moduleNids().intStream().forEach(moduleNid -> {
+                        String moduleStr = calculator.getPreferredDescriptionStringOrNid(moduleNid);
+                        System.out.println("moduleStr = " + moduleStr);
+                        moduleOption.defaultOptions().add(moduleStr);
+                    });
+                }
 
                 // populate the PATH
                 ConceptFacade currentPath = observableStampCoordinate.pathConceptProperty().getValue();
                 String currentPathStr = currentPath.description();
 
                 List<String> defaultSelectedPaths = new ArrayList<>(List.of(currentPathStr));
-                FilterOptions.Option pathOption = filterOptions.getMainCoordinates().getPath();
+                Option pathOption = filterOptions.getMainCoordinates().getPath();
                 pathOption.defaultOptions().clear();
                 pathOption.defaultOptions().addAll(defaultSelectedPaths);
 
@@ -690,20 +695,20 @@ public class FilterOptions implements Serializable {
                 pathOption.selectedOptions().addAll(defaultSelectedPaths);
 
                 // TIME
-                FilterOptions.Option timeOption = filterOptions.getMainCoordinates().getTime();
+                Option timeOption = filterOptions.getMainCoordinates().getTime();
 
                 Long time = observableStampCoordinate.timeProperty().getValue();
                 if (!time.equals(Long.MAX_VALUE) && !time.equals(PREMUNDANE_TIME)) {
                     //FIXME the custom control doesn't support premundane yet
-                    LocalDate date = LocalDate.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.UTC);
+                    Date date = new Date(time);
                     timeOption.defaultOptions().clear();
                     timeOption.selectedOptions().clear();
-                    timeOption.selectedOptions().add(DATE_FORMATTER.format(date));
+                    timeOption.selectedOptions().add(SIMPLE_DATE_FORMAT.format(date));
+                    timeOption.defaultOptions().addAll(timeOption.selectedOptions());
                 }
-                timeOption.defaultOptions().addAll(timeOption.selectedOptions());
             } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
                 // populate the LANGUAGE
-                FilterOptions.Option language = filterOptions.getLanguageCoordinates(0).getLanguage();
+                Option language = filterOptions.getLanguageCoordinates(0).getLanguage();
                 language.defaultOptions().clear();
                 String languageStr = calculator.languageCalculator().getPreferredDescriptionTextWithFallbackOrNid(
                         observableLanguageCoordinate.languageConceptProperty().get().nid());
@@ -717,6 +722,21 @@ public class FilterOptions implements Serializable {
             }
         }
         return filterOptions;
+    }
+
+    public static long getMillis(FilterOptions filterOptions) {
+        Option time = filterOptions.getMainCoordinates().getTime();
+        if (time == null || time.selectedOptions().isEmpty()) {
+            return -1;
         }
+
+        Date date;
+        try {
+            date = SIMPLE_DATE_FORMAT.parse(time.selectedOptions().getFirst());
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return date.getTime();
+    }
 
 }

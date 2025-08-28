@@ -89,8 +89,6 @@ import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -146,9 +144,6 @@ public class NextGenSearchController {
     private SearchResultType currentSearchResultType;
 
     private Subscription parentSubscription;
-
-    private static final List<String> ALL_STATES = StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN.toEnumSet().stream().map(s -> s.name()).toList();
-
 
     @InjectViewModel
     private NextGenSearchViewModel nextGenSearchViewModel;
@@ -232,7 +227,7 @@ public class NextGenSearchController {
                 if (!newFilterOptions.getMainCoordinates().getTime().selectedOptions().isEmpty() &&
                         oldFilterOptions != null &&
                         !oldFilterOptions.getMainCoordinates().getTime().selectedOptions().equals(newFilterOptions.getMainCoordinates().getTime().selectedOptions())) {
-                    long millis = getMillis(newFilterOptions);
+                    long millis = FilterOptions.getMillis(newFilterOptions);
                     // update the time
                     getViewProperties().nodeView().stampCoordinate().timeProperty().set(millis);
                 } else {
@@ -258,21 +253,6 @@ public class NextGenSearchController {
             filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
             doSearch(new ActionEvent(null, null));
         });
-    }
-
-    private long getMillis(FilterOptions newFilterOptions) {
-        int lastElementIndex = newFilterOptions.getMainCoordinates().getTime().selectedOptions().size() - 1;
-        String newDate = newFilterOptions.getMainCoordinates().getTime().selectedOptions().get(lastElementIndex);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        Date date;
-        try {
-            date = sdf.parse(newDate);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        long millis = date.getTime();
-        return millis;
     }
 
     private void initSearchResultType() {

@@ -44,8 +44,6 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import javafx.util.Subscription;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -79,9 +77,6 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
 
     private final ListView<KLSearchControl.SearchResult> resultsPane;
     private final FilterOptionsPopup filterOptionsPopup;
-
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-    private static final List<String> ALL_STATES = StateSet.ACTIVE_INACTIVE_AND_WITHDRAWN.toEnumSet().stream().map(s -> s.name()).toList();
 
     /**
      * <p>Creates a {@link KLSearchControlSkin} instance.
@@ -275,8 +270,9 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
                     control.getViewProperties().nodeView().stampCoordinate().pathConceptProperty().setValue(conceptPath);
                 }
                 if (!newFilterOptions.getMainCoordinates().getTime().selectedOptions().isEmpty() &&
+                        oldFilterOptions != null &&
                         !oldFilterOptions.getMainCoordinates().getTime().selectedOptions().equals(newFilterOptions.getMainCoordinates().getTime().selectedOptions())) {
-                    long millis = getMillis(newFilterOptions);
+                    long millis = FilterOptions.getMillis(newFilterOptions);
                     // update the time
                     control.getViewProperties().nodeView().stampCoordinate().timeProperty().set(millis);
                 } else {
@@ -307,20 +303,7 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
     }
 
 
-    private long getMillis(FilterOptions newFilterOptions) {
-        int lastElementIndex = newFilterOptions.getMainCoordinates().getTime().selectedOptions().size() - 1;
-        String newDate = newFilterOptions.getMainCoordinates().getTime().selectedOptions().get(lastElementIndex);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        Date date;
-        try {
-            date = sdf.parse(newDate);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        long millis = date.getTime();
-        return millis;
-    }
 
     /** {@inheritDoc} **/
     @Override

@@ -89,6 +89,8 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
 
                 accordionBox.disableAddButton(filterOptions.getLanguageCoordinatesList().stream()
                         .anyMatch(l -> l.getLanguage().selectedOptions().isEmpty()));
+
+                System.out.println("filterOptions = " + filterOptions);
             }
         }
     };
@@ -162,21 +164,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         createAccordionBoxPanes();
 
         subscription = control.filterOptionsProperty().subscribe(this::setupFilter);
-        subscription = subscription.and(control.navigatorProperty().subscribe(navigator -> {
-            // reset default filter options
-            defaultFilterOptions = new FilterOptions();
-            // once we have navigator, update pending options with av/def/sel default options
-            setAvailableOptionsFromNavigator(defaultFilterOptions, navigator);
-            // then pass the inherited options, to override av/def/sel default options where set
-            setDefaultOptions(control.getInheritedFilterOptions());
-            // pass default options to panes
-            accordionBox.updateMainPanes(pane ->
-                    pane.setDefaultOption(defaultFilterOptions.getOptionForItem(pane.getOption().item())));
-            accordionBox.updateLangPanes(pane ->
-                    pane.setDefaultLangCoordinates(defaultFilterOptions.getLanguageCoordinates(pane.getOrdinal())));
-            // finally, setup filter with default options
-            setupFilter(defaultFilterOptions);
-        }));
+        subscription = subscription.and(control.navigatorProperty().subscribe(this::setupDefaultFilterOptions));
 
         subscription = subscription.and(savedFiltersPopup.showingProperty().subscribe((_, showing) -> {
             if (!showing) {
@@ -184,8 +172,10 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
             }
         }));
         //experimental... trying to listen to changes when the inherited options change to change what is selected
-        subscription = subscription.and(control.inheritedFilterOptionsProperty().subscribe((oldVal, newVal) -> {
-//            currentFilterOptionsProperty.setValue(control.getInheritedFilterOptions());
+        subscription = subscription.and(control.inheritedFilterOptionsProperty().subscribe((_, _) -> {
+            if (control.getNavigator() != null) {
+                setupDefaultFilterOptions(control.getNavigator());
+            }
         }));
         subscription = subscription.and(filterPane.selectedProperty().subscribe((_, selected) -> {
             if (selected) {
@@ -364,11 +354,27 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         accordionBox.getLangAccordion().getPanes().add(langFilterTitledPane);
     }
 
+    private void setupDefaultFilterOptions(Navigator navigator) {
+        // reset default filter options
+        defaultFilterOptions = new FilterOptions();
+        // once we have navigator, update pending options with av/def/sel default options
+        setAvailableOptionsFromNavigator(defaultFilterOptions, navigator);
+        // then pass the inherited options, to override av/def/sel default options where set
+        setDefaultOptions(control.getInheritedFilterOptions());
+        // pass default options to panes
+        accordionBox.updateMainPanes(pane ->
+                pane.setDefaultOption(defaultFilterOptions.getOptionForItem(pane.getOption().item())));
+        accordionBox.updateLangPanes(pane ->
+                pane.setDefaultLangCoordinates(defaultFilterOptions.getLanguageCoordinates(pane.getOrdinal())));
+        // finally, setup filter with default options
+        setupFilter(defaultFilterOptions);
+    }
+
     private void setDefaultOptions(FilterOptions filterOptions) {
         filterOptions.getMainCoordinates().getOptions().forEach(sourceOption ->
-                setInitialOptions(sourceOption, defaultFilterOptions.getOptionForItem(sourceOption.item())));
+                setInheritedOptions(sourceOption, defaultFilterOptions.getOptionForItem(sourceOption.item())));
         filterOptions.getLanguageCoordinates(0).getOptions().forEach(sourceOption ->
-                setInitialOptions(sourceOption, defaultFilterOptions.getLangOptionForItem(0, sourceOption.item())));
+                setInheritedOptions(sourceOption, defaultFilterOptions.getLangOptionForItem(0, sourceOption.item())));
     }
 
     private void setAvailableOptionsFromNavigator(FilterOptions options, Navigator navigator) {
@@ -433,15 +439,17 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         option.selectedOptions().addAll(option.isMultiSelectionAllowed() ? options : List.of(options.getFirst()));
     }
 
-    private void setInitialOptions(FilterOptions.Option sourceOption, FilterOptions.Option targetOption) {
+    private void setInheritedOptions(FilterOptions.Option sourceOption, FilterOptions.Option targetOption) {
         targetOption.selectedOptions().clear();
         targetOption.defaultOptions().clear();
+        if (targetOption.hasAny()) {
+            targetOption.setAny(sourceOption.any());
+        }
         if (sourceOption.isMultiSelectionAllowed()) {
             if (!sourceOption.selectedOptions().isEmpty()) {
                 targetOption.selectedOptions().addAll(sourceOption.selectedOptions());
             } else {
-                targetOption.setAny(targetOption.hasAny());
-                targetOption.selectedOptions().addAll(sourceOption.availableOptions());
+                targetOption.selectedOptions().addAll(targetOption.availableOptions());
             }
         } else if (!(sourceOption.selectedOptions().isEmpty() || sourceOption.selectedOptions().getFirst() == null)) {
             targetOption.selectedOptions().add(sourceOption.selectedOptions().getFirst());
@@ -549,7 +557,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
                 languageCoordinates.getLanguage().availableOptions().addAll(
                         currentFilterOptionsProperty.get().getLanguageCoordinatesList().getFirst().getLanguage().availableOptions());
                 languageCoordinates.getOptions().forEach(sourceOption ->
-                        setInitialOptions(sourceOption, defaultFilterOptions.getLangOptionForItem(0, sourceOption.item())));
+                        setInheritedOptions(sourceOption, defaultFilterOptions.getLangOptionForItem(0, sourceOption.item())));
                 LangFilterTitledPane langFilterTitledPane = setupLangTitledPane(languageCoordinates);
                 langAccordion.getPanes().add(langFilterTitledPane);
                 updateCurrentFilterOptions();

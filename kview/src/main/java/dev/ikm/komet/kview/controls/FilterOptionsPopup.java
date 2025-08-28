@@ -37,7 +37,12 @@ public class FilterOptionsPopup extends PopupControl {
     }
 
     // inheritedFilterOptionsProperty
-    private final ObjectProperty<FilterOptions> inheritedFilterOptionsProperty = new SimpleObjectProperty<>(this, "initialFilterOptions", new FilterOptions());
+    private final ObjectProperty<FilterOptions> inheritedFilterOptionsProperty = new SimpleObjectProperty<>(this, "initialFilterOptions", new FilterOptions()) {
+        @Override
+        protected void invalidated() {
+            System.out.println("Inherited filter options: " + get());
+        }
+    };
     public final ObjectProperty<FilterOptions> inheritedFilterOptionsProperty() {
         return inheritedFilterOptionsProperty;
     }
