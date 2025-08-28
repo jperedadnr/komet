@@ -1,7 +1,18 @@
 package dev.ikm.komet.kview.controls;
 
+import dev.ikm.komet.framework.view.ObservableCoordinate;
+import dev.ikm.komet.framework.view.ObservableLanguageCoordinate;
+import dev.ikm.komet.framework.view.ObservableStampCoordinate;
+import dev.ikm.tinkar.coordinate.stamp.StateSet;
+import dev.ikm.tinkar.coordinate.view.ViewCoordinateRecord;
+import dev.ikm.tinkar.coordinate.view.calculator.ViewCalculator;
+import dev.ikm.tinkar.terms.ConceptFacade;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -9,6 +20,9 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static dev.ikm.komet.kview.controls.RangeCalendarControl.DATE_FORMATTER;
+import static dev.ikm.tinkar.common.service.PrimitiveData.PREMUNDANE_TIME;
 
 public class FilterOptions implements Serializable {
 
@@ -634,5 +648,75 @@ public class FilterOptions implements Serializable {
         return list1 == null ||
                 list1.stream().toList().equals(list2.stream().toList());
     }
+
+    public static FilterOptions loadFilterOptions(ObservableCoordinate<ViewCoordinateRecord> parentView, ViewCalculator calculator) {
+        FilterOptions filterOptions = new FilterOptions();
+
+        // get parent menu settings
+        for (ObservableCoordinate<?> observableCoordinate : parentView.getCompositeCoordinates()) {
+            if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
+
+                // populate the TYPE; this isn't in the parent view coordinate
+                // it is all set in FilterOptions
+
+                // populate the STATUS
+                StateSet currentStates = observableStampCoordinate.allowedStatesProperty().getValue();
+                List<String> currentStatesStr = currentStates.toEnumSet().stream().map(s -> s.name()).toList();
+
+                FilterOptions.Option statusOption = filterOptions.getMainCoordinates().getStatus();
+                statusOption.selectedOptions().clear();
+                statusOption.selectedOptions().addAll(currentStatesStr);
+
+                statusOption.defaultOptions().clear();
+                statusOption.defaultOptions().addAll(currentStatesStr);
+
+                // MODULE
+                filterOptions.getMainCoordinates().getModule().defaultOptions().clear();
+                observableStampCoordinate.moduleNids().intStream().forEach(moduleNid -> {
+                    String moduleStr = calculator.getPreferredDescriptionStringOrNid(moduleNid);
+                    filterOptions.getMainCoordinates().getModule().defaultOptions().add(moduleStr);
+                });
+
+                // populate the PATH
+                ConceptFacade currentPath = observableStampCoordinate.pathConceptProperty().getValue();
+                String currentPathStr = currentPath.description();
+
+                List<String> defaultSelectedPaths = new ArrayList<>(List.of(currentPathStr));
+                FilterOptions.Option pathOption = filterOptions.getMainCoordinates().getPath();
+                pathOption.defaultOptions().clear();
+                pathOption.defaultOptions().addAll(defaultSelectedPaths);
+
+                pathOption.selectedOptions().clear();
+                pathOption.selectedOptions().addAll(defaultSelectedPaths);
+
+                // TIME
+                FilterOptions.Option timeOption = filterOptions.getMainCoordinates().getTime();
+
+                Long time = observableStampCoordinate.timeProperty().getValue();
+                if (!time.equals(Long.MAX_VALUE) && !time.equals(PREMUNDANE_TIME)) {
+                    //FIXME the custom control doesn't support premundane yet
+                    LocalDate date = LocalDate.ofInstant(Instant.ofEpochMilli(time), ZoneOffset.UTC);
+                    timeOption.defaultOptions().clear();
+                    timeOption.selectedOptions().clear();
+                    timeOption.selectedOptions().add(DATE_FORMATTER.format(date));
+                }
+                timeOption.defaultOptions().addAll(timeOption.selectedOptions());
+            } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
+                // populate the LANGUAGE
+                FilterOptions.Option language = filterOptions.getLanguageCoordinates(0).getLanguage();
+                language.defaultOptions().clear();
+                String languageStr = calculator.languageCalculator().getPreferredDescriptionTextWithFallbackOrNid(
+                        observableLanguageCoordinate.languageConceptProperty().get().nid());
+                language.defaultOptions().add(languageStr);
+                language.selectedOptions().clear();
+                language.selectedOptions().addAll(language.defaultOptions());
+
+                //FIXME description choices don't yet align with parent/classic menu, more discussion needs to happen on
+                // how we want to fix this.
+                // all set in FilterOptions
+            }
+        }
+        return filterOptions;
+        }
 
 }

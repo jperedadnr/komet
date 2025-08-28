@@ -11,7 +11,6 @@ import dev.ikm.komet.kview.controls.TruncatedTextFlow;
 import javafx.collections.FXCollections;
 import javafx.css.PseudoClass;
 import javafx.scene.Parent;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
