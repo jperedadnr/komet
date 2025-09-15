@@ -16,7 +16,10 @@
 package dev.ikm.komet.kview.mvvm.view.pattern;
 
 import dev.ikm.komet.kview.events.StampEvent;
-import dev.ikm.komet.kview.mvvm.view.common.StampAddController;
+import dev.ikm.komet.kview.mvvm.view.common.StampFormController;
+import dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampAddConfirmFormViewModel;
+import dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampCreateFormViewModel;
+import dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampFormViewModelBase;
 import dev.ikm.tinkar.events.EvtBusFactory;
 import dev.ikm.tinkar.events.EvtType;
 import dev.ikm.tinkar.events.Subscriber;
@@ -65,7 +68,7 @@ import static dev.ikm.komet.kview.mvvm.viewmodel.DescrNameViewModel.MODE;
 import static dev.ikm.komet.kview.mvvm.viewmodel.DescrNameViewModel.VIEW_PROPERTIES;
 import static dev.ikm.komet.kview.mvvm.viewmodel.PatternFieldsViewModel.*;
 import static dev.ikm.komet.kview.mvvm.viewmodel.PatternViewModel.*;
-import static dev.ikm.komet.kview.mvvm.viewmodel.StampFormViewModelBase.StampType.PATTERN;
+import static dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampFormViewModelBase.Type.PATTERN;
 import static dev.ikm.komet.kview.state.PatternDetailsState.NEW_PATTERN_INITIAL;
 import static dev.ikm.tinkar.terms.TinkarTerm.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE;
 import static dev.ikm.tinkar.terms.TinkarTerm.REGULAR_NAME_DESCRIPTION_TYPE;
@@ -135,7 +138,7 @@ public class PropertiesController {
 
     private InstancesController instancesController;
 
-    private JFXNode<Pane, StampAddController> stampJFXNode;
+    private JFXNode<Pane, StampFormController> stampJFXNode;
 
     private Pane historyPane;
 
@@ -161,13 +164,13 @@ public class PropertiesController {
 
     private Subscriber<StampEvent> createStampSubscriber;
 
-    private StampAddFormViewModel stampAddFormViewModel;
+    private StampAddConfirmFormViewModel stampAddConfirmFormViewModel;
     private StampCreateFormViewModel stampCreateFormViewModel;
 
     private EntityFacade patternFacade;
 
     public PropertiesController() {
-        this.stampAddFormViewModel = new StampAddFormViewModel(PATTERN);
+        this.stampAddConfirmFormViewModel = new StampAddConfirmFormViewModel(PATTERN);
         this.stampCreateFormViewModel = new StampCreateFormViewModel(PATTERN);
     }
 
@@ -178,7 +181,7 @@ public class PropertiesController {
         // +-----------------------------------------------------------------------
         // ! Add Stamp panel
         // +-----------------------------------------------------------------------
-        Config stampConfig = new Config(StampAddController.class.getResource(StampAddController.ADD_STAMP_FXML_FILE));
+        Config stampConfig = new Config(StampFormController.class.getResource(StampFormController.STAMP_FORM_FXML_FILE));
         stampJFXNode = FXMLMvvmLoader.make(stampConfig);
 
         // +-----------------------------------------------------------------------
@@ -246,6 +249,7 @@ public class PropertiesController {
         // ! Edit field(s) within a Pattern
         // +-----------------------------------
         Config fieldsConfig = new Config(PATTERN_FIELDS_FXML_URL)
+                .addNamedViewModel(new NamedVm("patternViewModel",patternViewModel))
                 .updateViewModel("patternFieldsViewModel", (patternFieldsViewModel) ->
                         patternFieldsViewModel
                                 .setPropertyValue(PATTERN_TOPIC, patternPropertiesViewModel.getPropertyValue(PATTERN_TOPIC))
@@ -367,7 +371,7 @@ public class PropertiesController {
         // -- add stamp
         addStampSubscriber = evt -> {
             if (evt.getEventType() == StampEvent.ADD_STAMP) {
-                stampJFXNode.controller().init(stampAddFormViewModel);
+                stampJFXNode.controller().init(stampAddConfirmFormViewModel);
                 contentBorderPane.setCenter(stampJFXNode.node());
             }
         };
@@ -388,12 +392,12 @@ public class PropertiesController {
     public void updateModel(EntityFacade newPattern) {
         this.patternFacade = newPattern;
 
-        if (newPattern != null && stampAddFormViewModel != null) {
-            setStampFormViewModel(stampAddFormViewModel);
+        if (newPattern != null && stampAddConfirmFormViewModel != null) {
+            setStampFormViewModel(stampAddConfirmFormViewModel);
         } else if (newPattern == null && stampCreateFormViewModel != null) {
             setStampFormViewModel(stampCreateFormViewModel);
         }
-        stampFormViewModel.get().init(newPattern, getPatternTopic(), getViewProperties());
+        stampFormViewModel.get().update(newPattern, getPatternTopic(), getViewProperties());
     }
 
     private StateMachine getStateMachine() {

@@ -1,5 +1,6 @@
 package dev.ikm.komet.kview.mvvm.view.genediting;
 
+import dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampFormViewModelBase;
 import dev.ikm.tinkar.common.alert.*;
 import dev.ikm.tinkar.events.EvtBusFactory;
 import dev.ikm.komet.framework.view.ViewProperties;
@@ -8,7 +9,6 @@ import dev.ikm.komet.kview.controls.KLComponentControlFactory;
 import dev.ikm.komet.kview.events.genediting.GenEditingEvent;
 import dev.ikm.komet.kview.events.genediting.PropertyPanelEvent;
 import dev.ikm.komet.kview.mvvm.viewmodel.GenEditingViewModel;
-import dev.ikm.komet.kview.mvvm.viewmodel.StampViewModel;
 import dev.ikm.tinkar.entity.*;
 import dev.ikm.tinkar.entity.transaction.Transaction;
 import dev.ikm.tinkar.terms.*;
@@ -28,13 +28,15 @@ import java.util.*;
 import static dev.ikm.komet.kview.events.genediting.GenEditingEvent.CONFIRM_REFERENCE_COMPONENT;
 import static dev.ikm.komet.kview.events.genediting.PropertyPanelEvent.CLOSE_PANEL;
 import static dev.ikm.komet.kview.klfields.KlFieldHelper.createDefaultFieldValues;
-import static dev.ikm.komet.kview.klfields.KlFieldHelper.hasAllFieldTypesSupported;
 import static dev.ikm.komet.kview.klfields.KlFieldHelper.hasAnyUnsupportedFieldType;
 import static dev.ikm.komet.kview.mvvm.view.genediting.SemanticFieldsController.CONFIRM_CLEAR_MESSAGE;
 import static dev.ikm.komet.kview.mvvm.view.genediting.SemanticFieldsController.CONFIRM_CLEAR_TITLE;
 import static dev.ikm.komet.kview.mvvm.viewmodel.FormViewModel.VIEW_PROPERTIES;
 import static dev.ikm.komet.kview.mvvm.viewmodel.GenEditingViewModel.*;
-import static dev.ikm.tinkar.coordinate.stamp.StampFields.*;
+import static dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampFormViewModelBase.Properties.AUTHOR;
+import static dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampFormViewModelBase.Properties.MODULE;
+import static dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampFormViewModelBase.Properties.PATH;
+import static dev.ikm.komet.kview.mvvm.viewmodel.stamp.StampFormViewModelBase.Properties.STATUS;
 
 public class ReferenceComponentController {
 
@@ -142,13 +144,14 @@ public class ReferenceComponentController {
                 .versions(versions.toImmutable())
                 .build();
 
-        StampViewModel stampViewModel = genEditingViewModel.getPropertyValue(STAMP_VIEW_MODEL);
+        StampFormViewModelBase stampFormViewModel = genEditingViewModel.getPropertyValue(STAMP_VIEW_MODEL);
         Transaction transaction = Transaction.make("Transaction For "+semanticRecord.nid());
 
-        State state = stampViewModel.getPropertyValue(STATUS);
-        int authorNid = ((EntityProxy.Concept) stampViewModel.getPropertyValue(AUTHOR)).nid();
-        int moduleNid = ((ConceptEntity)  stampViewModel.getPropertyValue(MODULE)).nid();
-        int pathNid = ((ConceptEntity)  stampViewModel.getPropertyValue(PATH)).nid();
+        State state = stampFormViewModel.getPropertyValue(STATUS);
+        int authorNid = ((EntityFacade) stampFormViewModel.getPropertyValue(AUTHOR)).nid();
+        int moduleNid = ((ConceptFacade)  stampFormViewModel.getPropertyValue(MODULE)).nid();
+        int pathNid = ((ConceptFacade)  stampFormViewModel.getPropertyValue(PATH)).nid();
+
         StampEntity stampEntity = transaction.getStampForEntities(state, authorNid, moduleNid, pathNid, semanticRecord);
 
         ImmutableList<Object> fieldValues = createDefaultFieldValues(patternFacade, getViewProperties());
