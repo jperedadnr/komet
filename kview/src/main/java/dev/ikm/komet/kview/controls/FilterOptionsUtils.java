@@ -1,105 +1,298 @@
 package dev.ikm.komet.kview.controls;
 
+import dev.ikm.komet.framework.temp.FxGet;
 import dev.ikm.komet.framework.view.ObservableCoordinate;
 import dev.ikm.komet.framework.view.ObservableLanguageCoordinate;
+import dev.ikm.komet.framework.view.ObservableNavigationCoordinate;
 import dev.ikm.komet.framework.view.ObservableStampCoordinate;
+import dev.ikm.komet.framework.view.ObservableView;
 import dev.ikm.komet.navigator.graph.Navigator;
 import dev.ikm.tinkar.common.util.time.DateTimeUtil;
 import dev.ikm.tinkar.coordinate.navigation.calculator.Edge;
 import dev.ikm.tinkar.coordinate.stamp.StateSet;
-import dev.ikm.tinkar.coordinate.view.ViewCoordinateRecord;
 import dev.ikm.tinkar.coordinate.view.calculator.ViewCalculator;
 import dev.ikm.tinkar.entity.Entity;
 import dev.ikm.tinkar.entity.StampService;
 import dev.ikm.tinkar.terms.ConceptFacade;
+import dev.ikm.tinkar.terms.EntityFacade;
+import dev.ikm.tinkar.terms.PatternFacade;
+import dev.ikm.tinkar.terms.State;
+import dev.ikm.tinkar.terms.TinkarTerm;
+import javafx.collections.ObservableList;
+import javafx.util.Subscription;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static dev.ikm.tinkar.common.service.PrimitiveData.PREMUNDANE_TIME;
 
 public class FilterOptionsUtils {
 
-    public static FilterOptions loadFilterOptions(ObservableCoordinate<ViewCoordinateRecord> parentView, ViewCalculator calculator) {
-        FilterOptions filterOptions = new FilterOptions();
+    public FilterOptionsUtils() {}
 
-        // get parent menu settings
-        for (ObservableCoordinate<?> observableCoordinate : parentView.getCompositeCoordinates()) {
-            if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
+    private Subscription nodeSubscription;
+    private Subscription viewSubscription;
+    private Subscription optionSubscription;
 
-                // populate the TYPE; this isn't in the parent view coordinate
-                // it is all set in FilterOptions
+    // pass down changes from View (typically the ParentView) to FilterOptions (typically the defaultFilterOptions)
+    public void bindFilterOptionsToView(FilterOptions filterOptions, ObservableView observableView) {
 
-                // populate the STATUS
-                StateSet currentStates = observableStampCoordinate.allowedStatesProperty().getValue();
-                List<String> currentStatesStr = currentStates.toEnumSet().stream().map(Enum::name).toList();
+        removeViewSubscriptions();
 
-                FilterOptions.Option statusOption = filterOptions.getMainCoordinates().getStatus();
-                statusOption.selectedOptions().clear();
-                statusOption.selectedOptions().addAll(currentStatesStr);
+        ObservableView observableViewForFilterProperty = filterOptions.observableViewForFilterProperty();
+        FilterOptions.MainFilterCoordinates mainCoordinates = filterOptions.getMainCoordinates();
+        List<FilterOptions.LanguageFilterCoordinates> languageCoordinatesList = filterOptions.getLanguageCoordinatesList();
 
-                statusOption.defaultOptions().clear();
-                statusOption.defaultOptions().addAll(currentStatesStr);
+        // note: when any coordinate property from the View changes, the binding changes immediately the F.O. coordinate property,
+        // and that change is propagated via subscription to the related Option, but also directly to the top F.O.
+        // observableViewForFilter, so it is safe to add a listener just to this property to get notified of any change
+        // in any of its coordinates (that is, options).
+        for (ObservableCoordinate<?> observableCoordinate : observableView.getCompositeCoordinates()) {
+            if (observableCoordinate instanceof ObservableNavigationCoordinate observableNavigationCoordinate) {
 
-                // MODULE
-                if (!observableStampCoordinate.moduleNids().isEmpty()) {
-                    FilterOptions.Option moduleOption = filterOptions.getMainCoordinates().getModule();
-                    moduleOption.defaultOptions().clear();
-                    observableStampCoordinate.moduleNids().intStream().forEach(moduleNid -> {
-                        String moduleStr = calculator.getPreferredDescriptionStringOrNid(moduleNid);
-                        System.out.println("moduleStr = " + moduleStr);
-                        moduleOption.defaultOptions().add(moduleStr);
-                    });
-                }
+                // NAVIGATION
+                viewSubscription = viewSubscription.and(observableNavigationCoordinate.navigationPatternsProperty().subscribe(nav -> {
+//                        System.out.println("nav = " + nv));
+                    if (nav != null) {
+                        mainCoordinates.getNavigator().selectedOptions().clear();
+                        mainCoordinates.getNavigator().selectedOptions().addAll(nav);
+                    }
+                    observableViewForFilterProperty.navigationCoordinate().navigationPatternsProperty().set(nav);
+                }));
 
-                // populate the PATH
-                ConceptFacade currentPath = observableStampCoordinate.pathConceptProperty().getValue();
-                String currentPathStr = currentPath.description();
+            } else if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
 
-                List<String> defaultSelectedPaths = new ArrayList<>(List.of(currentPathStr));
-                FilterOptions.Option pathOption = filterOptions.getMainCoordinates().getPath();
-                pathOption.defaultOptions().clear();
-                pathOption.defaultOptions().addAll(defaultSelectedPaths);
-
-                pathOption.selectedOptions().clear();
-                pathOption.selectedOptions().addAll(defaultSelectedPaths);
+                // STATUS
+                viewSubscription = viewSubscription.and(observableStampCoordinate.allowedStatesProperty().subscribe(stateSet -> {
+                    mainCoordinates.getStatus().selectedOptions().clear();
+                    if (stateSet != null) {
+                        mainCoordinates.getStatus().selectedOptions().addAll(stateSet.toEnumSet().stream().toList());
+                    }
+                    observableViewForFilterProperty.stampCoordinate().allowedStatesProperty().set(stateSet);
+                }));
 
                 // TIME
-                FilterOptions.Option timeOption = filterOptions.getMainCoordinates().getTime();
+                viewSubscription = viewSubscription.and(observableStampCoordinate.timeProperty().subscribe(t -> {
+                    mainCoordinates.getTime().selectedOptions().clear();
+                    if (t != null) {
+                        Long time = t.longValue();
+                        if (!time.equals(Long.MAX_VALUE) && !time.equals(PREMUNDANE_TIME)) {
+                            //FIXME the custom control doesn't support premundane yet
+                            mainCoordinates.getTime().selectedOptions().addAll(String.valueOf(time));
+                        } else if (time.equals(Long.MAX_VALUE)) {
+                            mainCoordinates.getTime().selectedOptions().addAll(mainCoordinates.getTime().availableOptions().getFirst());
+                        }
+                    }
+                    observableViewForFilterProperty.stampCoordinate().timeProperty().setValue(t);
+                }));
 
-                Long time = observableStampCoordinate.timeProperty().getValue();
-                if (!time.equals(Long.MAX_VALUE) && !time.equals(PREMUNDANE_TIME)) {
-                    //FIXME the custom control doesn't support premundane yet
-                    Date date = new Date(time);
-                    timeOption.defaultOptions().clear();
-                    timeOption.selectedOptions().clear();
-                    timeOption.selectedOptions().add(String.valueOf(time));
-                    timeOption.defaultOptions().addAll(timeOption.selectedOptions());
-                }
+                // MODULE
+                viewSubscription = viewSubscription.and(observableStampCoordinate.moduleSpecificationsProperty().subscribe(m -> {
+                    mainCoordinates.getModule().selectedOptions().clear();
+                    if (m != null) {
+                        mainCoordinates.getModule().selectedOptions().addAll(m);
+                    }
+                    observableViewForFilterProperty.stampCoordinate().moduleSpecificationsProperty().set(m);
+                }));
+                viewSubscription = viewSubscription.and(observableStampCoordinate.excludedModuleSpecificationsProperty().subscribe(e -> {
+                    mainCoordinates.getModule().excludedOptions().clear();
+                    if (e != null) {
+                        mainCoordinates.getModule().excludedOptions().addAll(e);
+                    }
+                    observableViewForFilterProperty.stampCoordinate().excludedModuleSpecificationsProperty().set(e);
+                }));
+
+                // PATH
+                viewSubscription = viewSubscription.and(observableStampCoordinate.pathConceptProperty().subscribe(path -> {
+                    if (path != null) {
+                        mainCoordinates.getPath().selectedOptions().clear();
+                        mainCoordinates.getPath().selectedOptions().addAll(path);
+                    }
+                    observableViewForFilterProperty.stampCoordinate().pathConceptProperty().set(path);
+                }));
+
             } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
-                // populate the LANGUAGE
-                FilterOptions.Option language = filterOptions.getLanguageCoordinates(0).getLanguage();
-                language.defaultOptions().clear();
-                String languageStr = calculator.languageCalculator().getPreferredDescriptionTextWithFallbackOrNid(
-                        observableLanguageCoordinate.languageConceptProperty().get().nid());
-                language.defaultOptions().add(languageStr);
-                language.selectedOptions().clear();
-                language.selectedOptions().addAll(language.defaultOptions());
 
-                //FIXME description choices don't yet align with parent/classic menu, more discussion needs to happen on
-                // how we want to fix this.
-                // all set in FilterOptions
+                // LANGUAGE
+                // todo: more languages
+                viewSubscription = viewSubscription.and(observableLanguageCoordinate.languageConceptProperty().subscribe(lang -> {
+                    languageCoordinatesList.getFirst().getLanguage().selectedOptions().clear();
+                    if (lang != null) {
+                        languageCoordinatesList.getFirst().getLanguage().selectedOptions().addAll(lang);
+                    }
+                    observableViewForFilterProperty.languageCoordinates().getFirst().languageConceptProperty().set(lang);
+                }));
+
+                viewSubscription = viewSubscription.and(observableLanguageCoordinate.dialectPatternPreferenceListProperty().subscribe(list -> {
+                    languageCoordinatesList.getFirst().getDialect().selectedOptions().clear();
+                    if (list != null && observableLanguageCoordinate.languageConcept().equals(TinkarTerm.ENGLISH_LANGUAGE)) {
+                        System.out.println("list = " + list);
+                        languageCoordinatesList.getFirst().getDialect().selectedOptions().addAll(list);
+                    }
+                    observableViewForFilterProperty.languageCoordinates().getFirst().dialectPatternPreferenceListProperty().set(list);
+                }));
+
+                viewSubscription = viewSubscription.and(observableLanguageCoordinate.descriptionTypePreferenceListProperty().subscribe(list -> {
+                    languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().clear();
+                    if (list != null) {
+                        languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().addAll(list);
+                    }
+                    observableViewForFilterProperty.languageCoordinates().getFirst().descriptionTypePreferenceListProperty().set(list);
+                }));
             }
         }
-        return filterOptions;
+    }
+
+    private void removeViewSubscriptions() {
+        if (viewSubscription != null) {
+            viewSubscription.unsubscribe();
+        }
+        viewSubscription = Subscription.EMPTY;
+    }
+
+    public void unbindFilterOptions() {
+        if (nodeSubscription != null) {
+            nodeSubscription.unsubscribe();
+        }
+    }
+
+    // pass up changes from FilterOptions to view (typically the nodeView)
+    public void bindViewToFilterOptions(FilterOptions filterOptions, ObservableView observableView) {
+        unbindFilterOptions();
+        addOptionSubscriptions(filterOptions);
+        nodeSubscription = Subscription.EMPTY;
+        // get parent menu settings
+        for (ObservableCoordinate<?> observableCoordinate : observableView.getCompositeCoordinates()) {
+            if (observableCoordinate instanceof ObservableNavigationCoordinate observableNavigationCoordinate) {
+                // NAVIGATION
+                nodeSubscription = nodeSubscription.and(
+                    filterOptions.observableViewForFilterProperty().navigationCoordinate().navigationPatternsProperty().subscribe(nav ->
+                        observableNavigationCoordinate.navigationPatternsProperty().set(nav)));
+
+            } else if (observableCoordinate instanceof ObservableStampCoordinate observableStampCoordinate) {
+
+                // STATUS
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().stampCoordinate().allowedStatesProperty().subscribe(state ->
+                                observableStampCoordinate.allowedStatesProperty().set(state)));
+
+                // TIME
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().stampCoordinate().timeProperty().subscribe(time ->
+                                observableStampCoordinate.timeProperty().set(time.longValue())));
+
+                // MODULE
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().stampCoordinate().moduleSpecificationsProperty().subscribe(m ->
+                                observableStampCoordinate.moduleSpecificationsProperty().set(m)));
+
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().stampCoordinate().excludedModuleSpecificationsProperty().subscribe(e ->
+                                observableStampCoordinate.excludedModuleSpecificationsProperty().set(e)));
+
+                // PATH
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().stampCoordinate().pathConceptProperty().subscribe(path ->
+                                observableStampCoordinate.pathConceptProperty().set(path)));
+
+            } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
+
+                // LANGUAGE
+                // todo: more languages
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().languageConceptProperty().subscribe(lang ->
+                                observableLanguageCoordinate.languageConceptProperty().set(lang)));
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().dialectPatternPreferenceListProperty().subscribe(list ->
+                                observableLanguageCoordinate.dialectPatternPreferenceListProperty().set(list)));
+                nodeSubscription = nodeSubscription.and(
+                        filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().descriptionTypePreferenceListProperty().subscribe(list ->
+                                observableLanguageCoordinate.descriptionTypePreferenceListProperty().set(list)));
+            }
+        }
+    }
+
+    private void removeOptionSubscriptions() {
+        if (optionSubscription != null) {
+            optionSubscription.unsubscribe();
+        }
+        optionSubscription = Subscription.EMPTY;
+    }
+
+    private void addOptionSubscriptions(FilterOptions filterOptions) {
+        removeOptionSubscriptions();
+
+        ObservableView observableViewForFilter = filterOptions.observableViewForFilterProperty();
+        FilterOptions.MainFilterCoordinates mainCoordinates = filterOptions.getMainCoordinates();
+        List<FilterOptions.LanguageFilterCoordinates> languageCoordinatesList = filterOptions.getLanguageCoordinatesList();
+
+        // NAVIGATOR
+        optionSubscription = mainCoordinates.getNavigator().selectedOptions().subscribe(() -> {
+            ObservableList<PatternFacade> selectedOptions = mainCoordinates.getNavigator().selectedOptions();
+            if (!selectedOptions.isEmpty()) {
+                PatternFacade patternFacade = selectedOptions.getFirst();
+//                System.out.println("from filter -> nav: " + patternFacade+ ", fo: " + filterOptions.hashCode());
+                observableViewForFilter.navigationCoordinate().navigationPatternsProperty().clear();
+                observableViewForFilter.navigationCoordinate().navigationPatternsProperty().add(patternFacade);
+            }
+        });
+
+        // STATUS
+        optionSubscription = optionSubscription.and(mainCoordinates.getStatus().selectedOptions().subscribe(() -> {
+            List<State> stateList = mainCoordinates.getStatus().selectedOptions().stream().toList();
+            observableViewForFilter.stampCoordinate().allowedStatesProperty().set(StateSet.of(stateList));
+        }));
+
+        // TIME
+        optionSubscription = optionSubscription.and(mainCoordinates.getTime().selectedOptions().subscribe(() -> {
+            ObservableList<String> selectedOptions = mainCoordinates.getTime().selectedOptions();
+            if (!selectedOptions.isEmpty()) {
+                String time = selectedOptions.getFirst();
+                long t;
+                try {
+                    t = Long.parseLong(time);
+                } catch (NumberFormatException e) {
+                    t = Long.MAX_VALUE;
+                }
+                observableViewForFilter.stampCoordinate().timeProperty().set(t);
+            }
+        }));
+
+        // MODULE
+        optionSubscription = optionSubscription.and(mainCoordinates.getModule().selectedOptions().subscribe(() -> {
+            Set<ConceptFacade> includedSet = new HashSet<>(mainCoordinates.getModule().selectedOptions());
+            observableViewForFilter.stampCoordinate().moduleSpecificationsProperty().addAll(includedSet);
+        }));
+        optionSubscription = optionSubscription.and(mainCoordinates.getModule().excludedOptions().subscribe(() -> {
+            Set<ConceptFacade> excludedSet = new HashSet<>(mainCoordinates.getModule().excludedOptions());
+            observableViewForFilter.stampCoordinate().excludedModuleSpecificationsProperty().addAll(excludedSet);
+        }));
+
+        // PATH
+        optionSubscription = optionSubscription.and(mainCoordinates.getPath().selectedOptions().subscribe(() -> {
+            ObservableList<ConceptFacade> selectedOptions = mainCoordinates.getPath().selectedOptions();
+            if (!selectedOptions.isEmpty()) {
+                ConceptFacade conceptFacade = selectedOptions.getFirst();
+                observableViewForFilter.stampCoordinate().pathConceptProperty().set(conceptFacade);
+            }
+        }));
+
+        // LANGUAGE
+        optionSubscription = optionSubscription.and(languageCoordinatesList.getFirst().getLanguage().selectedOptions().subscribe(() -> {
+            ObservableList<EntityFacade> selectedOptions = languageCoordinatesList.getFirst().getLanguage().selectedOptions();
+            if (!selectedOptions.isEmpty()) {
+                EntityFacade entityFacade = selectedOptions.getFirst();
+                observableViewForFilter.languageCoordinates().getFirst().languageConceptProperty().set((ConceptFacade) entityFacade);
+            }
+        }));
     }
 
     public static long getMillis(FilterOptions filterOptions) {
-        FilterOptions.Option time = filterOptions.getMainCoordinates().getTime();
+        FilterOptions.Option<String> time = filterOptions.getMainCoordinates().getTime();
         if (time == null || time.selectedOptions().isEmpty()) {
             return -1L;
         }
@@ -128,14 +321,27 @@ public class FilterOptionsUtils {
                 .orElseThrow();
     }
 
-    public static List<String> getDescendentsList(Navigator navigator, int parentNid, String description) {
+    public static List<EntityFacade> getDescendentsList(Navigator navigator, int parentNid, String description) {
         int nid = parentNid;
         for (String s : description.split(", ")) {
             nid = findNidForDescription(navigator, nid, s);
         }
         return navigator.getViewCalculator().descendentsOf(nid).intStream().boxed()
-                .map(i -> Entity.getFast(i).description())
+                .map(i -> (EntityFacade) Entity.getFast(i))
                 .sorted()
                 .toList();
+    }
+
+    public static <T> String getDescription(ViewCalculator viewCalculator, T t) {
+        return switch (t) {
+            case String value -> value;
+            case State value -> viewCalculator == null ?
+                    Entity.getFast(value.nid()).description() :
+                    viewCalculator.getPreferredDescriptionTextOrNid(value.nid());
+            case Long value -> String.valueOf(value);
+            case EntityFacade value -> viewCalculator == null ?
+                    value.description() : viewCalculator.getPreferredDescriptionTextOrNid(value);
+            default -> throw new RuntimeException("Unsupported type: " + t.getClass().getName());
+        };
     }
 }

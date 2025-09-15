@@ -2,24 +2,18 @@ package dev.ikm.komet.kview.controls.skin;
 
 import static dev.ikm.tinkar.events.FrameworkTopics.CALCULATOR_CACHE_TOPIC;
 import dev.ikm.komet.framework.events.appevents.RefreshCalculatorCacheEvent;
-import dev.ikm.komet.kview.controls.FilterOptions;
 import dev.ikm.komet.kview.controls.FilterOptionsPopup;
-import dev.ikm.komet.kview.controls.FilterOptionsUtils;
 import dev.ikm.komet.kview.controls.IconRegion;
 import dev.ikm.komet.kview.controls.InvertedTree;
 import dev.ikm.komet.kview.controls.KLSearchControl;
 import dev.ikm.komet.navigator.graph.Navigator;
-import dev.ikm.tinkar.coordinate.stamp.StateSet;
 import dev.ikm.tinkar.events.EvtBusFactory;
 import dev.ikm.tinkar.terms.ConceptFacade;
-import dev.ikm.tinkar.terms.State;
-import dev.ikm.tinkar.terms.TinkarTerm;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -45,7 +39,6 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 import javafx.util.Subscription;
 
-import java.util.Date;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -72,8 +65,8 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
     private final StackPane filterPane;
     private Subscription subscription;
 
-    // listen to parent view coordinate menu changes
-    private Subscription parentSubscription;
+    // listen to parent/node view coordinate menu changes
+    private Subscription viewSubscription;
 
     private final ListView<KLSearchControl.SearchResult> resultsPane;
     private final FilterOptionsPopup filterOptionsPopup;
@@ -165,9 +158,6 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
 
         filterOptionsPopup = new FilterOptionsPopup(FilterOptionsPopup.FILTER_TYPE.NAVIGATOR);
 
-        // initialize the filter options
-        filterOptionsPopup.inheritedFilterOptionsProperty().setValue(FilterOptionsUtils.loadFilterOptions(control.getViewProperties().parentView(), control.getViewProperties().calculator()));
-
         filterOptionsPopup.navigatorProperty().bind(control.navigatorProperty());
         getSkinnable().parentProperty().subscribe(parent -> {
             if (parent instanceof Region region) {
@@ -246,64 +236,106 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
             }
         });
 
-        // listen for changes to the filter options
-        ChangeListener<FilterOptions> changeListener = ((obs, oldFilterOptions, newFilterOptions) -> {
-            if (newFilterOptions != null) {
-                if (!newFilterOptions.getMainCoordinates().getStatus().selectedOptions().isEmpty()) {
-                    StateSet stateSet = StateSet.make(
-                            newFilterOptions.getMainCoordinates().getStatus().selectedOptions().stream().map(
-                                    s -> State.valueOf(s.toUpperCase())).toList());
-                    // update the STATUS
-                    control.getViewProperties().nodeView().stampCoordinate().allowedStatesProperty().setValue(stateSet);
-                }
-                if (!newFilterOptions.getMainCoordinates().getPath().selectedOptions().isEmpty()) {
-                    //NOTE: there is no known way to set multiple paths
-                    String pathStr = newFilterOptions.getMainCoordinates().getPath().selectedOptions().stream().findFirst().get();
+        // Changes from ParentView: update defaultFilterOptions, publish event
+//        control.getViewProperties().parentView().addListener((obs, ov, nv) -> {
+//            if (ov != null && nv != null) {
+//                if (!ov.navigationCoordinate().equals(nv.navigationCoordinate())) {
+//                    System.out.println("parent nav changed to " + nv.navigationCoordinate());
+//                }
+//                if (!ov.stampCoordinate().allowedStates().equals(nv.stampCoordinate().allowedStates())) {
+//                    System.out.println("parent state changed");
+//                }
+//                if (ov.stampCoordinate().time() != nv.stampCoordinate().time()) {
+//                    System.out.println("parent time changed");
+//                }
+//                if (!ov.stampCoordinate().moduleSpecifications().equals(nv.stampCoordinate().moduleSpecifications())) {
+//                    System.out.println("parent mod changed");
+//                }
+//                if (!ov.stampCoordinate().excludedModuleNids().equals(nv.stampCoordinate().excludedModuleNids())) {
+//                    System.out.println("parent mod exc changed");
+//                }
+//                if (!ov.stampCoordinate().pathForFilter().equals(nv.stampCoordinate().pathForFilter())) {
+//                    System.out.println("parent path changed");
+//                }
+//                if (!ov.languageCoordinateList().get(0).languageConcept().equals(nv.languageCoordinateList().get(0).languageConcept())) {
+//                    System.out.println("parent lang changed");
+//                }
+//
+//            }
+//        });
+//
+//        control.getViewProperties().nodeView().addListener((obs, ov, nv) -> {
+//            if (ov != null && nv != null) {
+//                if (!ov.navigationCoordinate().equals(nv.navigationCoordinate())) {
+//                    System.out.println("node nav changed to " + nv.navigationCoordinate());
+//                }
+//                if (!ov.stampCoordinate().allowedStates().equals(nv.stampCoordinate().allowedStates())) {
+//                    System.out.println("node state changed to " + nv.stampCoordinate().allowedStates());
+//                }
+//                if (ov.stampCoordinate().time() != nv.stampCoordinate().time()) {
+//                    System.out.println("node time changed to " + nv.stampCoordinate().time());
+//                }
+//                if (!ov.stampCoordinate().moduleSpecifications().equals(nv.stampCoordinate().moduleSpecifications())) {
+//                    System.out.println("node mod changed to ");
+//                }
+//                if (!ov.stampCoordinate().excludedModuleNids().equals(nv.stampCoordinate().excludedModuleNids())) {
+//                    System.out.println("node mod exc changed to " + nv.stampCoordinate().excludedModuleNids());
+//                }
+//                if (!ov.stampCoordinate().pathForFilter().equals(nv.stampCoordinate().pathForFilter())) {
+//                    System.out.println("node path changed to " + nv.stampCoordinate().pathForFilter());
+//                }
+//                if (!ov.languageCoordinateList().get(0).languageConcept().equals(nv.languageCoordinateList().get(0).languageConcept())) {
+//                    System.out.println("node lang changed to " + nv.languageCoordinateList().get(0).languageConcept());
+//                }
+//
+//            }
+//        });
 
-                    ConceptFacade conceptPath = switch(pathStr) {
-                        case "Master path" -> TinkarTerm.MASTER_PATH;
-                        case "Primordial path" -> TinkarTerm.PRIMORDIAL_PATH;
-                        case "Sandbox path" -> TinkarTerm.SANDBOX_PATH;
-                        default -> TinkarTerm.DEVELOPMENT_PATH;
-                    };
-                    // update the Path
-                    control.getViewProperties().nodeView().stampCoordinate().pathConceptProperty().setValue(conceptPath);
-                }
-                if (!newFilterOptions.getMainCoordinates().getTime().selectedOptions().isEmpty() &&
-                        oldFilterOptions != null &&
-                        !oldFilterOptions.getMainCoordinates().getTime().selectedOptions().equals(newFilterOptions.getMainCoordinates().getTime().selectedOptions())) {
-                    long millis = FilterOptionsUtils.getMillis(newFilterOptions);
-                    // update the time
-                    control.getViewProperties().nodeView().stampCoordinate().timeProperty().set(millis);
-                } else {
-                    // revert to the Latest
-                    Date latest = new Date();
-                    control.getViewProperties().nodeView().stampCoordinate().timeProperty().set(latest.getTime());
-                }
+        subscription = subscription.and((control.viewPropertiesProperty().subscribe(view -> {
+            if (viewSubscription != null) {
+                viewSubscription.unsubscribe();
+            }
+            viewSubscription = Subscription.EMPTY;
+            if (view != null) {
+                // Bind default F.O. to parentView, so changes from parent menu are propagated to default F.O.
+                // If there are no overrides, the default values will be set in the F.O.Popup control, else
+                // the existing value in the control will remain.
+                filterOptionsPopup.getFilterOptionsUtils().bindFilterOptionsToView(
+                        filterOptionsPopup.getInheritedFilterOptions(), view.parentView());
 
-                //TODO Type, Module, Language, Description Type, Kind of, Membership, Sort By
-                EvtBusFactory.getDefaultEvtBus().publish(CALCULATOR_CACHE_TOPIC,
-                        new RefreshCalculatorCacheEvent("child filter menu refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
+                // listen to changes to the parent of the current overrideable view
+                viewSubscription = viewSubscription.and(view.parentView().subscribe((_, _) -> {
+                    // publish event to refresh the navigator
+                    System.out.println("PARENT refresh");
+//                    System.out.println("view = " + view.nodeView().getValue());
+                    EvtBusFactory.getDefaultEvtBus().publish(CALCULATOR_CACHE_TOPIC,
+                            new RefreshCalculatorCacheEvent("parent refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
+                }));
+            }
+        })));
+
+        // Changes from FilterOptions: update nodeView, publish event
+
+        // Bind nodeView to F.O., so changes from F.O. control are propagated to this nodeView
+        filterOptionsPopup.filterOptionsProperty().subscribe((oldFilterOptions, filterOptions) -> {
+            if (oldFilterOptions != null) {
+//                System.out.println("unbind oldFilterOptions = " + oldFilterOptions.hashCode());
+                filterOptionsPopup.getFilterOptionsUtils().unbindFilterOptions();
+            }
+            if (filterOptions != null) {
+                filterOptionsPopup.getFilterOptionsUtils().bindViewToFilterOptions(filterOptions, control.getViewProperties().nodeView());
             }
         });
 
-        // listen for changes to the filter options
-        filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
-
-        // listen to changes to the parent of the current overrideable view
-        parentSubscription = control.getViewProperties().parentView().subscribe((oldValue, newValue) -> {
-            filterOptionsPopup.filterOptionsProperty().removeListener(changeListener);
-            filterOptionsPopup.inheritedFilterOptionsProperty().setValue(FilterOptionsUtils.loadFilterOptions(control.getViewProperties().parentView(), control.getViewProperties().calculator()));
-            filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
-
+        // listen to changes to the current overrideable view, after changes in the F.O. control
+        viewSubscription = viewSubscription.and(control.getViewProperties().nodeView().subscribe((_, _) -> {
             // publish event to refresh the navigator
+//            System.out.println("NODE refresh: " + control.getViewProperties().nodeView().navigationCoordinate().navigationPatternsProperty().get());
+//            System.out.println("NODE refresh");
             EvtBusFactory.getDefaultEvtBus().publish(CALCULATOR_CACHE_TOPIC,
-                    new RefreshCalculatorCacheEvent("parent refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
-        });
+                    new RefreshCalculatorCacheEvent("child filter menu refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
+        }));
     }
-
-
-
 
     /** {@inheritDoc} **/
     @Override
@@ -311,12 +343,16 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
         if (subscription != null) {
             subscription.unsubscribe();
         }
+        if (viewSubscription != null) {
+            viewSubscription.unsubscribe();
+        }
         textField.textProperty().unbind();
         textField.promptTextProperty().unbind();
         textField.onActionProperty().unbind();
         closePane.visibleProperty().unbind();
         closePane.managedProperty().unbind();
         filterOptionsPopup.navigatorProperty().unbind();
+        filterOptionsPopup.getFilterOptionsUtils().unbindFilterOptions();
         super.dispose();
     }
 

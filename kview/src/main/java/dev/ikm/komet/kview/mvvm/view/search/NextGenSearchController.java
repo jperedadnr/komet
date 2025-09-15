@@ -44,7 +44,6 @@ import dev.ikm.tinkar.common.id.PublicIds;
 import dev.ikm.tinkar.common.service.PrimitiveData;
 import dev.ikm.tinkar.common.util.text.NaturalOrder;
 import dev.ikm.tinkar.common.util.uuid.UuidUtil;
-import dev.ikm.tinkar.coordinate.stamp.StateSet;
 import dev.ikm.tinkar.coordinate.stamp.calculator.Latest;
 import dev.ikm.tinkar.coordinate.stamp.calculator.LatestVersionSearchResult;
 import dev.ikm.tinkar.entity.ConceptEntity;
@@ -57,10 +56,7 @@ import dev.ikm.tinkar.events.EvtBus;
 import dev.ikm.tinkar.events.EvtBusFactory;
 import dev.ikm.tinkar.events.Subscriber;
 import dev.ikm.tinkar.provider.search.TypeAheadSearch;
-import dev.ikm.tinkar.terms.ConceptFacade;
 import dev.ikm.tinkar.terms.EntityFacade;
-import dev.ikm.tinkar.terms.State;
-import dev.ikm.tinkar.terms.TinkarTerm;
 import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
@@ -93,7 +89,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -182,9 +177,21 @@ public class NextGenSearchController {
         initSearchResultType();
 
         filterOptionsPopup = new FilterOptionsPopup(FilterOptionsPopup.FILTER_TYPE.SEARCH);
+//        filterOptionsPopup.filterOptionsProperty().subscribe((ov, nv) -> {
+//            if (ov != null) {
+//                System.out.println("search unbind ov = " + ov.hashCode());
+//                FilterOptionsUtils.unbindFilterOptions(ov, getViewProperties().parentView());
+//            }
+//            if (nv != null) {
+//                System.out.println("search bind nv = " + nv.hashCode());
+//                FilterOptionsUtils.bindFilterOptionsToView(nv, getViewProperties().parentView());
+//            }
+//        });
+//        if (filterOptionsPopup.getFilterOptions() != null) {
+//            System.out.println("search bind0 nv = " + filterOptionsPopup.getFilterOptions().hashCode());
+//            FilterOptionsUtils.bindFilterOptionsToView(filterOptionsPopup.getFilterOptions(), getViewProperties().parentView());
+//        }
 
-        // initialize the filter options
-        filterOptionsPopup.setInheritedFilterOptionsProperty(FilterOptionsUtils.loadFilterOptions(getViewProperties().parentView(), getViewProperties().calculator()));
         root.heightProperty().subscribe(h -> filterOptionsPopup.setStyle("-popup-pref-height: " + h));
         filterPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             if (filterOptionsPopup.getNavigator() == null) {
@@ -208,56 +215,26 @@ public class NextGenSearchController {
                 filterPane.pseudoClassStateChanged(FILTER_SET, !isDefault));
 
         // listen for changes to the filter options
-        ChangeListener<FilterOptions> changeListener = ((obs, oldFilterOptions, newFilterOptions) -> {
-            if (newFilterOptions != null) {
-                if (!newFilterOptions.getMainCoordinates().getStatus().selectedOptions().isEmpty()) {
-                    StateSet stateSet = StateSet.make(
-                            newFilterOptions.getMainCoordinates().getStatus().selectedOptions().stream().map(
-                                    s -> State.valueOf(s.toUpperCase())).toList());
-                    // update the STATUS
-                    getViewProperties().nodeView().stampCoordinate().allowedStatesProperty().setValue(stateSet);
-                }
-                if (!newFilterOptions.getMainCoordinates().getPath().selectedOptions().isEmpty()) {
-                    //NOTE: there is no known way to set multiple paths
-                    String pathStr = newFilterOptions.getMainCoordinates().getPath().selectedOptions().stream().findFirst().get();
-
-                    ConceptFacade conceptPath = switch(pathStr) {
-                        case "Master path" -> TinkarTerm.MASTER_PATH;
-                        case "Primordial path" -> TinkarTerm.PRIMORDIAL_PATH;
-                        case "Sandbox path" -> TinkarTerm.SANDBOX_PATH;
-                        default -> TinkarTerm.DEVELOPMENT_PATH;
-                    };
-                    // update the Path
-                    getViewProperties().nodeView().stampCoordinate().pathConceptProperty().setValue(conceptPath);
-                }
-                if (!newFilterOptions.getMainCoordinates().getTime().selectedOptions().isEmpty() &&
-                        oldFilterOptions != null &&
-                        !oldFilterOptions.getMainCoordinates().getTime().selectedOptions().equals(newFilterOptions.getMainCoordinates().getTime().selectedOptions())) {
-                    long millis = FilterOptionsUtils.getMillis(newFilterOptions);
-                    // update the time
-                    getViewProperties().nodeView().stampCoordinate().timeProperty().set(millis);
-                } else {
-                    // revert to the Latest
-                    Date latest = new Date();
-                    getViewProperties().nodeView().stampCoordinate().timeProperty().set(latest.getTime());
-                }
-
-                //TODO Type, Module, Language, Description Type, Kind of, Membership, Sort By
-            }
-            doSearch(new ActionEvent(null, null));
-        });
-
-
+        ChangeListener<FilterOptions> changeListener = ((_, _, _) ->
+                doSearch(new ActionEvent(null, null)));
 
         // listen for changes to the filter options
-        filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
+//        filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
 
         // listen to changes to the parent of the current overrideable view
-        parentSubscription = getViewProperties().parentView().subscribe((oldValue, newValue) -> {
-            filterOptionsPopup.filterOptionsProperty().removeListener(changeListener);
-            filterOptionsPopup.inheritedFilterOptionsProperty().setValue(FilterOptionsUtils.loadFilterOptions(getViewProperties().parentView(), getViewProperties().calculator()));
-            filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
-            doSearch(new ActionEvent(null, null));
+        parentSubscription = getViewProperties().parentView().subscribe((ov, nv) -> {
+//            filterOptionsPopup.filterOptionsProperty().removeListener(changeListener);
+//            if (ov != null) {
+//                System.out.println("unbind cv ov = " + ov.hashCode());
+//                FilterOptionsUtils.unbindFilterOptions(filterOptionsPopup.getFilterOptions(), ov);
+//            }
+//            if (nv != null) {
+//                System.out.println("bind nv = " + nv.hashCode());
+//                FilterOptionsUtils.bindFilterOptions(filterOptionsPopup.getFilterOptions(), nv);
+//            }
+////            filterOptionsPopup.inheritedFilterOptionsProperty().setValue(FilterOptionsUtils.loadFilterOptions(getViewProperties().parentView(), getViewProperties().calculator()));
+//            filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
+//            doSearch(new ActionEvent(null, null));
         });
     }
 

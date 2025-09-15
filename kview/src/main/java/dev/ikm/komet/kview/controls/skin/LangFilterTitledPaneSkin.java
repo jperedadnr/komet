@@ -1,9 +1,13 @@
 package dev.ikm.komet.kview.controls.skin;
 
+import dev.ikm.komet.framework.temp.FxGet;
 import dev.ikm.komet.kview.controls.FilterOptionsPopup;
+import dev.ikm.komet.kview.controls.FilterOptionsUtils;
 import dev.ikm.komet.kview.controls.LangFilterTitledPane;
 import dev.ikm.komet.kview.controls.FilterOptions;
 import dev.ikm.komet.kview.controls.IconRegion;
+import dev.ikm.tinkar.terms.EntityFacade;
+import dev.ikm.tinkar.terms.TinkarTerm;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
@@ -11,6 +15,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.css.PseudoClass;
 import javafx.geometry.Bounds;
 import javafx.scene.Parent;
@@ -63,7 +68,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
     private final LangFilterTitledPane control;
     private Subscription subscription;
     private ScrollPane scrollPane;
-    private FilterOptions.LanguageCoordinates currentLangCoordinates;
+    private FilterOptions.LanguageFilterCoordinates currentLangCoordinates;
 
     public LangFilterTitledPaneSkin(LangFilterTitledPane control) {
         super(control);
@@ -136,7 +141,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             subscription.unsubscribe();
         }
 
-        FilterOptions.LanguageCoordinates langCoordinates = control.getLangCoordinates();
+        FilterOptions.LanguageFilterCoordinates langCoordinates = control.getLangCoordinates();
 
         currentLangCoordinates = langCoordinates == null ? null : langCoordinates.copy();
         selectedOptionPane.setLangOption(currentLangCoordinates);
@@ -164,6 +169,10 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
         subscription = subscription.and(control.langCoordinatesProperty().subscribe((_, _) -> setupTitledPane()));
     }
 
+    private <T> String getDescription(T t) {
+        return FilterOptionsUtils.getDescription(control.getNavigator() == null ? null : control.getNavigator().getViewCalculator(), t);
+    }
+
     @Override
     public void dispose() {
         arrow.translateXProperty().unbind();
@@ -175,7 +184,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
         super.dispose();
     }
 
-    private static class LangGridPane extends GridPane {
+    private class LangGridPane extends GridPane {
 
         private final Label langOption;
         private final Label dialectOption;
@@ -285,18 +294,29 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
         }
 
         // langOptionProperty
-        private final ObjectProperty<FilterOptions.LanguageCoordinates> langOptionProperty = new SimpleObjectProperty<>(this, "langOption") {
+        private final ObjectProperty<FilterOptions.LanguageFilterCoordinates> langOptionProperty = new SimpleObjectProperty<>(this, "langOption") {
             @Override
             protected void invalidated() {
-                FilterOptions.LanguageCoordinates languageOptions = get();
+                FilterOptions.LanguageFilterCoordinates languageOptions = get();
                 if (languageOptions != null) {
-                    List<String> selectedOptions = languageOptions.getLanguage().selectedOptions();
-                    langOption.setText(selectedOptions.isEmpty() || selectedOptions.getFirst() == null ?
-                        resources.getString("language.option.empty") : selectedOptions.getFirst());
-                    dialectOption.setText(String.join(", ", languageOptions.getDialect().selectedOptions()));
-                    patternOption.setText(languageOptions.getPattern().selectedOptions().isEmpty() ? "" : languageOptions.getPattern().selectedOptions().getFirst());
-                    descriptionOption.setText(String.join(", ", languageOptions.getDescriptionType().selectedOptions()));
-                    initialized.set(!(selectedOptions.isEmpty() || selectedOptions.getFirst() == null));
+                    List<EntityFacade> langOptions = languageOptions.getLanguage().selectedOptions();
+                    langOption.setText(langOptions.isEmpty() || langOptions.getFirst() == null ?
+                        resources.getString("language.option.empty") : getDescription(langOptions.getFirst()));
+                    ObservableList<EntityFacade> dialectOptions = languageOptions.getDialect().selectedOptions();
+                    if (dialectOptions.isEmpty() || dialectOptions.getFirst() == null &&
+                            (!langOptions.isEmpty() && langOptions.getFirst().equals(TinkarTerm.ENGLISH_LANGUAGE))) {
+                        // TODO: Dynamically load valid dialects for the selected language
+//                        dialectOptions.addAll(List.of(TinkarTerm.US_DIALECT_PATTERN, TinkarTerm.GB_DIALECT_PATTERN));
+                    }
+                    dialectOption.setText(dialectOptions.isEmpty() || dialectOptions.getFirst() == null ?
+                            resources.getString("dialect.option.empty") : String.join(", ", dialectOptions.stream().map(LangFilterTitledPaneSkin.this::getDescription).toList()));
+                    ObservableList<EntityFacade> patternOptions = languageOptions.getPattern().selectedOptions();
+                    patternOption.setText(patternOptions.isEmpty() || patternOptions.getFirst() == null ?
+                            resources.getString("pattern.option.empty") : patternOptions.isEmpty() ? "" : getDescription(patternOptions.getFirst()));
+                    ObservableList<EntityFacade> descriptionOptions = languageOptions.getDescriptionType().selectedOptions();
+                    descriptionOption.setText(descriptionOptions.isEmpty() || descriptionOptions.getFirst() == null ?
+                            resources.getString("description.option.empty") : String.join(", ", descriptionOptions.stream().map(LangFilterTitledPaneSkin.this::getDescription).toList()));
+                    initialized.set(!(langOptions.isEmpty() || langOptions.getFirst() == null));
                 } else {
                     initialized.set(false);
                     langOption.setText(null);
@@ -306,30 +326,30 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                 }
             }
         };
-        public final ObjectProperty<FilterOptions.LanguageCoordinates> langOptionProperty() {
+        public final ObjectProperty<FilterOptions.LanguageFilterCoordinates> langOptionProperty() {
             return langOptionProperty;
         }
-        public final FilterOptions.LanguageCoordinates getLangOption() {
+        public final FilterOptions.LanguageFilterCoordinates getLangOption() {
             return langOptionProperty.get();
         }
-        public final void setLangOption(FilterOptions.LanguageCoordinates value) {
+        public final void setLangOption(FilterOptions.LanguageFilterCoordinates value) {
             langOptionProperty.set(value);
         }
 
     }
 
-    private static class LangContentBox extends VBox {
+    private class LangContentBox extends VBox {
 
         private static final int MAX_ORDER = 5;
         private static final PseudoClass PROMPT_PSEUDO_CLASS = PseudoClass.getPseudoClass("prompt");
 
-        private final ComboBox<String> comboBox;
+        private final ComboBox<EntityFacade> comboBox;
 
         private final SortedBox dialectBox;
         private final VBox patternBox;
         private final ToggleGroup patternGroup;
         private final SortedBox descriptionBox;
-        private List<String> disabledLanguages;
+        private List<EntityFacade> disabledLanguages;
         private final BooleanProperty initialized = new SimpleBooleanProperty();
 
         public LangContentBox() {
@@ -342,6 +362,17 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             comboBox.valueProperty().subscribe(v -> {
                 comboBox.pseudoClassStateChanged(PROMPT_PSEUDO_CLASS, v == null);
                 initialized.set(v != null);
+            });
+            comboBox.setButtonCell(new ListCell<>() {
+                @Override
+                protected void updateItem(EntityFacade item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item != null && !empty) {
+                        setText(getDescription(item));
+                    } else {
+                        setText(null);
+                    }
+                }
             });
             comboBox.setCellFactory(_ -> new ListCell<>() {
                 private final Label label;
@@ -358,10 +389,10 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                 }
 
                 @Override
-                protected void updateItem(String item, boolean empty) {
+                protected void updateItem(EntityFacade item, boolean empty) {
                     super.updateItem(item, empty);
                     if (item != null && !empty) {
-                        label.setText(item);
+                        label.setText(getDescription(item));
                         setGraphic(box);
                         if (disabledLanguages != null) {
                             setDisable(disabledLanguages.contains(item));
@@ -420,21 +451,33 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
         }
 
         // langOptionProperty
-        private final ObjectProperty<FilterOptions.LanguageCoordinates> langOptionProperty = new SimpleObjectProperty<>(this, "langOption") {
+        private final ObjectProperty<FilterOptions.LanguageFilterCoordinates> langOptionProperty = new SimpleObjectProperty<>(this, "langOption") {
             @Override
             protected void invalidated() {
-                FilterOptions.LanguageCoordinates languageOptions = get();
+                FilterOptions.LanguageFilterCoordinates languageOptions = get();
                 if (languageOptions != null) {
                     comboBox.setItems(FXCollections.observableArrayList(languageOptions.getLanguage().availableOptions()));
                     disabledLanguages = new ArrayList<>(languageOptions.getLanguage().excludedOptions());
                     comboBox.setValue(languageOptions.getLanguage().selectedOptions().isEmpty() ?
                             null : languageOptions.getLanguage().selectedOptions().getFirst());
 
-                    dialectBox.setOption(languageOptions.getDialect());
+                    // TODO: Dynamically load valid dialects for the selected language
+                    comboBox.getSelectionModel().selectedItemProperty().subscribe(item -> {
+                        if (item != null) {
+                            languageOptions.getDialect().availableOptions().clear();
+//                            languageOptions.getDialect().selectedOptions().clear();
+                            if (item.equals(TinkarTerm.ENGLISH_LANGUAGE)) {
+                                languageOptions.getDialect().availableOptions().addAll(List.of(TinkarTerm.US_DIALECT_PATTERN, TinkarTerm.GB_DIALECT_PATTERN));
+//                                languageOptions.getDialect().selectedOptions().addAll(List.of(TinkarTerm.US_DIALECT_PATTERN, TinkarTerm.GB_DIALECT_PATTERN));
+                            }
+                            dialectBox.setOption(languageOptions.getDialect());
+                        }
+                    });
                     patternBox.getChildren().clear();
                     patternBox.getChildren().addAll(languageOptions.getPattern().availableOptions().stream()
-                            .map(s -> {
-                                ToggleButton tb = new ToggleButton(s, new IconRegion("check"));
+                            .map(entity -> {
+                                ToggleButton tb = new ToggleButton(getDescription(entity), new IconRegion("check"));
+                                tb.setUserData(entity);
                                 tb.selectedProperty().subscribe((_, selected) -> {
                                     if (selected) {
                                         patternGroup.getToggles().stream()
@@ -445,7 +488,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                                 tb.getStyleClass().add("option-toggle");
                                 tb.setToggleGroup(patternGroup);
                                 tb.setSelected(!languageOptions.getPattern().selectedOptions().isEmpty() &&
-                                        s.equals(languageOptions.getPattern().selectedOptions().getFirst()));
+                                        entity.equals(languageOptions.getPattern().selectedOptions().getFirst()));
                                 return tb;
                             })
                             .toList());
@@ -460,18 +503,18 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                 }
             }
         };
-        public final ObjectProperty<FilterOptions.LanguageCoordinates> langOptionProperty() {
+        public final ObjectProperty<FilterOptions.LanguageFilterCoordinates> langOptionProperty() {
             return langOptionProperty;
         }
-        public final FilterOptions.LanguageCoordinates getLangOption() {
+        public final FilterOptions.LanguageFilterCoordinates getLangOption() {
             return langOptionProperty.get();
         }
-        public final void setLangOption(FilterOptions.LanguageCoordinates value) {
+        public final void setLangOption(FilterOptions.LanguageFilterCoordinates value) {
             langOptionProperty.set(value);
         }
 
-        public FilterOptions.LanguageCoordinates getLangCoordinates() {
-            FilterOptions.LanguageCoordinates languageCoordinates = getLangOption().copy();
+        public FilterOptions.LanguageFilterCoordinates getLangCoordinates() {
+            FilterOptions.LanguageFilterCoordinates languageCoordinates = getLangOption().copy();
 
             languageCoordinates.getLanguage().selectedOptions().clear();
             languageCoordinates.getLanguage().selectedOptions().add(comboBox.getSelectionModel().getSelectedItem());
@@ -480,7 +523,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             languageCoordinates.getDialect().selectedOptions().addAll(dialectBox.getSelection());
 
             languageCoordinates.getPattern().selectedOptions().clear();
-            languageCoordinates.getPattern().selectedOptions().add(((ToggleButton) patternGroup.getSelectedToggle()).getText());
+            languageCoordinates.getPattern().selectedOptions().add((EntityFacade) ((ToggleButton) patternGroup.getSelectedToggle()).getUserData());
 
             languageCoordinates.getDescriptionType().selectedOptions().clear();
             languageCoordinates.getDescriptionType().selectedOptions().addAll(descriptionBox.getSelection());
@@ -489,7 +532,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
         }
     }
 
-    private static class SortedBox extends VBox {
+    private class SortedBox extends VBox {
 
         private boolean lock;
 
@@ -497,23 +540,23 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
         }
 
         // optionProperty
-        private final ObjectProperty<FilterOptions.Option> optionProperty = new SimpleObjectProperty<>(this, "option") {
+        private final ObjectProperty<FilterOptions.Option<EntityFacade>> optionProperty = new SimpleObjectProperty<>(this, "option") {
             @Override
             protected void invalidated() {
                 setupBox(get());
             }
         };
-        public final ObjectProperty<FilterOptions.Option> optionProperty() {
+        public final ObjectProperty<FilterOptions.Option<EntityFacade>> optionProperty() {
            return optionProperty;
         }
-        public final FilterOptions.Option getOption() {
+        public final FilterOptions.Option<EntityFacade> getOption() {
            return optionProperty.get();
         }
-        public final void setOption(FilterOptions.Option value) {
+        public final void setOption(FilterOptions.Option<EntityFacade> value) {
             optionProperty.set(value);
         }
 
-        public List<String> getSelection() {
+        public List<EntityFacade> getSelection() {
             return getChildren().stream()
                     .filter(OrderedToggleBox.class::isInstance)
                     .map(OrderedToggleBox.class::cast)
@@ -522,7 +565,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                     .toList();
         }
 
-        private void setupBox(FilterOptions.Option option) {
+        private void setupBox(FilterOptions.Option<EntityFacade> option) {
             if (lock) {
                 return;
             }
@@ -532,8 +575,8 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             }
             lock = true;
             AtomicInteger counter = new AtomicInteger();
-            List<String> selected = option.selectedOptions().stream().toList();
-            List<String> rest = new ArrayList<>(option.availableOptions().stream().toList());
+            List<EntityFacade> selected = option.selectedOptions().stream().toList();
+            List<EntityFacade> rest = new ArrayList<>(option.availableOptions().stream().toList());
             rest.removeAll(selected);
 
             getChildren().addAll(
@@ -585,15 +628,15 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
         }
     }
 
-    private static class OrderedToggleBox extends HBox {
+    private class OrderedToggleBox extends HBox {
 
         private static final PseudoClass SELECTED_PSEUDO_CLASS = PseudoClass.getPseudoClass("selected");
         private static final String DRAG_KEY = "DraggedOrderedToggleBox";
-        private final String dialect;
+        private final EntityFacade dialect;
         private final Label orderLabel;
         private boolean dragging;
 
-        public OrderedToggleBox(int order, String dialect, Consumer<String> onDragged) {
+        public OrderedToggleBox(int order, EntityFacade dialect, Consumer<EntityFacade> onDragged) {
             this.dialect = dialect;
             orderLabel = new Label();
             orderLabel.getStyleClass().add("order-label");
@@ -609,7 +652,8 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                 }
             });
 
-            ToggleButton toggleButton = new ToggleButton(dialect, new IconRegion("check"));
+            ToggleButton toggleButton = new ToggleButton(getDescription(dialect), new IconRegion("check"));
+            toggleButton.setUserData(dialect);
             toggleButton.setMouseTransparent(true);
             toggleButton.getStyleClass().add("option-toggle");
             selectedProperty.bindBidirectional(toggleButton.selectedProperty());
@@ -698,7 +742,7 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             selectedProperty.set(value);
         }
 
-        public String getDialect() {
+        public EntityFacade getDialect() {
             return dialect;
         }
 
