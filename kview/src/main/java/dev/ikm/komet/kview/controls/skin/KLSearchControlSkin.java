@@ -306,8 +306,6 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
                 // listen to changes to the parent of the current overrideable view
                 viewSubscription = viewSubscription.and(view.parentView().subscribe((_, _) -> {
                     // publish event to refresh the navigator
-                    System.out.println("PARENT refresh");
-//                    System.out.println("view = " + view.nodeView().getValue());
                     EvtBusFactory.getDefaultEvtBus().publish(CALCULATOR_CACHE_TOPIC,
                             new RefreshCalculatorCacheEvent("parent refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
                 }));
@@ -330,8 +328,6 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
         // listen to changes to the current overrideable view, after changes in the F.O. control
         viewSubscription = viewSubscription.and(control.getViewProperties().nodeView().subscribe((_, _) -> {
             // publish event to refresh the navigator
-//            System.out.println("NODE refresh: " + control.getViewProperties().nodeView().navigationCoordinate().navigationPatternsProperty().get());
-//            System.out.println("NODE refresh");
             EvtBusFactory.getDefaultEvtBus().publish(CALCULATOR_CACHE_TOPIC,
                     new RefreshCalculatorCacheEvent("child filter menu refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
         }));

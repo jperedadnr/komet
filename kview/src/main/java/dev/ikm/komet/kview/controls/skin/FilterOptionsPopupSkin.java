@@ -84,7 +84,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
             FilterOptions filterOptions = get();
             if (filterOptions != null) {
                 if (!updating) {
-                    System.out.println("Updating filter options");
                     control.setFilterOptions(filterOptions);
                     control.getProperties().put(DEFAULT_OPTIONS_KEY, defaultFilterOptions.equals(filterOptions));
                 }
@@ -177,7 +176,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         subscription = subscription.and(control.getInheritedFilterOptions().observableViewForFilterProperty().subscribe((_, _) -> {
             if (control.getNavigator() != null) {
                 // parentView -> inheritedF.O. -> refresh default
-                System.out.println("parentView modified inherited filter options");
                 setupDefaultFilterOptions(control.getNavigator());
             }
         }));
@@ -625,7 +623,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         }
 
         public void disableAddButton(boolean disable) {
-            addButton.setDisable(disable);
+            addButton.setDisable(true); // TODO: use disable, when more than one language is supported;
         }
 
         public void updateMainPanes(Consumer<FilterTitledPane> onAccept) {

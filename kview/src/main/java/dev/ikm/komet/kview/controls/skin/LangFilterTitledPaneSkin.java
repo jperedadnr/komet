@@ -1,6 +1,5 @@
 package dev.ikm.komet.kview.controls.skin;
 
-import dev.ikm.komet.framework.temp.FxGet;
 import dev.ikm.komet.kview.controls.FilterOptionsPopup;
 import dev.ikm.komet.kview.controls.FilterOptionsUtils;
 import dev.ikm.komet.kview.controls.LangFilterTitledPane;
@@ -160,13 +159,29 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             if (!expanded) {
                 currentLangCoordinates = contentBox.getLangCoordinates().copy();
                 control.setLangCoordinates(currentLangCoordinates.copy());
-                boolean modified = !Objects.equals(currentLangCoordinates, control.getDefaultLangCoordinates());
-                pseudoClassStateChanged(MODIFIED_TITLED_PANE, modified);
-                revertButton.setDisable(!modified);
+                updateModifiedState(currentLangCoordinates);
             }
         }));
 
         subscription = subscription.and(control.langCoordinatesProperty().subscribe((_, _) -> setupTitledPane()));
+        updateModifiedState(currentLangCoordinates);
+    }
+
+    private void updateModifiedState(FilterOptions.LanguageFilterCoordinates currentLangCoordinates) {
+        boolean langModified = false;
+        List<FilterOptions.Option<EntityFacade>> currentOptions = currentLangCoordinates.getOptions();
+        List<FilterOptions.Option<EntityFacade>> defaultOptions = control.getDefaultLangCoordinates().getOptions();
+        for (int i = 0; i < currentOptions.size(); i++) {
+            boolean modified = !Objects.equals(currentOptions.get(i), defaultOptions.get(i));
+            if (modified && !currentOptions.get(i).isInOverride()) {
+                currentOptions.get(i).setInOverride(true);
+            }
+            if (currentOptions.get(i).isInOverride() || modified) {
+                langModified = true;
+            }
+        }
+        pseudoClassStateChanged(MODIFIED_TITLED_PANE, langModified);
+        revertButton.setDisable(!langModified);
     }
 
     private <T> String getDescription(T t) {
@@ -303,12 +318,9 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                     langOption.setText(langOptions.isEmpty() || langOptions.getFirst() == null ?
                         resources.getString("language.option.empty") : getDescription(langOptions.getFirst()));
                     ObservableList<EntityFacade> dialectOptions = languageOptions.getDialect().selectedOptions();
-                    if (dialectOptions.isEmpty() || dialectOptions.getFirst() == null &&
-                            (!langOptions.isEmpty() && langOptions.getFirst().equals(TinkarTerm.ENGLISH_LANGUAGE))) {
-                        // TODO: Dynamically load valid dialects for the selected language
-//                        dialectOptions.addAll(List.of(TinkarTerm.US_DIALECT_PATTERN, TinkarTerm.GB_DIALECT_PATTERN));
-                    }
-                    dialectOption.setText(dialectOptions.isEmpty() || dialectOptions.getFirst() == null ?
+                    // TODO: Dynamically load valid dialects for the selected language
+                    dialectOption.setText(dialectOptions.isEmpty() || dialectOptions.getFirst() == null ||
+                            (!langOptions.isEmpty() && !TinkarTerm.ENGLISH_LANGUAGE.equals(langOptions.getFirst())) ?
                             resources.getString("dialect.option.empty") : String.join(", ", dialectOptions.stream().map(LangFilterTitledPaneSkin.this::getDescription).toList()));
                     ObservableList<EntityFacade> patternOptions = languageOptions.getPattern().selectedOptions();
                     patternOption.setText(patternOptions.isEmpty() || patternOptions.getFirst() == null ?
@@ -450,10 +462,15 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             });
         }
 
+        private Subscription comboSubscription;
+
         // langOptionProperty
         private final ObjectProperty<FilterOptions.LanguageFilterCoordinates> langOptionProperty = new SimpleObjectProperty<>(this, "langOption") {
             @Override
             protected void invalidated() {
+                if (comboSubscription != null) {
+                    comboSubscription.unsubscribe();
+                }
                 FilterOptions.LanguageFilterCoordinates languageOptions = get();
                 if (languageOptions != null) {
                     comboBox.setItems(FXCollections.observableArrayList(languageOptions.getLanguage().availableOptions()));
@@ -461,15 +478,11 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
                     comboBox.setValue(languageOptions.getLanguage().selectedOptions().isEmpty() ?
                             null : languageOptions.getLanguage().selectedOptions().getFirst());
 
-                    // TODO: Dynamically load valid dialects for the selected language
-                    comboBox.getSelectionModel().selectedItemProperty().subscribe(item -> {
+                    comboSubscription = comboBox.getSelectionModel().selectedItemProperty().subscribe(item -> {
+                        // TODO: Dynamically load valid dialects for the selected language
+                        dialectBox.setVisible(TinkarTerm.ENGLISH_LANGUAGE.equals(item));
+                        dialectBox.setManaged(dialectBox.isVisible());
                         if (item != null) {
-                            languageOptions.getDialect().availableOptions().clear();
-//                            languageOptions.getDialect().selectedOptions().clear();
-                            if (item.equals(TinkarTerm.ENGLISH_LANGUAGE)) {
-                                languageOptions.getDialect().availableOptions().addAll(List.of(TinkarTerm.US_DIALECT_PATTERN, TinkarTerm.GB_DIALECT_PATTERN));
-//                                languageOptions.getDialect().selectedOptions().addAll(List.of(TinkarTerm.US_DIALECT_PATTERN, TinkarTerm.GB_DIALECT_PATTERN));
-                            }
                             dialectBox.setOption(languageOptions.getDialect());
                         }
                     });
@@ -523,7 +536,9 @@ public class LangFilterTitledPaneSkin extends TitledPaneSkin {
             languageCoordinates.getDialect().selectedOptions().addAll(dialectBox.getSelection());
 
             languageCoordinates.getPattern().selectedOptions().clear();
-            languageCoordinates.getPattern().selectedOptions().add((EntityFacade) ((ToggleButton) patternGroup.getSelectedToggle()).getUserData());
+            if (patternGroup.getSelectedToggle() != null) {
+                languageCoordinates.getPattern().selectedOptions().add((EntityFacade) ((ToggleButton) patternGroup.getSelectedToggle()).getUserData());
+            }
 
             languageCoordinates.getDescriptionType().selectedOptions().clear();
             languageCoordinates.getDescriptionType().selectedOptions().addAll(descriptionBox.getSelection());

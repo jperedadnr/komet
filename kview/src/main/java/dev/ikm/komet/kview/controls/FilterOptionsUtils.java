@@ -18,6 +18,7 @@ import dev.ikm.tinkar.terms.EntityFacade;
 import dev.ikm.tinkar.terms.PatternFacade;
 import dev.ikm.tinkar.terms.State;
 import dev.ikm.tinkar.terms.TinkarTerm;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Subscription;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
@@ -27,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static dev.ikm.tinkar.common.service.PrimitiveData.PREMUNDANE_TIME;
 
@@ -56,7 +58,6 @@ public class FilterOptionsUtils {
 
                 // NAVIGATION
                 viewSubscription = viewSubscription.and(observableNavigationCoordinate.navigationPatternsProperty().subscribe(nav -> {
-//                        System.out.println("nav = " + nv));
                     if (nav != null) {
                         mainCoordinates.getNavigator().selectedOptions().clear();
                         mainCoordinates.getNavigator().selectedOptions().addAll(nav);
@@ -118,28 +119,42 @@ public class FilterOptionsUtils {
             } else if (observableCoordinate instanceof ObservableLanguageCoordinate observableLanguageCoordinate) {
 
                 // LANGUAGE
-                // todo: more languages
+                // todo: support more language coordinates for secondary+ languages
+
+                FilterOptions.LanguageFilterCoordinates languageFilterCoordinates = languageCoordinatesList.getFirst();
                 viewSubscription = viewSubscription.and(observableLanguageCoordinate.languageConceptProperty().subscribe(lang -> {
-                    languageCoordinatesList.getFirst().getLanguage().selectedOptions().clear();
+                    languageFilterCoordinates.getLanguage().selectedOptions().clear();
                     if (lang != null) {
-                        languageCoordinatesList.getFirst().getLanguage().selectedOptions().addAll(lang);
+                        languageFilterCoordinates.getLanguage().selectedOptions().addAll(lang);
+                    }
+                    // update dialect
+                    languageFilterCoordinates.getDialect().selectedOptions().clear();
+                    if (TinkarTerm.ENGLISH_LANGUAGE.equals(lang)) {
+                        ObservableList<PatternFacade> list = observableLanguageCoordinate.dialectPatternPreferenceListProperty().get();
+                        languageFilterCoordinates.getDialect().selectedOptions().addAll(list);
+                        observableViewForFilterProperty.languageCoordinates().getFirst().dialectPatternPreferenceListProperty().set(list);
+                    } else {
+                        observableViewForFilterProperty.languageCoordinates().getFirst().dialectPatternPreferenceListProperty().clear();
                     }
                     observableViewForFilterProperty.languageCoordinates().getFirst().languageConceptProperty().set(lang);
                 }));
 
                 viewSubscription = viewSubscription.and(observableLanguageCoordinate.dialectPatternPreferenceListProperty().subscribe(list -> {
-                    languageCoordinatesList.getFirst().getDialect().selectedOptions().clear();
-                    if (list != null && observableLanguageCoordinate.languageConcept().equals(TinkarTerm.ENGLISH_LANGUAGE)) {
-                        System.out.println("list = " + list);
-                        languageCoordinatesList.getFirst().getDialect().selectedOptions().addAll(list);
+                    if (!TinkarTerm.ENGLISH_LANGUAGE.equals(observableLanguageCoordinate.languageConcept())) {
+                        // ignore
+                        return;
+                    }
+                    languageFilterCoordinates.getDialect().selectedOptions().clear();
+                    if (list != null) {
+                        languageFilterCoordinates.getDialect().selectedOptions().addAll(list);
                     }
                     observableViewForFilterProperty.languageCoordinates().getFirst().dialectPatternPreferenceListProperty().set(list);
                 }));
 
                 viewSubscription = viewSubscription.and(observableLanguageCoordinate.descriptionTypePreferenceListProperty().subscribe(list -> {
-                    languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().clear();
+                    languageFilterCoordinates.getDescriptionType().selectedOptions().clear();
                     if (list != null) {
-                        languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().addAll(list);
+                        languageFilterCoordinates.getDescriptionType().selectedOptions().addAll(list);
                     }
                     observableViewForFilterProperty.languageCoordinates().getFirst().descriptionTypePreferenceListProperty().set(list);
                 }));
@@ -289,19 +304,22 @@ public class FilterOptionsUtils {
                 observableViewForFilter.languageCoordinates().getFirst().languageConceptProperty().set((ConceptFacade) entityFacade);
             }
         }));
-    }
-
-    public static long getMillis(FilterOptions filterOptions) {
-        FilterOptions.Option<String> time = filterOptions.getMainCoordinates().getTime();
-        if (time == null || time.selectedOptions().isEmpty()) {
-            return -1L;
-        }
-
-        try {
-            return Long.parseLong(time.selectedOptions().getFirst());
-        } catch (NumberFormatException e) {
-            return -1L;
-        }
+        optionSubscription = optionSubscription.and(
+                languageCoordinatesList.getFirst().getDialect().selectedOptions().subscribe(() -> {
+                    ObservableList<PatternFacade> selectedOptions = languageCoordinatesList.getFirst().getDialect().selectedOptions().stream()
+                            .map(e -> (PatternFacade) e).collect(Collectors.toCollection(FXCollections::observableArrayList));
+                    if (!selectedOptions.isEmpty()) {
+                        observableViewForFilter.languageCoordinates().getFirst().dialectPatternPreferenceListProperty().setValue(selectedOptions);
+                    }
+                }));
+        optionSubscription = optionSubscription.and(
+                languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().subscribe(() -> {
+                    ObservableList<ConceptFacade> selectedOptions = languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().stream()
+                            .map(e -> (ConceptFacade) e).collect(Collectors.toCollection(FXCollections::observableArrayList));
+                    if (!selectedOptions.isEmpty()) {
+                        observableViewForFilter.languageCoordinates().getFirst().descriptionTypePreferenceListProperty().setValue(selectedOptions);
+                    }
+                }));
     }
 
     public static List<ZonedDateTime> getTimesInUse() {
