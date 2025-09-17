@@ -3,6 +3,7 @@ package dev.ikm.komet.kview.controls;
 import dev.ikm.komet.framework.temp.FxGet;
 import dev.ikm.komet.framework.view.ObservableView;
 import dev.ikm.komet.framework.view.ObservableViewNoOverride;
+import dev.ikm.komet.framework.view.ObservableViewWithOverride;
 import dev.ikm.tinkar.coordinate.Coordinates;
 import dev.ikm.tinkar.coordinate.stamp.StateSet;
 import dev.ikm.tinkar.entity.StampService;
@@ -542,7 +543,8 @@ public class FilterOptions implements Serializable {
         languageCoordinatesList = new ArrayList<>(); // at least one
         languageCoordinatesList.add(new LanguageFilterCoordinates(0));
 
-        observableViewForFilter = new ObservableViewNoOverride(Coordinates.View.DefaultView());
+        observableViewForFilter = new ObservableViewNoOverride(Coordinates.View.DefaultView())
+                .makeOverridableViewProperties().nodeView();
     }
 
     public ObservableView observableViewForFilterProperty() {

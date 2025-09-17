@@ -69,7 +69,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
     private final AccordionBox accordionBox;
     private final ScrollPane scrollPane;
     private final Button revertButton;
-    private final Button applyButton;
     private final SavedFiltersPopup savedFiltersPopup;
     private final KometPreferences kometPreferences;
 
@@ -83,13 +82,13 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         protected void invalidated() {
             FilterOptions filterOptions = get();
             if (filterOptions != null) {
+                boolean isDefault = defaultFilterOptions.equals(filterOptions);
                 if (!updating) {
                     control.setFilterOptions(filterOptions);
-                    control.getProperties().put(DEFAULT_OPTIONS_KEY, defaultFilterOptions.equals(filterOptions));
+                    control.getProperties().put(DEFAULT_OPTIONS_KEY, isDefault);
                 }
                 // Keep button always enabled, though it won't do anything, since filterOptions are already passed to the control
-//                applyButton.setDisable(control.getFilterOptions().equals(filterOptions));
-                revertButton.setDisable(defaultFilterOptions.equals(filterOptions));
+                revertButton.setDisable(isDefault);
 
                 accordionBox.disableAddButton(filterOptions.getLanguageCoordinatesList().stream()
                         .anyMatch(l -> l.getLanguage().selectedOptions().isEmpty()));
@@ -123,13 +122,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
 
-        applyButton = new Button(resources.getString("button.apply"));
-        applyButton.getStyleClass().add("apply");
-        applyButton.setOnAction(_ -> {
-            accordionBox.setExpandedPane(null);
-            // copy options from titledPanes into control
-            control.setFilterOptions(currentFilterOptionsProperty.get());
-        });
         StackPane region = new StackPane(new IconRegion("icon", "filter"));
         region.getStyleClass().add("region");
 
@@ -155,7 +147,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         revertButton = new Button(resources.getString("button.revert"));
         revertButton.setOnAction(_ -> revertFilterOptions());
 
-        VBox bottomBox = new VBox(applyButton, saveButton, revertButton);
+        VBox bottomBox = new VBox(saveButton, revertButton);
         bottomBox.getStyleClass().add("bottom-box");
 
         root = new VBox(headerBox, scrollPane, spacer, bottomBox);
@@ -372,6 +364,7 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         }
         // then pass the inherited options, to override av/sel default options where set
         setDefaultOptions(control.getInheritedFilterOptions());
+        System.out.println("def " + defaultFilterOptions.getMainCoordinates().getTime());
         // pass default options to panes
         accordionBox.updateMainPanes(pane ->
                 pane.setDefaultOption(defaultFilterOptions.getOptionForItem(pane.getOption().item())));
@@ -379,10 +372,8 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
                 pane.setDefaultLangCoordinates(defaultFilterOptions.getLanguageCoordinates(pane.getOrdinal())));
         // finally, setup filter with default options
         setupFilter(defaultFilterOptions);
-        if (control.getFilterOptions() == null) {
-            // if control doesn't have options yet, update it
-            control.setFilterOptions(defaultFilterOptions);
-        }
+        // and update control with default options
+        currentFilterOptionsProperty.set(defaultFilterOptions);
     }
 
     private void setDefaultOptions(FilterOptions filterOptions) {
