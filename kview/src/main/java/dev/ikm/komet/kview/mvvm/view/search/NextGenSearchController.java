@@ -31,9 +31,7 @@ import dev.ikm.komet.framework.dnd.KometClipboard;
 import dev.ikm.komet.framework.search.SearchPanelController;
 import dev.ikm.komet.framework.view.ViewProperties;
 import dev.ikm.komet.kview.controls.AutoCompleteTextField;
-import dev.ikm.komet.kview.controls.FilterOptions;
 import dev.ikm.komet.kview.controls.FilterOptionsPopup;
-import dev.ikm.komet.kview.controls.FilterOptionsUtils;
 import dev.ikm.komet.kview.events.SearchSortOptionEvent;
 import dev.ikm.komet.kview.mvvm.model.DragAndDropInfo;
 import dev.ikm.komet.kview.mvvm.model.DragAndDropType;
@@ -57,7 +55,6 @@ import dev.ikm.tinkar.events.EvtBusFactory;
 import dev.ikm.tinkar.events.Subscriber;
 import dev.ikm.tinkar.provider.search.TypeAheadSearch;
 import dev.ikm.tinkar.terms.EntityFacade;
-import javafx.beans.value.ChangeListener;
 import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -75,7 +72,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import javafx.util.Subscription;
 import org.carlfx.cognitive.loader.FXMLMvvmLoader;
 import org.carlfx.cognitive.loader.InjectViewModel;
 import org.carlfx.cognitive.loader.JFXNode;
@@ -141,8 +137,6 @@ public class NextGenSearchController {
 
     private SearchResultType currentSearchResultType;
 
-    private Subscription parentSubscription;
-
     @InjectViewModel
     private NextGenSearchViewModel nextGenSearchViewModel;
 
@@ -177,20 +171,25 @@ public class NextGenSearchController {
         initSearchResultType();
 
         filterOptionsPopup = new FilterOptionsPopup(FilterOptionsPopup.FILTER_TYPE.SEARCH);
-//        filterOptionsPopup.filterOptionsProperty().subscribe((ov, nv) -> {
-//            if (ov != null) {
-//                System.out.println("search unbind ov = " + ov.hashCode());
-//                FilterOptionsUtils.unbindFilterOptions(ov, getViewProperties().parentView());
-//            }
-//            if (nv != null) {
-//                System.out.println("search bind nv = " + nv.hashCode());
-//                FilterOptionsUtils.bindFilterOptionsToView(nv, getViewProperties().parentView());
-//            }
-//        });
-//        if (filterOptionsPopup.getFilterOptions() != null) {
-//            System.out.println("search bind0 nv = " + filterOptionsPopup.getFilterOptions().hashCode());
-//            FilterOptionsUtils.bindFilterOptionsToView(filterOptionsPopup.getFilterOptions(), getViewProperties().parentView());
-//        }
+
+        // listen to changes to the current overrideable view, after changes coming from the parentView
+        // or the F.O. popup, and publish event
+        getViewProperties().nodeView().subscribe((_, _) -> doSearch(new ActionEvent(null, null)));
+
+        // Subscribe default F.O. to this nodeView, so changes from its menu are propagated to default F.O.
+        // Typically, changes to nodeView can come from parentView, if the coordinate has no overrides
+        filterOptionsPopup.getFilterOptionsUtils().subscribeFilterOptionsToView(
+                filterOptionsPopup.getInheritedFilterOptions(), getViewProperties().nodeView());
+
+        // Subscribe nodeView to F.O., so changes from the F.O. popup are propagated to this nodeView
+        filterOptionsPopup.filterOptionsProperty().subscribe((oldFilterOptions, filterOptions) -> {
+            if (oldFilterOptions != null) {
+                filterOptionsPopup.getFilterOptionsUtils().unsubscribeNodeFilterOptions();
+            }
+            if (filterOptions != null) {
+                filterOptionsPopup.getFilterOptionsUtils().subscribeViewToFilterOptions(filterOptions, getViewProperties().nodeView());
+            }
+        });
 
         root.heightProperty().subscribe(h -> filterOptionsPopup.setStyle("-popup-pref-height: " + h));
         filterPane.addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
@@ -213,29 +212,6 @@ public class NextGenSearchController {
 
         filterOptionsPopup.defaultOptionsSetProperty().subscribe(isDefault ->
                 filterPane.pseudoClassStateChanged(FILTER_SET, !isDefault));
-
-        // listen for changes to the filter options
-        ChangeListener<FilterOptions> changeListener = ((_, _, _) ->
-                doSearch(new ActionEvent(null, null)));
-
-        // listen for changes to the filter options
-//        filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
-
-        // listen to changes to the parent of the current overrideable view
-        parentSubscription = getViewProperties().parentView().subscribe((ov, nv) -> {
-//            filterOptionsPopup.filterOptionsProperty().removeListener(changeListener);
-//            if (ov != null) {
-//                System.out.println("unbind cv ov = " + ov.hashCode());
-//                FilterOptionsUtils.unbindFilterOptions(filterOptionsPopup.getFilterOptions(), ov);
-//            }
-//            if (nv != null) {
-//                System.out.println("bind nv = " + nv.hashCode());
-//                FilterOptionsUtils.bindFilterOptions(filterOptionsPopup.getFilterOptions(), nv);
-//            }
-////            filterOptionsPopup.inheritedFilterOptionsProperty().setValue(FilterOptionsUtils.loadFilterOptions(getViewProperties().parentView(), getViewProperties().calculator()));
-//            filterOptionsPopup.filterOptionsProperty().addListener(changeListener);
-//            doSearch(new ActionEvent(null, null));
-        });
     }
 
     private void initSearchResultType() {
@@ -519,12 +495,6 @@ public class NextGenSearchController {
 
     public void clearView() {
         searchResultsListView.getItems().clear();
-    }
-
-    public void cleanup() {
-        if (parentSubscription != null) {
-            parentSubscription.unsubscribe();
-        }
     }
 
 
