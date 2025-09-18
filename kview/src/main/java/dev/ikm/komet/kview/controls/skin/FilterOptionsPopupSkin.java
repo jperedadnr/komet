@@ -364,7 +364,6 @@ public class FilterOptionsPopupSkin implements Skin<FilterOptionsPopup> {
         }
         // then pass the inherited options, to override av/sel default options where set
         setDefaultOptions(control.getInheritedFilterOptions());
-        System.out.println("def " + defaultFilterOptions.getMainCoordinates().getTime());
         // pass default options to panes
         accordionBox.updateMainPanes(pane ->
                 pane.setDefaultOption(defaultFilterOptions.getOptionForItem(pane.getOption().item())));

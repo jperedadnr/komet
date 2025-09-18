@@ -1,10 +1,14 @@
 package dev.ikm.komet.kview.controls;
 
+import dev.ikm.komet.framework.view.ListPropertyWithOverride;
+import dev.ikm.komet.framework.view.LongPropertyWithOverride;
+import dev.ikm.komet.framework.view.ObjectPropertyWithOverride;
 import dev.ikm.komet.framework.view.ObservableCoordinate;
 import dev.ikm.komet.framework.view.ObservableLanguageCoordinate;
 import dev.ikm.komet.framework.view.ObservableNavigationCoordinate;
 import dev.ikm.komet.framework.view.ObservableStampCoordinate;
 import dev.ikm.komet.framework.view.ObservableView;
+import dev.ikm.komet.framework.view.SetPropertyWithOverride;
 import dev.ikm.komet.navigator.graph.Navigator;
 import dev.ikm.tinkar.common.util.time.DateTimeUtil;
 import dev.ikm.tinkar.coordinate.navigation.calculator.Edge;
@@ -19,7 +23,6 @@ import dev.ikm.tinkar.terms.State;
 import dev.ikm.tinkar.terms.TinkarTerm;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
 import javafx.util.Subscription;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 
@@ -96,7 +99,6 @@ public class FilterOptionsUtils {
                         return;
                     }
                     fromView = true;
-                    System.out.println("view time = " + t);
                     mainCoordinates.getTime().selectedOptions().clear();
                     if (t != null) {
                         Long time = t.longValue();
@@ -236,8 +238,12 @@ public class FilterOptionsUtils {
                         if (fromView) {
                             return;
                         }
-                        if (observableNavigationCoordinate.hasOverrides() && !filterOptions.getMainCoordinates().getNavigator().isInOverride()) {
-                            observableNavigationCoordinate.removeOverrides();  // updates to originalValue
+                        SetPropertyWithOverride<PatternFacade> propertyWithOverride = (SetPropertyWithOverride<PatternFacade>) observableNavigationCoordinate.navigationPatternsProperty();
+                        if (propertyWithOverride.isOverridden() && !filterOptions.getMainCoordinates().getNavigator().isInOverride()) {
+                            // force a reset of the property, so it fires a change event when it gets updated
+                            // to its originalValue, in case parentView and nodeView values are the same
+                            observableNavigationCoordinate.navigationPatternsProperty().set(FXCollections.emptyObservableSet()); // Dummy
+                            propertyWithOverride.removeOverride();
                         } else if (!observableView.navigationCoordinate().navigationPatternsProperty().get().equals(nav)) {
                             fromFilter = true;
                             observableNavigationCoordinate.navigationPatternsProperty().set(nav);
@@ -253,9 +259,12 @@ public class FilterOptionsUtils {
                             if (fromView) {
                                 return;
                             }
-                            if (observableStampCoordinate.hasOverrides() && !filterOptions.getMainCoordinates().getStatus().isInOverride()) {
-                                observableStampCoordinate.allowedStatesProperty().set(StateSet.make());  // force a reset of the property, so it fires a change event
-                                observableStampCoordinate.removeOverrides();                             // when it gets updated to its originalValue
+                            ObjectPropertyWithOverride<StateSet> propertyWithOverride = (ObjectPropertyWithOverride<StateSet>) observableStampCoordinate.allowedStatesProperty();
+                            if (propertyWithOverride.isOverridden() && !filterOptions.getMainCoordinates().getStatus().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableStampCoordinate.allowedStatesProperty().set(StateSet.make()); // Dummy, not null
+                                propertyWithOverride.removeOverride();
                             } else if (!observableStampCoordinate.allowedStatesProperty().get().equals(stateSet)) {
                                 fromFilter = true;
                                 observableStampCoordinate.allowedStatesProperty().set(stateSet);
@@ -269,13 +278,13 @@ public class FilterOptionsUtils {
                             if (fromView) {
                                 return;
                             }
-                            if (observableStampCoordinate.hasOverrides() && !filterOptions.getMainCoordinates().getTime().isInOverride()) {
-                                System.out.println("remove override");
-                                observableStampCoordinate.timeProperty().set(-1L);  // force a reset of the property, so it fires a change event
-                                observableStampCoordinate.removeOverrides();                             // when it gets updated to its originalValue
-                                System.out.println("original = " + observableCoordinate.getOriginalValue() + " and " + observableStampCoordinate.timeProperty().get() + " vs " + time);
+                            LongPropertyWithOverride propertyWithOverride = (LongPropertyWithOverride) observableStampCoordinate.timeProperty();
+                            if (propertyWithOverride.isOverridden() && !filterOptions.getMainCoordinates().getTime().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableStampCoordinate.timeProperty().set(-1L); // Dummy
+                                propertyWithOverride.removeOverride();
                             } else if (observableStampCoordinate.timeProperty().get() != time.longValue()) {
-                                System.out.println("from filter obs to nodeView obs: " + time + ", was: " + observableStampCoordinate.timeProperty().get());
                                 fromFilter = true;
                                 observableStampCoordinate.timeProperty().set(time.longValue());
                                 fromFilter = false;
@@ -288,7 +297,17 @@ public class FilterOptionsUtils {
                             if (fromView) {
                                 return;
                             }
-                            observableStampCoordinate.moduleSpecificationsProperty().set(m);
+                            SetPropertyWithOverride<ConceptFacade> propertyWithOverride = (SetPropertyWithOverride<ConceptFacade>) observableStampCoordinate.moduleSpecificationsProperty();
+                            if (propertyWithOverride.isOverridden() && !filterOptions.getMainCoordinates().getModule().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableStampCoordinate.moduleSpecificationsProperty().set(FXCollections.emptyObservableSet()); // Dummy, not null
+                                propertyWithOverride.removeOverride();
+                            } else if (!observableStampCoordinate.moduleSpecificationsProperty().get().equals(m)) {
+                                fromFilter = true;
+                                observableStampCoordinate.moduleSpecificationsProperty().set(m);
+                                fromFilter = false;
+                            }
                         }));
 
                 nodeSubscription = nodeSubscription.and(
@@ -296,7 +315,17 @@ public class FilterOptionsUtils {
                             if (fromView) {
                                 return;
                             }
-                            observableStampCoordinate.excludedModuleSpecificationsProperty().set(e);
+                            SetPropertyWithOverride<ConceptFacade> propertyWithOverride = (SetPropertyWithOverride<ConceptFacade>) observableStampCoordinate.excludedModuleSpecificationsProperty();
+                            if (propertyWithOverride.isOverridden() && !filterOptions.getMainCoordinates().getModule().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableStampCoordinate.excludedModuleSpecificationsProperty().set(FXCollections.emptyObservableSet()); // Dummy, not null
+                                propertyWithOverride.removeOverride();
+                            } else if (!observableStampCoordinate.excludedModuleSpecificationsProperty().get().equals(e)) {
+                                fromFilter = true;
+                                observableStampCoordinate.excludedModuleSpecificationsProperty().set(e);
+                                fromFilter = false;
+                            }
                         }));
 
                 // PATH
@@ -305,9 +334,14 @@ public class FilterOptionsUtils {
                             if (fromView) {
                                 return;
                             }
-                            if (observableStampCoordinate.hasOverrides() && !filterOptions.getMainCoordinates().getPath().isInOverride()) {
-                                observableStampCoordinate.pathConceptProperty().set(null);               // force a reset of the property, so it fires a change event
-                                observableStampCoordinate.removeOverrides();                             // when it gets updated to its originalValue
+                            ObjectPropertyWithOverride<ConceptFacade> propertyWithOverride = (ObjectPropertyWithOverride<ConceptFacade>) observableStampCoordinate.pathConceptProperty();
+                            if (propertyWithOverride.isOverridden() &&
+                                    !filterOptions.getMainCoordinates().getPath().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableStampCoordinate.pathConceptProperty().set(filterOptions.getMainCoordinates().getPath().availableOptions().stream()
+                                        .filter(o -> o.nid() != propertyWithOverride.getValue().nid()).findFirst().orElse(null)); // other path, not null
+                                propertyWithOverride.removeOverride();
                             } else if (!observableStampCoordinate.pathConceptProperty().get().equals(path)) {
                                 fromFilter = true;
                                 observableStampCoordinate.pathConceptProperty().set(path);
@@ -324,21 +358,51 @@ public class FilterOptionsUtils {
                             if (fromView) {
                                 return;
                             }
-                            observableLanguageCoordinate.languageConceptProperty().set(lang);
+                            ObjectPropertyWithOverride<ConceptFacade> propertyWithOverride = (ObjectPropertyWithOverride<ConceptFacade>) observableLanguageCoordinate.languageConceptProperty();
+                            if (propertyWithOverride.isOverridden() && !filterOptions.getLanguageCoordinatesList().getFirst().getLanguage().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableLanguageCoordinate.languageConceptProperty().set(TinkarTerm.LANGUAGE_COORDINATE_NAME); // Dummy, not null
+                                propertyWithOverride.removeOverride();
+                            } else if (!observableLanguageCoordinate.languageConceptProperty().get().equals(lang)) {
+                                fromFilter = true;
+                                observableLanguageCoordinate.languageConceptProperty().set(lang);
+                                fromFilter = false;
+                            }
                         }));
                 nodeSubscription = nodeSubscription.and(
                         filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().dialectPatternPreferenceListProperty().subscribe(list -> {
                             if (fromView) {
                                 return;
                             }
-                            observableLanguageCoordinate.dialectPatternPreferenceListProperty().set(list);
+                            if (((ListPropertyWithOverride<PatternFacade>) observableLanguageCoordinate.dialectPatternPreferenceListProperty()).isOverridden() &&
+                                    !filterOptions.getLanguageCoordinatesList().getFirst().getDialect().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableLanguageCoordinate.dialectPatternPreferenceListProperty().set(FXCollections.emptyObservableList()); // Dummy, not null
+                                observableLanguageCoordinate.removeOverrides();
+                            } else if (!observableLanguageCoordinate.dialectPatternPreferenceListProperty().get().equals(list)) {
+                                fromFilter = true;
+                                observableLanguageCoordinate.dialectPatternPreferenceListProperty().set(list);
+                                fromFilter = false;
+                            }
                         }));
                 nodeSubscription = nodeSubscription.and(
                         filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().descriptionTypePreferenceListProperty().subscribe(list -> {
                             if (fromView) {
                                 return;
                             }
-                            observableLanguageCoordinate.descriptionTypePreferenceListProperty().set(list);
+                            if (((ListPropertyWithOverride<ConceptFacade>) observableLanguageCoordinate.descriptionTypePreferenceListProperty()).isOverridden() &&
+                                    !filterOptions.getLanguageCoordinatesList().getFirst().getDialect().isInOverride()) {
+                                // force a reset of the property, so it fires a change event when it gets updated
+                                // to its originalValue, in case parentView and nodeView values are the same
+                                observableLanguageCoordinate.descriptionTypePreferenceListProperty().set(FXCollections.emptyObservableList()); // Dummy, not null
+                                observableLanguageCoordinate.removeOverrides();
+                            } else if (!observableLanguageCoordinate.descriptionTypePreferenceListProperty().get().equals(list)) {
+                                fromFilter = true;
+                                observableLanguageCoordinate.descriptionTypePreferenceListProperty().set(list);
+                                fromFilter = false;
+                            }
                         }));
             }
         }
@@ -376,78 +440,31 @@ public class FilterOptionsUtils {
         updateTimeProperty(filterOptions);
 
         // MODULE
-        optionSubscription = optionSubscription.and(mainCoordinates.getModule().selectedOptions().subscribe(() -> {
-            if (fromView) {
-                return;
-            }
-            Set<ConceptFacade> includedSet = new HashSet<>(mainCoordinates.getModule().selectedOptions());
-            fromFilter = true;
-            observableViewForFilter.stampCoordinate().moduleSpecificationsProperty().addAll(includedSet);
-            fromFilter = false;
-        }));
-        optionSubscription = optionSubscription.and(mainCoordinates.getModule().excludedOptions().subscribe(() -> {
-            if (fromView) {
-                return;
-            }
-            Set<ConceptFacade> excludedSet = new HashSet<>(mainCoordinates.getModule().excludedOptions());
-            fromFilter = true;
-            observableViewForFilter.stampCoordinate().excludedModuleSpecificationsProperty().addAll(excludedSet);
-            fromFilter = false;
-        }));
+        optionSubscription = optionSubscription.and(mainCoordinates.getModule().selectedOptions().subscribe(() ->
+                updateModuleProperty(filterOptions)));
+        updateModuleProperty(filterOptions);
+
+        optionSubscription = optionSubscription.and(mainCoordinates.getModule().excludedOptions().subscribe(() ->
+                updateModuleExcProperty(filterOptions)));
+        updateModuleExcProperty(filterOptions);
 
         // PATH
-        optionSubscription = optionSubscription.and(mainCoordinates.getPath().selectedOptions().subscribe(() -> {
-            if (fromView) {
-                return;
-            }
-            ObservableList<ConceptFacade> selectedOptions = mainCoordinates.getPath().selectedOptions();
-            if (!selectedOptions.isEmpty()) {
-                ConceptFacade conceptFacade = selectedOptions.getFirst();
-                fromFilter = true;
-                observableViewForFilter.stampCoordinate().pathConceptProperty().set(conceptFacade);
-                fromFilter = false;
-            }
-        }));
+        optionSubscription = optionSubscription.and(mainCoordinates.getPath().selectedOptions().subscribe(() ->
+                updatePathProperty(filterOptions)));
+        updatePathProperty(filterOptions);
 
         // LANGUAGE
-        optionSubscription = optionSubscription.and(languageCoordinatesList.getFirst().getLanguage().selectedOptions().subscribe(() -> {
-            if (fromView) {
-                return;
-            }
-            ObservableList<EntityFacade> selectedOptions = languageCoordinatesList.getFirst().getLanguage().selectedOptions();
-            if (!selectedOptions.isEmpty()) {
-                EntityFacade entityFacade = selectedOptions.getFirst();
-                fromFilter = true;
-                observableViewForFilter.languageCoordinates().getFirst().languageConceptProperty().set((ConceptFacade) entityFacade);
-                fromFilter = false;
-            }
-        }));
-        optionSubscription = optionSubscription.and(
-                languageCoordinatesList.getFirst().getDialect().selectedOptions().subscribe(() -> {
-                    if (fromView) {
-                        return;
-                    }
-                    ObservableList<PatternFacade> selectedOptions = languageCoordinatesList.getFirst().getDialect().selectedOptions().stream()
-                            .map(e -> (PatternFacade) e).collect(Collectors.toCollection(FXCollections::observableArrayList));
-                    if (!selectedOptions.isEmpty()) {
-                        fromFilter = true;
-                        observableViewForFilter.languageCoordinates().getFirst().dialectPatternPreferenceListProperty().setValue(selectedOptions);
-                        fromFilter = false;
-                    }
-                }));
-        optionSubscription = optionSubscription.and(
-                languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().subscribe(() -> {
-                    if (fromView) {
-                        return;
-                    }
-                    ObservableList<ConceptFacade> selectedOptions = languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().stream()
-                            .map(e -> (ConceptFacade) e).collect(Collectors.toCollection(FXCollections::observableArrayList));
-                    if (!selectedOptions.isEmpty()) {
-                        fromFilter = true;
-                        observableViewForFilter.languageCoordinates().getFirst().descriptionTypePreferenceListProperty().setValue(selectedOptions);
-                        fromFilter = false;
-                    }
-                }));
+        optionSubscription = optionSubscription.and(languageCoordinatesList.getFirst().getLanguage().selectedOptions().subscribe(() ->
+                updateLangProperty(filterOptions)));
+        updateLangProperty(filterOptions);
+
+        optionSubscription = optionSubscription.and(languageCoordinatesList.getFirst().getDialect().selectedOptions().subscribe(() ->
+                updateDialectProperty(filterOptions)));
+        updateDialectProperty(filterOptions);
+
+        optionSubscription = optionSubscription.and(languageCoordinatesList.getFirst().getDescriptionType().selectedOptions().subscribe(() ->
+                updateDescriptionProperty(filterOptions)));
+        updateDescriptionProperty(filterOptions);
     }
 
     private void unsubscribeOptions() {
@@ -495,6 +512,78 @@ public class FilterOptionsUtils {
             }
             fromFilter = true;
             filterOptions.observableViewForFilterProperty().stampCoordinate().timeProperty().set(t);
+            fromFilter = false;
+        }
+    }
+
+    private void updateModuleProperty(FilterOptions filterOptions) {
+        if (fromView) {
+            return;
+        }
+        Set<ConceptFacade> includedSet = new HashSet<>(filterOptions.getMainCoordinates().getModule().selectedOptions());
+        fromFilter = true;
+        filterOptions.observableViewForFilterProperty().stampCoordinate().moduleSpecificationsProperty().addAll(includedSet);
+        fromFilter = false;
+    }
+
+    private void updateModuleExcProperty(FilterOptions filterOptions) {
+        if (fromView) {
+            return;
+        }
+        Set<ConceptFacade> excludedSet = new HashSet<>(filterOptions.getMainCoordinates().getModule().excludedOptions());
+        fromFilter = true;
+        filterOptions.observableViewForFilterProperty().stampCoordinate().excludedModuleSpecificationsProperty().addAll(excludedSet);
+        fromFilter = false;
+    }
+
+    private void updatePathProperty(FilterOptions filterOptions) {
+        if (fromView) {
+            return;
+        }
+        ObservableList<ConceptFacade> selectedOptions = filterOptions.getMainCoordinates().getPath().selectedOptions();
+        if (!selectedOptions.isEmpty()) {
+            ConceptFacade conceptFacade = selectedOptions.getFirst();
+            fromFilter = true;
+            filterOptions.observableViewForFilterProperty().stampCoordinate().pathConceptProperty().set(conceptFacade);
+            fromFilter = false;
+        }
+    }
+
+    private void updateLangProperty(FilterOptions filterOptions) {
+        if (fromView) {
+            return;
+        }
+        ObservableList<EntityFacade> selectedOptions = filterOptions.getLanguageCoordinatesList().getFirst().getLanguage().selectedOptions();
+        if (!selectedOptions.isEmpty()) {
+            EntityFacade entityFacade = selectedOptions.getFirst();
+            fromFilter = true;
+            filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().languageConceptProperty().set((ConceptFacade) entityFacade);
+            fromFilter = false;
+        }
+    }
+
+    private void updateDialectProperty(FilterOptions filterOptions) {
+        if (fromView) {
+            return;
+        }
+        ObservableList<PatternFacade> selectedOptions = filterOptions.getLanguageCoordinatesList().getFirst().getDialect().selectedOptions().stream()
+                .map(e -> (PatternFacade) e).collect(Collectors.toCollection(FXCollections::observableArrayList));
+        if (!selectedOptions.isEmpty()) {
+            fromFilter = true;
+            filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().dialectPatternPreferenceListProperty().setValue(selectedOptions);
+            fromFilter = false;
+        }
+    }
+
+    private void updateDescriptionProperty(FilterOptions filterOptions) {
+        if (fromView) {
+            return;
+        }
+        ObservableList<ConceptFacade> selectedOptions = filterOptions.getLanguageCoordinatesList().getFirst().getDescriptionType().selectedOptions().stream()
+                .map(e -> (ConceptFacade) e).collect(Collectors.toCollection(FXCollections::observableArrayList));
+        if (!selectedOptions.isEmpty()) {
+            fromFilter = true;
+            filterOptions.observableViewForFilterProperty().languageCoordinates().getFirst().descriptionTypePreferenceListProperty().setValue(selectedOptions);
             fromFilter = false;
         }
     }

@@ -236,32 +236,6 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
             }
         });
 
-        control.getViewProperties().nodeView().addListener((obs, ov, nv) -> {
-            if (ov != null && nv != null) {
-                if (!ov.navigationCoordinate().equals(nv.navigationCoordinate())) {
-                    System.out.println("node nav changed to " + nv.navigationCoordinate() + " ov: " + control.getViewProperties().nodeView().navigationCoordinate().hasOverrides());
-                }
-                if (!ov.stampCoordinate().allowedStates().equals(nv.stampCoordinate().allowedStates())) {
-                    System.out.println("node state changed to " + nv.stampCoordinate().allowedStates() + " ov: " + control.getViewProperties().nodeView().stampCoordinate().hasOverrides());
-                }
-                if (ov.stampCoordinate().time() != nv.stampCoordinate().time()) {
-                    System.out.println("node time changed to " + nv.stampCoordinate().time() + " ov: " + control.getViewProperties().nodeView().stampCoordinate().hasOverrides());
-                }
-                if (!ov.stampCoordinate().moduleSpecifications().equals(nv.stampCoordinate().moduleSpecifications())) {
-                    System.out.println("node mod changed to ");
-                }
-                if (!ov.stampCoordinate().excludedModuleNids().equals(nv.stampCoordinate().excludedModuleNids())) {
-                    System.out.println("node mod exc changed to " + nv.stampCoordinate().excludedModuleNids());
-                }
-                if (!ov.stampCoordinate().pathForFilter().equals(nv.stampCoordinate().pathForFilter())) {
-                    System.out.println("node path changed to " + nv.stampCoordinate().pathForFilter());
-                }
-                if (!ov.languageCoordinateList().get(0).languageConcept().equals(nv.languageCoordinateList().get(0).languageConcept())) {
-                    System.out.println("node lang changed to " + nv.languageCoordinateList().get(0).languageConcept());
-                }
-            }
-        });
-
         subscription = subscription.and((control.viewPropertiesProperty().subscribe(view -> {
             if (viewSubscription != null) {
                 viewSubscription.unsubscribe();
@@ -272,7 +246,6 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
                 // or the F.O. popup, and publish event
                 viewSubscription = viewSubscription.and(view.nodeView().subscribe((_, _) -> {
                     // publish event to refresh the navigator
-                    System.out.println("node view refresh, got " + control.getViewProperties().nodeView().stampCoordinate().timeProperty().get());
                     EvtBusFactory.getDefaultEvtBus().publish(CALCULATOR_CACHE_TOPIC,
                             new RefreshCalculatorCacheEvent("child filter menu refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
                 }));
@@ -285,7 +258,6 @@ public class KLSearchControlSkin extends SkinBase<KLSearchControl> {
                 // listen to changes to the parent of the current overrideable view, and publish event
                 viewSubscription = viewSubscription.and(view.parentView().subscribe((_, _) -> {
                     // publish event to refresh the navigator
-                    System.out.println("parent view refresh");
                     EvtBusFactory.getDefaultEvtBus().publish(CALCULATOR_CACHE_TOPIC,
                             new RefreshCalculatorCacheEvent("parent refresh next gen nav", RefreshCalculatorCacheEvent.GLOBAL_REFRESH));
                 }));
